@@ -1,0 +1,188 @@
+@startuml
+
+namespace LINE {
+
+  class LINEBot
+
+  namespace LINEBot {
+
+    interface "MessageBuilder" as IMessageBuilder
+    interface "TemplateActionBuilder" as ITemplateActionBuilder
+
+    namespace MessageBuilder {
+
+      interface "TemplateBuilder" as ITemplateBuilder
+      class TemplateMessageBuilder
+      class TextMessageBuilder
+      class ImageMessageBuilder
+      class VideoMessageBuilder
+      class MultiMessageBuilder
+
+      namespace TemplateBuilder {
+
+        class CarouselTemplateBuilder
+        class CarouselColumnTemplateBuilder
+
+        CarouselTemplateBuilder .u.|> LINE.LINEBot.MessageBuilder.ITemplateBuilder
+        CarouselColumnTemplateBuilder .u.|> LINE.LINEBot.MessageBuilder.ITemplateBuilder
+        CarouselColumnTemplateBuilder ..> LINE.LINEBot.ITemplateActionBuilder
+        CarouselTemplateBuilder .r.> CarouselColumnTemplateBuilder
+
+      }
+
+      TemplateMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
+      TextMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
+      ImageMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
+      VideoMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
+      MultiMessageBuilder o.u.|> LINE.LINEBot.IMessageBuilder
+      TemplateMessageBuilder ..> LINE.LINEBot.MessageBuilder.ITemplateBuilder
+
+    }
+
+    namespace TemplateActionBuilder {
+
+      class MessageTemplateActionBuilder
+      class PostbackTemplateActionBuilder
+
+      MessageTemplateActionBuilder .u.|> LINE.LINEBot.ITemplateActionBuilder
+      PostbackTemplateActionBuilder .u.|> LINE.LINEBot.ITemplateActionBuilder
+
+    }
+
+    namespace HTTPClient {
+
+      class CurlHTTPClient
+
+    }
+
+  }
+
+  LINEBot .r.> LINE.LINEBot.IMessageBuilder
+  LINEBot o-> LINE.LINEBot.HTTPClient.CurlHTTPClient
+
+}
+
+namespace Framework {
+
+  interface "Bot" as IBot {
+    + replyMessage(string to, MessageBuilder message)
+    + pushMessage(string to, MessageBuilder message)
+    + testSignature()
+    + parseEvent(string requestBody)
+    + getProfile(String userId)
+  }
+
+  interface "MessageBuilder" as IMessageBuilder {
+    + buildMessage()
+  }
+
+  class Event extends PHP.stdClass {
+    + [Key => Value] rawData
+    + String replyToken
+    + String userId
+    + String type
+    + [BinaryString]|null files
+    + String|null text
+    + [Key => Value]|null postbackData
+  }
+
+  note top of Event
+    メッセージ単位(テキストメッセージやPostback)のイベント
+    PHPのstdClassで作られる
+
+    今のところはイベントの種類(MessageやPostback)は文字列で
+    厳しそうだったら型を作る
+    今はPostbackもTextMessageもVideoMessageも同じ階層
+    もしかしたらMessageのVideo、PostbackのAudioや
+    GroupのMessage、UserのMessageなどという場面が出てくるかもしれない
+  end note
+
+  class MessengerBot {
+    - [MessageBuilder] messagesWillSent
+    + [Event:stdObject] getEvents()
+    + addText(String message)
+    + addTemplate(String title, String description, String imageUrl, Array buttons)
+    + addFile(String fileUrl)
+    + push(String recipient)
+    + reply(String replyToken)
+    + getProfile(String userId)
+    - notifyAlive()
+  }
+
+  note top of MessengerBot
+    複数送信する予定のメッセージの内容messagesWillSentを
+    ここで持たせてreplyMessagesやpushMessagesが実際に呼ばれた時に
+    個々の実装に依って(LineだとMultiMessageBuilder、Facebookならリクエスト複数)送信する
+
+    設定ファイル(項目の説明を書いておく)から
+    LineやFacebookにあったトークンを読み込みBotインタフェースのクラスとCurlを生成する
+  end note
+
+  namespace FacebookBot {
+
+    class FacebookBot{
+      - Curl HttpClient
+      - string appSecret
+      - string endPoint
+    }
+
+    class GenericMessageBuilder
+    class AtachmentMessageBuilder
+    class TextMessageBuilder
+
+    FacebookBot .u.|> Framework.IBot
+    GenericMessageBuilder .u.|> Framework.IMessageBuilder
+    AtachmentMessageBuilder .u.|> Framework.IMessageBuilder
+    TextMessageBuilder .u.|> Framework.IMessageBuilder
+
+  }
+
+  namespace LineBot {
+
+    class LineBot
+    class CarouselMessageBuilder
+    class FileMessageBuilder
+    class TextMessageBuilder
+
+    LineBot *.> LINE.LINEBot
+    LineBot ..> LINE.LINEBot.HTTPClient.CurlHTTPClient
+    CarouselMessageBuilder ..> LINE.LINEBot.MessageBuilder.CarouselMessageBuilder
+    CarouselMessageBuilder ..> LINE.LINEBot.TemplateActionBuilder.MessageTemplateActionBuilder
+    CarouselMessageBuilder ..> LINE.LINEBot.TemplateActionBuilder.PostbackTemplateActionBuilder
+    CarouselMessageBuilder ..> LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselTemplateBuilder
+    CarouselMessageBuilder ..> LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder
+    FileMessageBuilder ..> LINE.LINEBot.MessageBuilder.ImageMessageBuilder
+    FileMessageBuilder ..> LINE.LINEBot.MessageBuilder.VideoMessageBuilder
+    TextMessageBuilder ..> LINE.LINEBot.MessageBuilder.TextMessageBuilder
+
+    LineBot .u.|> Framework.IBot
+    CarouselMessageBuilder .u.|> Framework.IMessageBuilder
+    FileMessageBuilder .u.|> Framework.IMessageBuilder
+    TextMessageBuilder .u.|> Framework.IMessageBuilder
+
+  }
+
+  namespace HttpClient {
+
+    class Curl {
+      - string identifyToken
+      + post()
+      + get()
+    }
+
+    note top of Curl
+      identifyTokenはLineのchannelSecretやFacebookのappSecretなど
+      どのページやチャンネル由来のものかを表す
+    end note
+
+  }
+
+  MessengerBot *.> Framework.IBot
+  MessengerBot ..> Framework.HttpClient.Curl : 作ってBotに渡す
+  MessengerBot ..> Framework.FacebookBot.FacebookBot : 直接作成
+  MessengerBot ..> Framework.LineBot.LineBot : 直接作成
+  IBot ..> Framework.IMessageBuilder
+
+}
+
+@enduml
