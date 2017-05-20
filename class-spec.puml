@@ -155,7 +155,6 @@ Framework.MessengerBot .d.> Framework.LineBot.TextMessageBuilder
 Framework.MessengerBot .r.> Framework.Event
 Framework.MessengerBot .l.> Framework.HttpClient.Curl
 
-Framework.IBot .u.> Framework.HttpClient.Curl
 Framework.IBot .d.> Framework.IMessageBuilder
 
 Framework.FacebookBot.FacebookBot .u.|> Framework.IBot
@@ -163,6 +162,7 @@ Framework.FacebookBot.FacebookBot -[hidden]d- Framework.FacebookBot.GenericMessa
 Framework.FacebookBot.FacebookBot -[hidden]d- Framework.FacebookBot.AtachmentMessageBuilder
 Framework.FacebookBot.FacebookBot -[hidden]d- Framework.FacebookBot.TextMessageBuilder
 Framework.FacebookBot.FacebookBot ..> Framework.IMessageBuilder
+Framework.FacebookBot.FacebookBot *..> Framework.HttpClient.Curl
 
 Framework.LineBot.LineBot .u.|> Framework.IBot
 Framework.LineBot.LineBot -[hidden]d- Framework.LineBot.CarouselMessageBuilder
