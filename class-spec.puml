@@ -82,7 +82,7 @@ namespace Framework {
 
   class MessengerBot {
     - [MessageBuilder] messagesWillSent
-    + [Event:stdObject] getEvents()
+    + [Event:stdObject|null] getEvents()
     + addText(String message)
     + addTemplate(String title, String description, String imageUrl, Array buttons)
     + addFile(String fileUrl)
