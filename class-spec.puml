@@ -59,26 +59,25 @@ namespace Framework {
     + buildMessage()
   }
 
-  class Event extends PHP.stdClass {
+  abstract class Event {
     + [Key => Value] rawData
     + String replyToken
     + String userId
     + String type
-    + [BinaryString]|null files
     + String|null text
     + [Key => Value]|null postbackData
+    + [String filename => BinaryString file]|null getFiles()
   }
 
   note top of Event
-    メッセージ単位(テキストメッセージやPostback)のイベント
-    PHPのstdClassで作られる
-
     今のところはイベントの種類(MessageやPostback)は文字列で
     厳しそうだったら型を作る
-    今はPostbackもTextMessageもVideoMessageも同じ階層
-    もしかしたらMessageのVideo、PostbackのAudioや
-    GroupのMessage、UserのMessageなどという場面が出てくるかもしれない
+    typeはMessage.TextとMessage.File、Postbackの3種類
   end note
+
+  class FacebookEvent
+
+  class LineEvent
 
   class MessengerBot {
     - [MessageBuilder] messagesWillSent
@@ -90,6 +89,7 @@ namespace Framework {
     + reply(String replyToken)
     + getProfile(String userId)
     - notifyAlive()
+    - validateRequest()
   }
 
   note top of MessengerBot
@@ -99,6 +99,8 @@ namespace Framework {
 
     設定ファイル(項目の説明を書いておく)から
     LineやFacebookにあったトークンを読み込みBotインタフェースのクラスとCurlを生成する
+
+    リクエストの検証処理(FacebookやLineからのリクエストかどうか)はgetEvents()内で行う
   end note
 
   namespace FacebookBot {
@@ -178,7 +180,10 @@ Framework.LineBot.CarouselMessageBuilder .u.|> Framework.IMessageBuilder
 Framework.LineBot.TextMessageBuilder .u.|> Framework.IMessageBuilder
 Framework.LineBot.FileMessageBuilder .u.|> Framework.IMessageBuilder
 
+Framework.Event <|-u- Framework.FacebookEvent
+Framework.Event <|-u- Framework.LineEvent
 Framework.Event -[hidden]d- Framework.LineBot.LineBot
+
 Framework.HttpClient.Curl -[hidden]d- Framework.FacebookBot.FacebookBot
 
 ' LINE公式SDK内の関連

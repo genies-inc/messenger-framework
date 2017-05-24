@@ -79,57 +79,23 @@ class MessengerBot {
 
     // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
     if (!isset($requestBody->entry) || !is_array($requestBody->entry)) {
-      return [];
+      throw new \UnexpectedValueException('Entryがない、またはEntryがサポートされていない形式です。');
     }
 
     foreach ($requestBody->entry as $entry) {
 
       // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
       if (!isset($entry->messaging) || !is_array($entry->messaging)) {
-        return [];
+        throw new \UnexpectedValueException('Messagingがない、またはMessagingがサポートされていない形式です。');
       }
 
       foreach ($entry->messaging as $messaging) {
-        $event = new \stdClass();
-        $event->userId = $messaging->sender->id ?? null;
-        $event->replyToken = $messaging->sender->id ?? null;
-        $event->rawData = $requestBody;
-
-        if (isset($messaging->message)) {
-          if (isset($messaging->message->attachments)) {
-            $event->text = null;
-            $event->files = [];
-            $event->postbackData = null;
-            $typeTmp = 'Message.Image';
-            foreach ($messaging->message->attachments as $attachment) {
-              if ($attachment->type !== 'image') {
-                $typeTmp = 'invalid';
-                continue;
-              }
-              array_push($event->files, file_get_contents($attachment->payload->url));
-            }
-            $event->type = $typeTmp;
-            if ($event->type !== 'Message.Image') {
-              $event = null;
-            }
-          } elseif (isset($messaging->message->text)) {
-            $event->type = 'Message.Text';
-            $event->text = $messaging->message->text;
-            $event->files = null;
-            $event->postbackData = null;
-          } else {
-            $event = null;
-          }
-        } elseif (isset($messaging->postback)) {
-          $event->type = 'Postback';
-          $event->text = null;
-          $event->files = null;
-          $event->postbackData = $messaging->postback->payload;
-        } else {
-          $event = null;
+        try {
+          $event = new FacebookEvent($messaging);
+          array_push($events, $event);
+        } catch (\InvalidArgumentException $e) {
+          array_push($events, null);
         }
-
-        array_push($events, $event);
       }
     }
 
@@ -142,47 +108,16 @@ class MessengerBot {
 
     // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
     if (!isset($requestBody->events) || !is_array($requestBody->events)) {
-      return [];
+      throw new \UnexpectedValueException('Eventsがない、またはEventsがサポートされていない形式です。');
     }
 
-    foreach ($requestBody->events as $baseEvent) {
-      $event = new \stdClass();
-      $event->userId = $baseEvent->source->userId ?? null;
-      $event->replyToken = $baseEvent->replyToken ?? null;
-      $event->rawData = $requestBody;
-
-      if (isset($baseEvent->message)) {
-        $event->postbackData = null;
-        switch ($baseEvent->message->type) {
-          case 'text' :
-          $event->type = 'Message.Text';
-          $event->files = null;
-          $event->text = $baseEvent->message->text;
-          break;
-          case 'image' :
-          $event->type = 'Message.Image';
-          $curl = curl_init('https://api.line.me/v2/bot/message/{$baseEvent->message->id}/content');
-          $options = [
-            CURLOPT_RETURNTRANSFER => true
-          ];
-          curl_setopt_array($curl, $options);
-          $event->files = [curl_exec($curl)];
-          $event->text = null;
-          break;
-          default :
-          $event = null;
-          break;
-        }
-      } elseif (isset($baseEvent->postback)) {
-        $event->type = 'Postback';
-        $event->files = null;
-        $event->text = null;
-        $event->postbackData = $baseEvent->postback->data;
-      } else {
-        $event = null;
+    foreach ($requestBody->events as $rawEvent) {
+      try {
+        $event = new LineEvent($rawEvent);
+        array_push($events, $event);
+      } catch (\InvalidArgumentException $e) {
+        array_push($events, null);
       }
-
-      array_push($events, $event);
     }
 
     return $events;
