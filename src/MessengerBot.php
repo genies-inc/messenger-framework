@@ -97,6 +97,19 @@ class MessengerBot {
     }
   }
 
+  public function getProfile($userId) {
+    switch ($this->type) {
+      case 'facebook' :
+      return tester($userId);
+      break;
+      case 'line' :
+      return tester($userId);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
   private static function validateSignature($type, $body) {
 
     switch ($type) {
