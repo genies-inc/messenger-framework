@@ -42,6 +42,61 @@ class MessengerBot {
     }
   }
 
+  public function reply(String $replyToken) {
+    switch ($this->type) {
+      case 'facebook' :
+      break;
+      case 'line' :
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  public function push(String $recipientId) {
+    switch ($this->type) {
+      case 'facebook' :
+      break;
+      case 'line' :
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  public function addText(String $message) {
+    switch ($this->type) {
+      case 'facebook' :
+      break;
+      case 'line' :
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  public function addTemplate(Array $columns) {
+    switch ($this->type) {
+      case 'facebook' :
+      break;
+      case 'line' :
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  public function addFile(String $fileUrl, ...$options) {
+    switch ($this->type) {
+      case 'facebook' :
+      break;
+      case 'line' :
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
   private static function validateSignature($type, $body) {
 
     switch ($type) {
