@@ -24,12 +24,14 @@ class MessengerBot {
       throw new \InvalidArgumentException("指定されたプラットフォームはサポートされていません。", 1);
     }
 
-    if (!self::validateSignature($this->type, $this->requestBody)) {
-      throw new \UnexpectedValueException("正しい送信元からのリクエストではありません。");
-    }
   }
 
   public function getEvents() {
+
+    if (!self::validateSignature($this->type, $this->requestBody)) {
+      throw new \UnexpectedValueException("正しい送信元からのリクエストではありません。");
+    }
+
     switch ($this->type) {
       case 'facebook':
       return self::buildFacebookEvents($this->requestBody);

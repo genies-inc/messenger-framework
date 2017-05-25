@@ -13,10 +13,19 @@ class MessengerBotTest extends TestCase {
 
   const IMAGE_PATH = './tests/resources/message_image.jpg';
 
+  public function testConstructorUnsupportedPlatform() {
+    try {
+      new MessengerBot('unknown-messenger');
+      $this->fail('サポートされていないプラットフォームなのにエラーが出ませんでした。');
+    } catch (\InvalidArgumentException $e) {
+      $this->addToAssertionCount(1);
+    }
+  }
+
   /**
    * @backupGlobals enabled
    */
-  public function testConstructorFacebook() {
+  public function testGetEventsValidationFacebook() {
     global $file_get_contents_rtv;
 
     require_once './src/config/facebook.config.php';
@@ -27,6 +36,7 @@ class MessengerBotTest extends TestCase {
       $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
       $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
       $bot = new MessengerBot('facebook');
+      $bot->getEvents();
       $this->addToAssertionCount(1);
     } catch (\UnexpectedValueException $e) {
       $this->fail('有効なシグネチャなのにエラーが出ました。');
@@ -36,6 +46,7 @@ class MessengerBotTest extends TestCase {
     try {
       $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'hoge=invalid signature';
       $bot = new MessengerBot('facebook');
+      $bot->getEvents();
       $this->fail('無効なハッシュ化アルゴリズムなのにエラーが出ませんでした。');
     } catch (\UnexpectedValueException $e) {
       $this->addToAssertionCount(1);
@@ -45,6 +56,7 @@ class MessengerBotTest extends TestCase {
     try {
       $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'invalid signature';
       $bot = new MessengerBot('facebook');
+      $bot->getEvents();
       $this->fail('無効なシグネチャなのにエラーが出ませんでした。');
     } catch (\UnexpectedValueException $e) {
       $this->addToAssertionCount(1);
@@ -53,17 +65,17 @@ class MessengerBotTest extends TestCase {
     unset($_SERVER['HTTP_X_HUB_SIGNATURE']);
     try {
       $bot = new MessengerBot('facebook');
+      $bot->getEvents();
       $this->fail('シグネチャが無いのにエラーが出ませんでした。');
     } catch (\UnexpectedValueException $e) {
       $this->addToAssertionCount(1);
     }
-
   }
 
   /**
    * @backupGlobals enabled
    */
-  public function testConstructorLine() {
+  public function testGetEventsValidationLine() {
     global $file_get_contents_rtv;
 
     require_once './src/config/line.config.php';
@@ -73,6 +85,7 @@ class MessengerBotTest extends TestCase {
     try {
       $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
       $bot = new MessengerBot('line');
+      $bot->getEvents();
       $this->addToAssertionCount(1);
     } catch (\UnexpectedValueException $e) {
       $this->fail('有効なシグネチャなのにエラーが出ました。');
@@ -82,6 +95,7 @@ class MessengerBotTest extends TestCase {
     try {
       $_SERVER['HTTP_X_LINE_SIGNATURE'] = 'invalid signature';
       $bot = new MessengerBot('line');
+      $bot->getEvents();
       $this->fail('無効なシグネチャなのにエラーが出ませんでした。');
     } catch (\UnexpectedValueException $e) {
       $this->addToAssertionCount(1);
@@ -90,18 +104,9 @@ class MessengerBotTest extends TestCase {
     unset($_SERVER['HTTP_X_LINE_SIGNATURE']);
     try {
       $bot = new MessengerBot('line');
+      $bot->getEvents();
       $this->fail('シグネチャが無いのにエラーが出ませんでした。');
     } catch (\UnexpectedValueException $e) {
-      $this->addToAssertionCount(1);
-    }
-
-  }
-
-  public function testConstructorUnsupportedPlatform() {
-    try {
-      new MessengerBot('unknown-messenger');
-      $this->fail('サポートされていないプラットフォームなのにエラーが出ませんでした。');
-    } catch (\InvalidArgumentException $e) {
       $this->addToAssertionCount(1);
     }
   }
