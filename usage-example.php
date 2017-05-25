@@ -45,7 +45,7 @@ $bot->push($recipient);
 // 文字列で判別
 if ($event->type === "Message.Text") {
   // テキストメッセージが来た
-} elseif ($event->type === "Message.Image") {
+} elseif ($event->type === "Message.File") {
   // ファイルが来た
 }
 
@@ -74,4 +74,4 @@ if ($event->type === "Message.Text") {
 // Facebook Message 1 - * File
 // Line Message 1 - 1 File
 // これを揃えるために送られてきたファイル一つでも[BinaryString]
-$event->files;
+$event->getFiles();
