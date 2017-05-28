@@ -19,6 +19,14 @@ vendor/bin/phpunit
 vendor/bin/phpunit --testsuite "TestSuite名"
 ```
 
+デバッグ
+
+VSCodeを使う場合。
+
+PHPDebugを導入しXDebugをPHPに導入しておく。  
+これでブレークポイントで変数を見ながら実行・テストできる。  
+デバッグの設定は.vscode/launch.jsonから行う。
+
 # 仕様
 
 概要は`class-spec.puml`、`usage-example.php`内。
