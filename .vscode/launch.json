@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "run all test",
+      "type": "php",
+      "request": "launch",
+      "program": "${workspaceRoot}/vendor/bin/phpunit",
+      "cwd": "${workspaceRoot}",
+      "port": 9000
+    },
+    {
+      "name": "run current test file",
+      "type": "php",
+      "request": "launch",
+      "program": "${workspaceRoot}/vendor/bin/phpunit",
+      "args": [ "${relativeFile}" ],
+      "cwd": "${workspaceRoot}",
+      "port": 9000
+    }
+  ]
+}

@@ -129,7 +129,6 @@ namespace Framework {
   namespace HttpClient {
 
     class Curl {
-      - string identifyToken
       + post()
       + get()
     }
