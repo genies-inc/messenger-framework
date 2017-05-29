@@ -245,4 +245,17 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testParseEvents() {
+    $bot = new FacebookBot($this->curlMock);
+    $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
+    $this->assertEquals(\json_decode($jsonString), $bot->parseEvents($jsonString));
+  }
+
+  public function testTestSignature() {
+    $bot = new FacebookBot($this->curlMock);
+    $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
+    $x_hub_signature = 'sha1=' . hash_hmac('sha1', $jsonString, 'develop');
+    $this->assertTrue($bot->testSignature($jsonString, $x_hub_signature));
+  }
+
 }

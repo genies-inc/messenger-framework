@@ -48,10 +48,10 @@ namespace LINE {
 namespace Framework {
 
   interface "Bot" as IBot {
-    + replyMessage(string to, MessageBuilder message)
-    + pushMessage(string to, MessageBuilder message)
-    + testSignature()
-    + parseEvent(string requestBody)
+    + replyMessage(String to, MessageBuilder message)
+    + pushMessage(String to, MessageBuilder message)
+    + testSignature(String requestBody, String signature)
+    + parseEvent(String requestBody)
     + getProfile(String userId)
   }
 

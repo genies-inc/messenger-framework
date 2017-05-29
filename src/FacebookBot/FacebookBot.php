@@ -25,6 +25,23 @@ class FacebookBot implements Bot {
     return $this->sendMessage($to, $builder);
   }
 
+  public function parseEvents(String $requestBody) {
+    return $obj = \json_decode($requestBody);
+  }
+
+  public function testSignature(String $requestBody, String $signature) {
+    $array = explode('=', $signature, 2);
+    // FIXME: 汚い
+    $algo = $array[0] ?? 'sha1';
+    $target = $array[1] ?? 'invalidString';
+    if (!in_array($algo, hash_algos())) {
+      return false;
+    }
+    $sample = hash_hmac($algo, $requestBody, FACEBOOK_APP_SECRET);
+
+    return $sample === $target;
+  }
+
   private function sendMessage(String $to, MessageBuilder $builder) {
     $body = [
       'recipient' => [
