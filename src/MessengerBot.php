@@ -2,6 +2,9 @@
 
 namespace Framework;
 
+use Framework\HttpClient\Curl;
+use Framework\FacebookBot\FacebookBot;
+
 // MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
 class MessengerBot {
 
@@ -9,13 +12,17 @@ class MessengerBot {
 
   private $type = '';
 
+  private $httpClient;
+
+  private $core;
+
   public function __construct($botType) {
     $this->requestBody = file_get_contents("php://input");
     $this->type = strtolower($botType);
 
     switch ($this->type) {
       case 'facebook' :
-      require_once './src/config/facebook.config.php';
+      $this->core = new FacebookBot(new Curl());
       break;
       case 'line' :
       require_once './src/config/line.config.php';
@@ -28,13 +35,14 @@ class MessengerBot {
 
   public function getEvents() {
 
-    if (!self::validateSignature($this->type, $this->requestBody)) {
+    if (!$this->validateSignature($this->type, $this->requestBody)) {
       throw new \UnexpectedValueException("正しい送信元からのリクエストではありません。");
     }
 
     switch ($this->type) {
       case 'facebook':
-      return self::buildFacebookEvents($this->requestBody);
+      $rawEvent = $this->core->parseEvents($this->requestBody);
+      return self::convertFacebookEvent($rawEvent);
       case 'line':
       return self::buildLineEvents($this->requestBody);
       default :
@@ -110,23 +118,15 @@ class MessengerBot {
     }
   }
 
-  private static function validateSignature($type, $body) {
+  // TODO: LineのラッパーができたらBotインタフェースで何とかする
+  private function validateSignature($type, $body) {
 
     switch ($type) {
       case 'facebook' :
       if (!isset($_SERVER['HTTP_X_HUB_SIGNATURE'])) {
         return false;
       }
-      $array = explode('=', $_SERVER['HTTP_X_HUB_SIGNATURE'], 2);
-      $algo = $array[0] ?? 'sha1';
-      $signature = $array[1] ?? 'invalidString';
-      if (!in_array($algo, hash_algos())) {
-        return false;
-      }
-      $sample = hash_hmac($algo, $body, FACEBOOK_APP_SECRET);
-      return $signature === $sample;
-      break;
-
+      return $this->core->testSignature($body, $_SERVER['HTTP_X_HUB_SIGNATURE']);
       case 'line' :
       if (!isset($_SERVER['HTTP_X_LINE_SIGNATURE'])) {
         return false;
@@ -143,16 +143,15 @@ class MessengerBot {
 
   }
 
-  private static function buildFacebookEvents($jsonString) {
-    $requestBody = json_decode($jsonString);
+  private static function convertFacebookEvent($rawEvent) {
     $events = [];
 
     // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
-    if (!isset($requestBody->entry) || !is_array($requestBody->entry)) {
+    if (!isset($rawEvent->entry) || !is_array($rawEvent->entry)) {
       throw new \UnexpectedValueException('Entryがない、またはEntryがサポートされていない形式です。');
     }
 
-    foreach ($requestBody->entry as $entry) {
+    foreach ($rawEvent->entry as $entry) {
 
       // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
       if (!isset($entry->messaging) || !is_array($entry->messaging)) {
