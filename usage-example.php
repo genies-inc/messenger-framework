@@ -75,3 +75,14 @@ if ($event->type === "Message.Text") {
 // Line Message 1 - 1 File
 // これを揃えるために送られてきたファイル一つでも[BinaryString]
 $event->getFiles();
+
+/*
+  Facebookのボットを詳細に使う時
+*/
+
+use Framework;
+
+$curl = new Framework\HttpClient\Curl();
+$bot = new Framework\FacebookBot\FacebookBot($curl);
+$builder = new Framework\FacebookBot\TextMessageBuilder('test message');
+$bot->replyMessage('user id', $builder);
