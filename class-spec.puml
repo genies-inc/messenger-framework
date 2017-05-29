@@ -239,6 +239,6 @@ Framework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.Templa
 
 Framework.LineBot.FileMessageBuilder ..> LINE.LINEBot.MessageBuilder.ImageMessageBuilder
 
-Framework.LineBot.extMessageBuilder ..> LINE.LINEBot.MessageBuilder.TextMessageBuilder
+Framework.LineBot.TextMessageBuilder ..> LINE.LINEBot.MessageBuilder.TextMessageBuilder
 
 @enduml

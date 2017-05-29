@@ -17,6 +17,14 @@
       "args": [ "${relativeFile}" ],
       "cwd": "${workspaceRoot}",
       "port": 9000
+    },
+    {
+      "name": "run current file",
+      "type": "php",
+      "request": "launch",
+      "program": "${file}",
+      "cwd": "${workspaceRoot}",
+      "port": 9000
     }
   ]
 }
