@@ -5,6 +5,8 @@ namespace Framework\Test;
 use PHPUnit\Framework\TestCase;
 use Framework\FacebookEvent;
 
+require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
+
 class FacebookEventTest extends TestCase {
 
   /**
@@ -48,7 +50,6 @@ class FacebookEventTest extends TestCase {
    */
   public function testGetFiles($event, $expected, $files) {
     $event = new FacebookEvent($event);
-
     // TODO: ファイルが一つしかない前提で書いている
     // リクエストを投げてくれるクラスを作ったらそれをスタブで置き換えて試すこと!
     global $file_get_contents_rtv;
