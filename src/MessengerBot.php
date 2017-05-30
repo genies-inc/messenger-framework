@@ -6,6 +6,9 @@ use Framework\HttpClient\Curl;
 use Framework\FacebookBot\FacebookBot;
 use Framework\LineBot\LineBot;
 
+use Framework\FacebookBot as FB;
+use Framework\LineBot as Line;
+
 // MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
 class MessengerBot {
 
@@ -16,6 +19,8 @@ class MessengerBot {
   private $httpClient;
 
   private $core;
+
+  private $messageWillSent = [];
 
   public function __construct($botType) {
     $this->requestBody = file_get_contents("php://input");
@@ -53,8 +58,18 @@ class MessengerBot {
   public function reply(String $replyToken) {
     switch ($this->type) {
       case 'facebook' :
+      foreach ($this->messageWillSent as $message) {
+        $this->core->replyMessage($replyToken, $message);
+      }
+      $this->messageWillSent = [];
       break;
       case 'line' :
+      $multiMessage = new Line\MultiMessageBuilder();
+      foreach ($this->messageWillSent as $message) {
+        $multiMessage->add($message);
+      }
+      $this->core->replyMessage($replyToken, $multiMessage);
+      $this->messageWillSent = [];
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -64,8 +79,18 @@ class MessengerBot {
   public function push(String $recipientId) {
     switch ($this->type) {
       case 'facebook' :
+      foreach ($this->messageWillSent as $message) {
+        $this->core->pushMessage($recipientId, $message);
+      }
+      $this->messageWillSent = [];
       break;
       case 'line' :
+      $multiMessage = new Line\MultiMessageBuilder();
+      foreach ($this->messageWillSent as $message) {
+        $multiMessage->add($message);
+      }
+      $this->core->pushMessage($recipientId, $multiMessage);
+      $this->messageWillSent = [];
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -75,8 +100,10 @@ class MessengerBot {
   public function addText(String $message) {
     switch ($this->type) {
       case 'facebook' :
+      array_push($this->messageWillSent, new FB\TextMessageBuilder($message));
       break;
       case 'line' :
+      array_push($this->messageWillSent, new Line\TextMessageBuilder($message));
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -86,8 +113,10 @@ class MessengerBot {
   public function addTemplate(Array $columns) {
     switch ($this->type) {
       case 'facebook' :
+      array_push($this->messageWillSent, new FB\GenericMessageBuilder($columns));
       break;
       case 'line' :
+      array_push($this->messageWillSent, new Line\CarouselMessageBuilder($columns));
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -97,8 +126,10 @@ class MessengerBot {
   public function addImage(String $fileUrl, String $previewUrl = null) {
     switch ($this->type) {
       case 'facebook' :
+      array_push($this->messageWillSent, new FB\AttachmentMessageBuilder('image', $fileUrl));
       break;
       case 'line' :
+      array_push($this->messageWillSent, new Line\FileMessageBuilder('image', $fileUrl, $previewUrl));
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
