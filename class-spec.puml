@@ -84,7 +84,7 @@ namespace Framework {
     + [Event:stdObject|null] getEvents()
     + addText(String message)
     + addTemplate(Array [String title, String description, String imageUrl, Array buttons])
-    + addFile(String fileUrl)
+    + addImage(String fileUrl, String|null previewUrl)
     + push(String recipient)
     + reply(String replyToken)
     + getProfile(String userId)
