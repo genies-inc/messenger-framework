@@ -36,11 +36,12 @@ class LineBot implements Bot {
   }
 
   public function testSignature(String $requestBody, String $signature) {
-    throw new \BadMethodCallException('まだ実装されていません。');
+    $sample = hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true);
+    return hash_equals(base64_encode($sample), $signature);
   }
 
   public function parseEvents(String $requestBody) {
-    throw new \BadMethodCallException('まだ実装されていません。');
+    return \json_decode($requestBody);
   }
 
   private function getReplyEndpoint() {
