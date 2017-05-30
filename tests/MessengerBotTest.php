@@ -374,7 +374,7 @@ class MessengerBotTest extends TestCase {
     $bot = new MessengerBot('facebook');
 
     foreach ($bot->getEvents() as $event) {
-      $bot->addImage('');
+      $bot->addImage('https://www.sampleimage.com/sample.jpg');
       $bot->reply($event->replyToken);
       $this->addToAssertionCount(1);
     }
@@ -384,7 +384,7 @@ class MessengerBotTest extends TestCase {
     // Facebookからのリクエストとして設定する
     $bot = new MessengerBot('facebook');
 
-    $bot->addImage('');
+    $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $response = $bot->push('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -463,7 +463,7 @@ class MessengerBotTest extends TestCase {
     $bot = new MessengerBot('line');
 
     foreach ($bot->getEvents() as $event) {
-      $bot->addImage('');
+      $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
       $bot->reply($event->replyToken);
       $this->addToAssertionCount(1);
     }
@@ -472,7 +472,7 @@ class MessengerBotTest extends TestCase {
   public function testImagePushLine() {
     $bot = new MessengerBot('line');
 
-    $bot->addImage('');
+    $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
     $response = $bot->push('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }

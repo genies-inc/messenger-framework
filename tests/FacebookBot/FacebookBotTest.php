@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 class FacebookBotTest extends TestCase {
 
-  private $bot;
-
   private $curlMock;
 
   public function setUp() {
