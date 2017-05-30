@@ -94,7 +94,7 @@ class MessengerBot {
     }
   }
 
-  public function addFile(String $fileUrl, ...$options) {
+  public function addImage(String $fileUrl, String $previewUrl = null) {
     switch ($this->type) {
       case 'facebook' :
       break;

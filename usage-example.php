@@ -12,20 +12,34 @@ $bots = [ new MessengerBot('facebook'), new MessengerBot('line') ];
 foreach ($bots as $bot) {
   foreach ($bot->events as $event) {
     $bot->addText("テキストメッセージボディ");
-    $bot->addTemplate(
-      "テンプレートのタイトル",
-      "テンプレートの説明"
-      /* , [
-        "title" => "ボタン1",
-        "action" => "postback",
-        "data" => "何かデータ"
+    $bot->addTemplate([
+      [
+        'テンプレートのタイトル1',
+        'テンプレートの説明1',
+        [
+          'title' => 'Postbackボタン1',
+          'action' => 'postback',
+          'data' => '何かデータ1'
+        ], [
+          'title' => 'Urlボタン1',
+          'action' => 'url',
+          'url' => 'アドレス1'
+        ]
       ], [
-        "title" => "ボタン2",
-        "action" => "message",
-        "data" => "名前=値&名前2=値2"
-      ] ... */
-    );
-    $bot->addFile("ファイルのURL");
+        'テンプレートのタイトル2',
+        'テンプレートの説明2',
+        [
+          'title' => 'Postbackボタン2',
+          'action' => 'postback',
+          'data' => '何かデータ2'
+        ], [
+          'title' => 'Urlボタン2',
+          'action' => 'url',
+          'url' => 'アドレス2'
+        ]
+      ]
+    ]);
+    $bot->addImage("ファイルのURL", "プレビューのURL(Line用)");
     $bot->reply($event->replyToken);
   }
 }
