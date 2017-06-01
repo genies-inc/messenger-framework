@@ -58,18 +58,22 @@ class MessengerBot {
   public function reply(String $replyToken) {
     switch ($this->type) {
       case 'facebook' :
+      $responses = [];
       foreach ($this->messageWillSent as $message) {
-        $this->core->replyMessage($replyToken, $message);
+        $res = $this->core->replyMessage($replyToken, $message);
+        array_push($responses, \json_decode($res));
       }
       $this->messageWillSent = [];
+      return \json_encode($responses);
       break;
       case 'line' :
       $multiMessage = new Line\MultiMessageBuilder();
       foreach ($this->messageWillSent as $message) {
         $multiMessage->add($message);
       }
-      $this->core->replyMessage($replyToken, $multiMessage);
+      $res = $this->core->replyMessage($replyToken, $multiMessage);
       $this->messageWillSent = [];
+      return $res;
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -79,18 +83,22 @@ class MessengerBot {
   public function push(String $recipientId) {
     switch ($this->type) {
       case 'facebook' :
+      $responses = [];
       foreach ($this->messageWillSent as $message) {
-        $this->core->pushMessage($recipientId, $message);
+        $res = $this->core->pushMessage($recipientId, $message);
+        array_push($responses, \json_decode($res));
       }
       $this->messageWillSent = [];
+      return \json_encode($responses);
       break;
       case 'line' :
       $multiMessage = new Line\MultiMessageBuilder();
       foreach ($this->messageWillSent as $message) {
         $multiMessage->add($message);
       }
-      $this->core->pushMessage($recipientId, $multiMessage);
+      $res = $this->core->pushMessage($recipientId, $multiMessage);
       $this->messageWillSent = [];
+      return $res;
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
