@@ -108,4 +108,13 @@ class CurlTest extends TestCase {
     $this->assertEquals(\http_build_query($body), $jsonObject->body);
   }
 
+  public function testHeaderContentJSON() {
+    $curl = new Curl();
+    $res = $curl->post(self::$URL, null, null, true);
+    $jsonObject = \json_decode($res, true);
+    $returnedRequestHeader = $jsonObject['header'];
+    $this->assertArrayHasKey('content-type', $returnedRequestHeader);
+    $this->assertEquals('application/json', $returnedRequestHeader['content-type']);
+  }
+
 }

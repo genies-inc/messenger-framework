@@ -25,6 +25,11 @@ class Curl {
 
   public function post(String $url, Array $headers = null, Array $bodyArray = null, Bool $isJSON = false) {
     $ch = curl_init($url);
+    if ($isJSON) {
+      $headers = $headers ?? [];
+      $headers['Content-Type'] = 'application/json';
+    }
+
     curl_setopt_array($ch, [
       CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
       CURLOPT_POST => true,
