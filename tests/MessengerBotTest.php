@@ -13,6 +13,10 @@ class MessengerBotTest extends TestCase {
 
   const IMAGE_PATH = './tests/resources/message_image.jpg';
 
+  const FACEBOOK_APP_SECRET = 'develop';
+
+  const LINE_CHANNEL_SECRET = 'develop';
+
   public function testConstructorUnsupportedPlatform() {
     try {
       new MessengerBot('unknown-messenger');
@@ -28,12 +32,11 @@ class MessengerBotTest extends TestCase {
   public function testGetEventsValidationFacebook() {
     global $file_get_contents_rtv;
 
-    require_once './src/config/facebook.config.php';
     $requestBody = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $file_get_contents_rtv = $requestBody;
 
     try {
-      $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
+      $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
       $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
       $bot = new MessengerBot('facebook');
       $bot->getEvents();
@@ -78,12 +81,11 @@ class MessengerBotTest extends TestCase {
   public function testGetEventsValidationLine() {
     global $file_get_contents_rtv;
 
-    require_once './src/config/line.config.php';
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
     $file_get_contents_rtv = $requestBody;
 
     try {
-      $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
+      $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
       $bot = new MessengerBot('line');
       $bot->getEvents();
       $this->addToAssertionCount(1);
@@ -117,8 +119,7 @@ class MessengerBotTest extends TestCase {
    */
   public function testGetEventsFacebook($requestBody) {
     // Facebookからのリクエストとして設定する
-    require_once './src/config/facebook.config.php';
-    $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
+    $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -147,8 +148,7 @@ class MessengerBotTest extends TestCase {
    */
   public function testGetEventsFacebookNotSupportedFormats($requestBody) {
     // Facebookからのリクエストとして設定する
-    require_once './src/config/facebook.config.php';
-    $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
+    $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -183,8 +183,7 @@ class MessengerBotTest extends TestCase {
    */
   public function testGetEventsFacebookNotSupportedEvent($requestBody) {
     // Facebookからのリクエストとして設定する
-    require_once './src/config/facebook.config.php';
-    $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
+    $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -212,8 +211,7 @@ class MessengerBotTest extends TestCase {
    */
   public function testGetEventsLine($requestBody) {
     // Lineからのリクエストとして設定をする
-    require_once './src/config/line.config.php';
-    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
+    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     // 内部でファイル(画像)を取得する時返す画像を設定
@@ -241,8 +239,7 @@ class MessengerBotTest extends TestCase {
    */
   public function testGetEventsLineNotSupportedFormat($requestBody) {
     // Lineからのリクエストとして設定をする
-    require_once './src/config/line.config.php';
-    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
+    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     // 内部でファイル(画像)を取得する時返す画像を設定
@@ -275,8 +272,7 @@ class MessengerBotTest extends TestCase {
    */
   public function testGetEventsLineNotSupportedEvent($requestBody) {
     // Lineからのリクエストとして設定をする
-    require_once './src/config/line.config.php';
-    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
+    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     // 内部でファイル(画像)を取得する時返す画像を設定
@@ -304,8 +300,7 @@ class MessengerBotTest extends TestCase {
     $requestBody = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     // Facebookからのリクエストとして設定する
     // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト返信用にわざわざ作っているのを必要な部分だけにする
-    require_once './src/config/facebook.config.php';
-    $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
+    $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -334,8 +329,7 @@ class MessengerBotTest extends TestCase {
     $requestBody = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     // Facebookからのリクエストとして設定する
     // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト返信用にわざわざ作っているのを必要な部分だけにする
-    require_once './src/config/facebook.config.php';
-    $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
+    $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -366,8 +360,7 @@ class MessengerBotTest extends TestCase {
     $requestBody = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     // Facebookからのリクエストとして設定する
     // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト返信用にわざわざ作っているのを必要な部分だけにする
-    require_once './src/config/facebook.config.php';
-    $signature = hash_hmac('sha1', $requestBody, FACEBOOK_APP_SECRET);
+    $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -395,8 +388,7 @@ class MessengerBotTest extends TestCase {
   public function testTextReplyLine() {
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
     // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト送信用にわざわざ作っているのを必要な部分だけにする
-    require_once './src/config/line.config.php';
-    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
+    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
 
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -424,8 +416,7 @@ class MessengerBotTest extends TestCase {
   public function testTemplateReplyLine($templateArg) {
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
     // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト送信用にわざわざ作っているのを必要な部分だけにする
-    require_once './src/config/line.config.php';
-    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
+    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
 
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
@@ -455,8 +446,7 @@ class MessengerBotTest extends TestCase {
   public function testImageReplyLine() {
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
     // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト送信用にわざわざ作っているのを必要な部分だけにする
-    require_once './src/config/line.config.php';
-    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, LINE_CHANNEL_SECRET, true));
+    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
 
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
