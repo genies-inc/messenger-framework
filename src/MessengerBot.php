@@ -1,13 +1,13 @@
 <?php
 
-namespace Framework;
+namespace  MessengerFramework;
 
-use Framework\HttpClient\Curl;
-use Framework\FacebookBot\FacebookBot;
-use Framework\LineBot\LineBot;
+use  MessengerFramework\HttpClient\Curl;
+use  MessengerFramework\FacebookBot\FacebookBot;
+use  MessengerFramework\LineBot\LineBot;
 
-use Framework\FacebookBot as FB;
-use Framework\LineBot as Line;
+use  MessengerFramework\FacebookBot as FB;
+use  MessengerFramework\LineBot as Line;
 
 // MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
 class MessengerBot {

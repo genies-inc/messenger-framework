@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\FacebookBot;
+namespace MessengerFramework\FacebookBot;
 
-use Framework\MessageBuilder;
+use MessengerFramework\MessageBuilder;
 
 class TextMessageBuilder implements MessageBuilder {
 

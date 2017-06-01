@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\HttpClient;
+namespace MessengerFramework\HttpClient;
 
 // TODO: ヘッダ情報も含めて返すようにする
 class Curl {

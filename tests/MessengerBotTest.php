@@ -1,10 +1,10 @@
 <?php
 
-namespace Framework\Test;
+namespace MessengerFramework\Test;
 
 use PHPUnit\Framework\TestCase;
-use Framework;
-use Framework\MessengerBot;
+use MessengerFramework;
+use MessengerFramework\MessengerBot;
 
 require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
 require_once './tests/utils/GLOBAL_curl_exec-mock.php';
@@ -127,7 +127,7 @@ class MessengerBotTest extends TestCase {
     $curl_exec_rtv = file_get_contents(self::IMAGE_PATH);
 
     $bot = new MessengerBot('facebook');
-    $this->assertContainsOnly(Framework\FacebookEvent::class, $bot->getEvents());
+    $this->assertContainsOnly(MessengerFramework\FacebookEvent::class, $bot->getEvents());
   }
 
   public function facebookRequestProvider() {
@@ -221,7 +221,7 @@ class MessengerBotTest extends TestCase {
     $curl_exec_rtv = file_get_contents(self::IMAGE_PATH);
 
     $bot = new MessengerBot('line');
-    $this->assertContainsOnly(Framework\LineEvent::class, $bot->getEvents());
+    $this->assertContainsOnly(MessengerFramework\LineEvent::class, $bot->getEvents());
   }
 
   public function lineRequestProvider() {

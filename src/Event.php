@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework;
+namespace  MessengerFramework;
 
 // 正直サブクラス作るより外で組み立てるクラスを用意したほうが良さそうな予感もする
 // その場合コンストラクタの引数がすごいことになるのが問題

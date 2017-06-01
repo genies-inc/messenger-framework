@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework;
+namespace  MessengerFramework;
 
-use Framework\MessageBuilder;
+use  MessengerFramework\MessageBuilder;
 
 interface Bot {
 

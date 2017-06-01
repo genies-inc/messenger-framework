@@ -4,7 +4,7 @@ namespace {
   $file_get_contents_rtv;
 }
 
-namespace Framework {
+namespace MessengerFramework {
 
   function file_get_contents() {
 

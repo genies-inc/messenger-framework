@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use MessengerBotFramework\MessengerBot;
+use MessengerFramework\MessengerBot;
 
 $bots = [ new MessengerBot('facebook'), new MessengerBot('line') ];
 foreach ($bots as $bot) {
@@ -94,9 +94,9 @@ $event->getFiles();
   Facebookのボットを詳細に使う時
 */
 
-use Framework;
+use MessengerFramework;
 
-$curl = new Framework\HttpClient\Curl();
-$bot = new Framework\FacebookBot\FacebookBot($curl);
-$builder = new Framework\FacebookBot\TextMessageBuilder('test message');
+$curl = new MessengerFramework\HttpClient\Curl();
+$bot = new MessengerFramework\FacebookBot\FacebookBot($curl);
+$builder = new MessengerFramework\FacebookBot\TextMessageBuilder('test message');
 $bot->replyMessage('user id', $builder);

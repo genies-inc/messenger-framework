@@ -11,7 +11,7 @@
     backupGlobals="false"
     syntaxCheck="true"
 >
-    <testsuite name="Framework">
+    <testsuite name="MessengerFramework">
         <directory>./tests</directory>
     </testsuite>
 </phpunit>

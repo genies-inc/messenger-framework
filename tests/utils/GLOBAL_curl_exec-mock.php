@@ -4,7 +4,7 @@ namespace {
   $curl_exec_rtv;
 }
 
-namespace Framework {
+namespace MessengerFramework {
 
   function curl_exec() {
 

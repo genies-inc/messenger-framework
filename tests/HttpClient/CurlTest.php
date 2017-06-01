@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Test;
+namespace MessengerFramework\Test;
 
 use PHPUnit\Framework\TestCase;
-use Framework\HttpClient\Curl;
+use MessengerFramework\HttpClient\Curl;
 
 class CurlTest extends TestCase {
 
