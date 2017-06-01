@@ -2,13 +2,10 @@
 
 namespace LINE {
 
-  class "LINEBot" as CLINEBot
-
   namespace LINEBot {
 
     interface "MessageBuilder" as IMessageBuilder
     interface "TemplateActionBuilder" as ITemplateActionBuilder
-    interface "HTTPClient" as IHTTPClient
 
     namespace MessageBuilder {
 
@@ -16,7 +13,6 @@ namespace LINE {
       class TemplateMessageBuilder
       class TextMessageBuilder
       class ImageMessageBuilder
-      class MultiMessageBuilder
 
       namespace TemplateBuilder {
 
@@ -31,13 +27,6 @@ namespace LINE {
 
       class MessageTemplateActionBuilder
       class PostbackTemplateActionBuilder
-
-    }
-
-    namespace HTTPClient {
-
-      class Curl
-      class CurlHTTPClient
 
     }
 
@@ -106,9 +95,6 @@ namespace MessengerFramework {
   namespace FacebookBot {
 
     class FacebookBot{
-      - Curl HttpClient
-      - string appSecret
-      - string endPoint
     }
 
     class GenericMessageBuilder
@@ -133,11 +119,6 @@ namespace MessengerFramework {
       + get()
     }
 
-    note top of Curl
-      identifyTokenはLineのchannelSecretやFacebookのappSecretなど
-      どのページやチャンネル由来のものかを表す
-    end note
-
   }
 
 }
@@ -153,7 +134,8 @@ MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.TextMessageB
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.CarouselMessageBuilder
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.FileMessageBuilder
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.TextMessageBuilder
-MessengerFramework.MessengerBot .r.> MessengerFramework.Event
+MessengerFramework.MessengerBot .r.> MessengerFramework.FacebookEvent
+MessengerFramework.MessengerBot .r.> MessengerFramework.LineEvent
 MessengerFramework.MessengerBot .l.> MessengerFramework.HttpClient.Curl
 
 MessengerFramework.IBot .d.> MessengerFramework.IMessageBuilder
@@ -187,13 +169,9 @@ MessengerFramework.HttpClient.Curl -[hidden]d- MessengerFramework.FacebookBot.Fa
 
 ' LINE公式SDK内の関連
 
-LINE.CLINEBot .d.> LINE.LINEBot.IMessageBuilder
-LINE.CLINEBot *..> LINE.LINEBot.IHTTPClient
-
 LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.ImageMessageBuilder
 LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.TemplateMessageBuilder
 LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.TextMessageBuilder
-LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.MultiMessageBuilder
 
 LINE.LINEBot.ITemplateActionBuilder -[hidden]d- LINE.LINEBot.TemplateActionBuilder
 
@@ -207,8 +185,6 @@ LINE.LINEBot.MessageBuilder.TemplateMessageBuilder -[hidden]l- LINE.LINEBot.Mess
 LINE.LINEBot.MessageBuilder.TemplateMessageBuilder .r.> LINE.LINEBot.MessageBuilder.ITemplateBuilder
 LINE.LINEBot.MessageBuilder.TemplateMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
 
-LINE.LINEBot.MessageBuilder.MultiMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
-
 LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder .u.|> LINE.LINEBot.MessageBuilder.ITemplateBuilder
 LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder .u.> LINE.LINEBot.ITemplateActionBuilder
 
@@ -219,8 +195,6 @@ LINE.LINEBot.TemplateActionBuilder.PostbackTemplateActionBuilder .u.|> LINE.LINE
 
 LINE.LINEBot.TemplateActionBuilder.MessageTemplateActionBuilder .u.|> LINE.LINEBot.ITemplateActionBuilder
 
-LINE.LINEBot.HTTPClient.CurlHTTPClient .u.|> LINE.LINEBot.IHTTPClient
-LINE.LINEBot.HTTPClient.CurlHTTPClient .r.> LINE.LINEBot.HTTPClient.Curl
 
 ' MessengerFrameworkとLINE公式SDKの関連
 
@@ -228,8 +202,6 @@ MessengerFramework -[hidden]d- LINE
 MessengerFramework.FacebookBot -[hidden]d- LINE.LINEBot.TemplateActionBuilder
 MessengerFramework.LineBot -[hidden]d- LINE.LINEBot.MessageBuilder
 
-MessengerFramework.LineBot.LineBot *.d.> LINE.CLINEBot
-MessengerFramework.LineBot.LineBot ..> LINE.LINEBot.HTTPClient.CurlHTTPClient
 
 MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.CarouselMessageBuilder
 MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.TemplateActionBuilder.MessageTemplateActionBuilder
