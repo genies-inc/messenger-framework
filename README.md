@@ -2,6 +2,12 @@
 
 各サービスのMessengerBotのラッパー。
 
+# 利用時の注意
+
+event#getFiles()は未実装
+MessengerBot#getProfile()は未実装
+Facebookの初回認証は対応していない。
+
 # 開発手順
 
 セットアップ
