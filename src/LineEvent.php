@@ -3,13 +3,23 @@
 namespace  MessengerFramework;
 
 use  MessengerFramework\Event;
+use MessengerFramework\HttpClient\Curl;
 
+// FIXME: Curlを持たせているのがおかしい、では生成時にクロージャを渡してあげる？それもややこしい
+// そもそもここでトークンを見ているのもおかしい
+// MessengerBot#getFilesOf($event)とするのはどうだろうか?
 class LineEvent extends Event {
 
   // [ Event#Message#Type => ファイルのID ]
   private $fileIds = null;
 
-  public function __construct($event) {
+  private $httpClient;
+
+  private static $LINE_ACCESS_TOKEN;
+
+  public function __construct($event, Curl $httpClient) {
+    self::$LINE_ACCESS_TOKEN = getenv('LINE_ACCESS_TOKEN') ?: 'develop';
+    $this->httpClient = $httpClient;
     $this->userId = $event->source->userId ?? null;
     $this->replyToken = $event->replyToken ?? null;
     $this->rawData = $event;
@@ -44,7 +54,10 @@ class LineEvent extends Event {
     $files = [];
     foreach ($this->fileIds as $type => $id) {
       $filename = $this->keyBuilder($type, $id);
-      $files[$filename] = file_get_contents();
+      $file = $this->httpClient->get('https://api.line.me/v2/bot/message/' . $id . '/content', [
+        'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
+      ]);
+      $files[$filename] = $file;
     }
     return $files;
   }
