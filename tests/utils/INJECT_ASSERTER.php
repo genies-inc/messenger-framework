@@ -6,7 +6,7 @@ namespace {
 
 }
 
-namespace Framework {
+namespace MessengerFramework {
 
   function tester() {
 

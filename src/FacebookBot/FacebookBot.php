@@ -1,19 +1,24 @@
 <?php
 
-namespace Framework\FacebookBot;
+namespace MessengerFramework\FacebookBot;
 
-use Framework\Bot;
-use Framework\MessageBuilder;
-use Framework\HttpClient\Curl;
+use MessengerFramework\Bot;
+use MessengerFramework\MessageBuilder;
+use MessengerFramework\HttpClient\Curl;
 
 class FacebookBot implements Bot {
+
+  private static $FACEBOOK_APP_SECRET;
+
+  private static $FACEBOOK_ACCESS_TOKEN;
 
   private $endPoint = 'https://graph.facebook.com/';
 
   private $httpClient;
 
   public function __construct(Curl $curl) {
-    require_once './src/config/facebook.config.php';
+    self::$FACEBOOK_APP_SECRET = getenv('FACEBOOK_APP_SECRET') ?: 'develop';
+    self::$FACEBOOK_ACCESS_TOKEN = getenv('FACEBOOK_ACCESS_TOKEN') ?: 'develop';
     $this->httpClient = $curl;
   }
 
@@ -37,7 +42,7 @@ class FacebookBot implements Bot {
     if (!in_array($algo, hash_algos())) {
       return false;
     }
-    $sample = hash_hmac($algo, $requestBody, FACEBOOK_APP_SECRET);
+    $sample = hash_hmac($algo, $requestBody, self::$FACEBOOK_APP_SECRET);
 
     return $sample === $target;
   }
@@ -53,7 +58,7 @@ class FacebookBot implements Bot {
   }
 
   private function getMessageEndpoint() {
-    return $this->endPoint . 'v2.6/me/messages' . '?access_token=' . FACEBOOK_ACCESS_TOKEN;
+    return $this->endPoint . 'v2.6/me/messages' . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
   }
 
 }

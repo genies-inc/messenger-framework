@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Test;
+namespace MessengerFramework\Test;
 
 use PHPUnit\Framework\TestCase;
-use Framework\LineEvent;
+use MessengerFramework\LineEvent;
 
 require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
 

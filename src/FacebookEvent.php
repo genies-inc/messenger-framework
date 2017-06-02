@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework;
+namespace  MessengerFramework;
 
-use Framework\Event;
+use  MessengerFramework\Event;
 
 class FacebookEvent extends Event {
 

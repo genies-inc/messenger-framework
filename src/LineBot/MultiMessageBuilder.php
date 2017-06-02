@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\LineBot;
+namespace MessengerFramework\LineBot;
 
-use Framework\MessageBuilder;
+use MessengerFramework\MessageBuilder;
 
 class MultiMessageBuilder implements MessageBuilder {
 

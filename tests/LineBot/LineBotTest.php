@@ -1,13 +1,13 @@
 <?php
 
-namespace Framework\Test;
+namespace MessengerFramework\Test;
 
-use Framework\LineBot\LineBot;
-use Framework\LineBot\TextMessageBuilder;
-use Framework\LineBot\CarouselMessageBuilder;
-use Framework\LineBot\FileMessageBuilder;
-use Framework\LineBot\MultiMessageBuilder;
-use Framework\HttpClient\Curl;
+use MessengerFramework\LineBot\LineBot;
+use MessengerFramework\LineBot\TextMessageBuilder;
+use MessengerFramework\LineBot\CarouselMessageBuilder;
+use MessengerFramework\LineBot\FileMessageBuilder;
+use MessengerFramework\LineBot\MultiMessageBuilder;
+use MessengerFramework\HttpClient\Curl;
 use PHPUnit\Framework\TestCase;
 
 class LineTest extends TestCase {
@@ -68,12 +68,12 @@ class LineTest extends TestCase {
           'messages' => [
             [
               'type' => 'template',
-              'altText' => '',
+              'altText' => 'alt text for carousel',
               'template' => [
                 'type' => 'carousel',
                 'columns' => [
                   [
-                    'thumbnailImageUrl' => '',
+                    'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
                     'title' => 'タイトル1',
                     'text' => 'サブタイトル1',
                     'actions' => [
@@ -100,7 +100,7 @@ class LineTest extends TestCase {
     $bot = new LineBot($this->curlMock);
     $builder = new CarouselMessageBuilder([
       [
-        'タイトル1', 'サブタイトル1', null, [
+        'タイトル1', 'サブタイトル1', 'https://www.sampleimage.com/thumbnail.jpg', [
           'title' => 'URLボタン',
           'action' => 'url',
           'url' => 'https://www.sampleimage.com/sample.jpg'
@@ -219,12 +219,12 @@ class LineTest extends TestCase {
           'messages' => [
             [
               'type' => 'template',
-              'altText' => '',
+              'altText' => 'alt text for carousel',
               'template' => [
                 'type' => 'carousel',
                 'columns' => [
                   [
-                    'thumbnailImageUrl' => '',
+                    'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
                     'title' => 'タイトル1',
                     'text' => 'サブタイトル1',
                     'actions' => [
@@ -251,7 +251,7 @@ class LineTest extends TestCase {
     $bot = new LineBot($this->curlMock);
     $builder = new CarouselMessageBuilder([
       [
-        'タイトル1', 'サブタイトル1', null, [
+        'タイトル1', 'サブタイトル1', 'https://www.sampleimage.com/thumbnail.jpg', [
           'title' => 'URLボタン',
           'action' => 'url',
           'url' => 'https://www.sampleimage.com/sample.jpg'

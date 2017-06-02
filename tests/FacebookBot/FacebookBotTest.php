@@ -1,12 +1,12 @@
 <?php
 
-namespace Framework\Test;
+namespace MessengerFramework\Test;
 
-use Framework\FacebookBot\FacebookBot;
-use Framework\FacebookBot\TextMessageBuilder;
-use Framework\FacebookBot\GenericMessageBuilder;
-use Framework\FacebookBot\AttachmentMessageBuilder;
-use Framework\HttpClient\Curl;
+use MessengerFramework\FacebookBot\FacebookBot;
+use MessengerFramework\FacebookBot\TextMessageBuilder;
+use MessengerFramework\FacebookBot\GenericMessageBuilder;
+use MessengerFramework\FacebookBot\AttachmentMessageBuilder;
+use MessengerFramework\HttpClient\Curl;
 use PHPUnit\Framework\TestCase;
 
 class FacebookBotTest extends TestCase {

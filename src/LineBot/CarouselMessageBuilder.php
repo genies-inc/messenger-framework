@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\LineBot;
+namespace MessengerFramework\LineBot;
 
-use Framework\MessageBuilder;
+use MessengerFramework\MessageBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateMessageBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselTemplateBuilder;
 use LINE\LINEBot\MessageBuilder\TemplateBuilder\CarouselColumnTemplateBuilder;
@@ -44,13 +44,13 @@ class CarouselMessageBuilder implements MessageBuilder {
           break;
         }
       }
-      array_push($columnsTemplate, new CarouselColumnTemplateBuilder($column[0], $column[1], $column[2] ?? '', $actions));
+      array_push($columnsTemplate, new CarouselColumnTemplateBuilder($column[0], $column[1], $column[2], $actions));
     }
     $this->template = new CarouselTemplateBuilder($columnsTemplate);
   }
 
   public function buildMessage() {
-    $core = new TemplateMessageBuilder('', $this->template);
+    $core = new TemplateMessageBuilder('alt text for carousel', $this->template);
     return $core->buildMessage();
   }
 

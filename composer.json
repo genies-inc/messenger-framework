@@ -1,5 +1,5 @@
 {
-  "name": "messengerframework",
+  "name": "genies/messengerframework",
   "description": "各サービスのMessengerBotのラッパー",
   "require": {
     "php": "^7.1",
@@ -10,12 +10,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Framework\\": "src/"
+      "MessengerFramework\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Framework\\Test\\": "tests/"
+      "MessengerFramework\\Test\\": "tests/"
     }
   }
 }
