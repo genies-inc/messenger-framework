@@ -1,0 +1,216 @@
+@startuml
+
+namespace LINE {
+
+  namespace LINEBot {
+
+    interface "MessageBuilder" as IMessageBuilder
+    interface "TemplateActionBuilder" as ITemplateActionBuilder
+
+    namespace MessageBuilder {
+
+      interface "TemplateBuilder" as ITemplateBuilder
+      class TemplateMessageBuilder
+      class TextMessageBuilder
+      class ImageMessageBuilder
+
+      namespace TemplateBuilder {
+
+        class CarouselTemplateBuilder
+        class CarouselColumnTemplateBuilder
+
+      }
+
+    }
+
+    namespace TemplateActionBuilder {
+
+      class MessageTemplateActionBuilder
+      class PostbackTemplateActionBuilder
+
+    }
+
+  }
+
+}
+
+namespace MessengerFramework {
+
+  interface "Bot" as IBot {
+    + replyMessage(String to, MessageBuilder message)
+    + pushMessage(String to, MessageBuilder message)
+    + testSignature(String requestBody, String signature)
+    + parseEvent(String requestBody)
+    + getProfile(String userId)
+  }
+
+  interface "MessageBuilder" as IMessageBuilder {
+    + buildMessage()
+  }
+
+  abstract class Event {
+    + [Key => Value] rawData
+    + String replyToken
+    + String userId
+    + String type
+    + String|null text
+    + [Key => Value]|null postbackData
+    + [String filename => BinaryString file]|null getFiles()
+  }
+
+  note top of Event
+    今のところはイベントの種類(MessageやPostback)は文字列で
+    厳しそうだったら型を作る
+    typeはMessage.TextとMessage.File、Postbackの3種類
+  end note
+
+  class FacebookEvent
+
+  class LineEvent
+
+  class MessengerBot {
+    - [MessageBuilder] messagesWillSent
+    + [Event:stdObject|null] getEvents()
+    + addText(String message)
+    + addTemplate(Array [String title, String description, String imageUrl, Array buttons])
+    + addImage(String fileUrl, String|null previewUrl)
+    + push(String recipient)
+    + reply(String replyToken)
+    + getProfile(String userId)
+    - notifyAlive()
+    - validateRequest()
+  }
+
+  note top of MessengerBot
+    複数送信する予定のメッセージの内容messagesWillSentを
+    ここで持たせてreplyMessagesやpushMessagesが実際に呼ばれた時に
+    個々の実装に依って(LineだとMultiMessageBuilder、Facebookならリクエスト複数)送信する
+
+    設定ファイル(項目の説明を書いておく)から
+    LineやFacebookにあったトークンを読み込みBotインタフェースのクラスとCurlを生成する
+
+    リクエストの検証処理(FacebookやLineからのリクエストかどうか)はgetEvents()内で行う
+  end note
+
+  namespace FacebookBot {
+
+    class FacebookBot{
+    }
+
+    class GenericMessageBuilder
+    class AtachmentMessageBuilder
+    class TextMessageBuilder
+
+  }
+
+  namespace LineBot {
+
+    class LineBot
+    class CarouselMessageBuilder
+    class FileMessageBuilder
+    class TextMessageBuilder
+
+  }
+
+  namespace HttpClient {
+
+    class Curl {
+      + post()
+      + get()
+    }
+
+  }
+
+}
+
+' MessengerFramework内の関連
+
+MessengerFramework.MessengerBot *.l.> MessengerFramework.IBot
+MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.FacebookBot
+MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.LineBot
+MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.GenericMessageBuilder
+MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.AtachmentMessageBuilder
+MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.TextMessageBuilder
+MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.CarouselMessageBuilder
+MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.FileMessageBuilder
+MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.TextMessageBuilder
+MessengerFramework.MessengerBot .r.> MessengerFramework.FacebookEvent
+MessengerFramework.MessengerBot .r.> MessengerFramework.LineEvent
+MessengerFramework.MessengerBot .l.> MessengerFramework.HttpClient.Curl
+
+MessengerFramework.IBot .d.> MessengerFramework.IMessageBuilder
+
+MessengerFramework.FacebookBot.FacebookBot .u.|> MessengerFramework.IBot
+MessengerFramework.FacebookBot.FacebookBot -[hidden]d- MessengerFramework.FacebookBot.GenericMessageBuilder
+MessengerFramework.FacebookBot.FacebookBot -[hidden]d- MessengerFramework.FacebookBot.AtachmentMessageBuilder
+MessengerFramework.FacebookBot.FacebookBot -[hidden]d- MessengerFramework.FacebookBot.TextMessageBuilder
+MessengerFramework.FacebookBot.FacebookBot ..> MessengerFramework.IMessageBuilder
+MessengerFramework.FacebookBot.FacebookBot *..> MessengerFramework.HttpClient.Curl
+
+MessengerFramework.LineBot.LineBot .u.|> MessengerFramework.IBot
+MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.CarouselMessageBuilder
+MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.TextMessageBuilder
+MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.FileMessageBuilder
+MessengerFramework.LineBot.LineBot ..> MessengerFramework.IMessageBuilder
+
+MessengerFramework.FacebookBot.GenericMessageBuilder .u.|> MessengerFramework.IMessageBuilder
+MessengerFramework.FacebookBot.AtachmentMessageBuilder .u.|> MessengerFramework.IMessageBuilder
+MessengerFramework.FacebookBot.TextMessageBuilder .u.|> MessengerFramework.IMessageBuilder
+
+MessengerFramework.LineBot.CarouselMessageBuilder .u.|> MessengerFramework.IMessageBuilder
+MessengerFramework.LineBot.TextMessageBuilder .u.|> MessengerFramework.IMessageBuilder
+MessengerFramework.LineBot.FileMessageBuilder .u.|> MessengerFramework.IMessageBuilder
+
+MessengerFramework.Event <|-u- MessengerFramework.FacebookEvent
+MessengerFramework.Event <|-u- MessengerFramework.LineEvent
+MessengerFramework.Event -[hidden]d- MessengerFramework.LineBot.LineBot
+
+MessengerFramework.HttpClient.Curl -[hidden]d- MessengerFramework.FacebookBot.FacebookBot
+
+' LINE公式SDK内の関連
+
+LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.ImageMessageBuilder
+LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.TemplateMessageBuilder
+LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.TextMessageBuilder
+
+LINE.LINEBot.ITemplateActionBuilder -[hidden]d- LINE.LINEBot.TemplateActionBuilder
+
+LINE.LINEBot.MessageBuilder.TextMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
+
+LINE.LINEBot.MessageBuilder.ImageMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
+
+LINE.LINEBot.MessageBuilder.TemplateMessageBuilder -[hidden]l- LINE.LINEBot.MessageBuilder.ImageMessageBuilder
+LINE.LINEBot.MessageBuilder.TemplateMessageBuilder -[hidden]l- LINE.LINEBot.MessageBuilder.TextMessageBuilder
+LINE.LINEBot.MessageBuilder.TemplateMessageBuilder -[hidden]l- LINE.LINEBot.MessageBuilder.MultiMessageBuilder
+LINE.LINEBot.MessageBuilder.TemplateMessageBuilder .r.> LINE.LINEBot.MessageBuilder.ITemplateBuilder
+LINE.LINEBot.MessageBuilder.TemplateMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
+
+LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder .u.|> LINE.LINEBot.MessageBuilder.ITemplateBuilder
+LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder .u.> LINE.LINEBot.ITemplateActionBuilder
+
+LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselTemplateBuilder .u.|> LINE.LINEBot.MessageBuilder.ITemplateBuilder
+LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselTemplateBuilder .u.> LINE.LINEBot.ITemplateActionBuilder
+
+LINE.LINEBot.TemplateActionBuilder.PostbackTemplateActionBuilder .u.|> LINE.LINEBot.ITemplateActionBuilder
+
+LINE.LINEBot.TemplateActionBuilder.MessageTemplateActionBuilder .u.|> LINE.LINEBot.ITemplateActionBuilder
+
+
+' MessengerFrameworkとLINE公式SDKの関連
+
+MessengerFramework -[hidden]d- LINE
+MessengerFramework.FacebookBot -[hidden]d- LINE.LINEBot.TemplateActionBuilder
+MessengerFramework.LineBot -[hidden]d- LINE.LINEBot.MessageBuilder
+
+
+MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.CarouselMessageBuilder
+MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.TemplateActionBuilder.MessageTemplateActionBuilder
+MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.TemplateActionBuilder.PostbackTemplateActionBuilder
+MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselTemplateBuilder
+MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder
+
+MessengerFramework.LineBot.FileMessageBuilder ..> LINE.LINEBot.MessageBuilder.ImageMessageBuilder
+
+MessengerFramework.LineBot.TextMessageBuilder ..> LINE.LINEBot.MessageBuilder.TextMessageBuilder
+
+@enduml
