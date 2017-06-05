@@ -167,6 +167,9 @@ MessengerFramework.Event -[hidden]d- MessengerFramework.LineBot.LineBot
 
 MessengerFramework.HttpClient.Curl -[hidden]d- MessengerFramework.FacebookBot.FacebookBot
 
+MessengerFramework.FacebookEvent *.u.> MessengerFramework.HttpClient.Curl
+MessengerFramework.LineEvent *.u.> MessengerFramework.HttpClient.Curl
+
 ' LINE公式SDK内の関連
 
 LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.ImageMessageBuilder
