@@ -54,11 +54,7 @@ class LineBot implements Bot {
       $this->getProfileEndpoint($userId),
       ['Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN]
     );
-    $profile = json_decode($res);
-    return [
-      'name' => $profile->displayName,
-      'profilePic' => $profile->pictureUrl
-    ];
+    return json_decode($res);
   }
 
   private function getReplyEndpoint() {

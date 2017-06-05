@@ -263,10 +263,13 @@ class FacebookBotTest extends TestCase {
         'https://graph.facebook.com/v2.6/1000000000000000?access_token=develop'
       )->willReturn('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}');
     $bot = new FacebookBot($this->curlMock);
-    $profile = [
-      'name' => 'Taro Test',
-      'profilePic' => 'test.jpg'
-    ];
+    $profile = new \StdClass();
+    $profile->first_name = 'Taro';
+    $profile->last_name = 'Test';
+    $profile->profile_pic = 'test.jpg';
+    $profile->locale = 'ja_JP';
+    $profile->timezone = 9;
+    $profile->gender = 'male';
     $this->assertEquals($profile, $bot->getProfile('1000000000000000'));
   }
 

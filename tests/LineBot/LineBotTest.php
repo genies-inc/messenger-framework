@@ -352,10 +352,11 @@ class LineTest extends TestCase {
         ['Authorization' => 'Bearer develop']
       )->willReturn('{"displayName":"Taro Test","userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","pictureUrl":"test.jpg","statusMessage":"ステータスメッセージ"}');
     $bot = new LineBot($this->curlMock);
-    $profile = [
-      'name' => 'Taro Test',
-      'profilePic' => 'test.jpg'
-    ];
+    $profile = new \stdClass();
+    $profile->displayName = 'Taro Test';
+    $profile->userId = '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0';
+    $profile->pictureUrl = 'test.jpg';
+    $profile->statusMessage = 'ステータスメッセージ';
     $this->assertEquals($profile, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
   }
 

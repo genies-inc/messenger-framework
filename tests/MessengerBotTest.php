@@ -499,24 +499,23 @@ class MessengerBotTest extends TestCase {
   /**
    * @dataProvider profileDataProvider
    */
-  public function testGetProfile($platform, $userId, $expectedProfile) {
-    require_once './tests/utils/INJECT_ASSERTER.php';
-    global $testerMock;
-    $testerMock = function ($args) use($userId, $expectedProfile) {
-      $this->assertEquals($userId, $args[0]);
-      return $expectedProfile;
-    };
+  public function testGetProfile($platform, $userId) {
     $bot = new MessengerBot($platform);
-    $this->assertEquals($expectedProfile, $bot->getProfile($userId));
+    try {
+      $bot->getProfile($userId);
+      $this->fail('おかしなリクエストを送ったのにエラーになっていないです。');
+    } catch (\UnexpectedValueException $e) {
+      $this->addToAssertionCount(1);
+    }
   }
 
   public function profileDataProvider() {
     return [
       'facebook profile' => [
-        'facebook', '1000000000000000', [ 'name' => 'taro', 'profilePic' => 'http://taro.co.jp/profile.jpg' ]
+        'facebook', '1000000000000000'
       ],
       'line profile' => [
-        'line', '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0', [ 'name' => 'taro', 'profilePic' => 'http://taro.co.jp/profile.jpg' ]
+        'line', '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
       ]
     ];
   }

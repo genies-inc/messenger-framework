@@ -49,11 +49,7 @@ class FacebookBot implements Bot {
 
   public function getProfile(String $userId) {
     $res = $this->httpClient->get($this->getProfileEndpoint($userId));
-    $profile = json_decode($res);
-    return [
-      'name' => $profile->first_name . ' ' . $profile->last_name,
-      'profilePic' => $profile->profile_pic
-    ];
+    return json_decode($res);
   }
 
   private function sendMessage(String $to, MessageBuilder $builder) {
