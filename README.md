@@ -4,7 +4,6 @@
 
 # 利用時の注意
 
-MessengerBot#getProfile()は未実装
 Facebookの初回認証は対応していない。
 
 # 開発手順
@@ -59,6 +58,8 @@ Lineの生のイベントは`リクエスト#events`を展開したものとす�
 ラッパーのイベントのuserIdはユーザーのプロフィールを取得したりpushしたりする時に使うユーザー毎に一意なID。
 
 ラッパーのイベントのreplyTokeは返信に必要なトークン、Facebookは`sender.id`、Lineは`replyToken`のこと。
+
+`MessengerBot#getProfile()`で返ってくる連想配列の値は未設定などの理由でnullを取り得る。
 
 ### TemplateMessage
 
