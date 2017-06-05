@@ -17,7 +17,7 @@ class LineTest extends TestCase {
   public function setUp() {
     $this->curlMock = null;
     $this->curlMock = $this->getMockBuilder(Curl::class)
-      ->setMethods(['post'])
+      ->setMethods([ 'post', 'get' ])
       ->getMock();
     /*
       postのモックについて
@@ -342,6 +342,21 @@ class LineTest extends TestCase {
     $bot = new LineBot($this->curlMock);
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
     $this->assertEquals(\json_decode($requestBody), $bot->parseEvents($requestBody));
+  }
+
+  public function testGetProfile() {
+    $this->curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        'https://api.line.me/v2/bot/profile/0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+        ['Authorization' => 'Bearer develop']
+      )->willReturn('{"displayName":"Taro Test","userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","pictureUrl":"test.jpg","statusMessage":"ステータスメッセージ"}');
+    $bot = new LineBot($this->curlMock);
+    $profile = [
+      'name' => 'Taro Test',
+      'profilePic' => 'test.jpg'
+    ];
+    $this->assertEquals($profile, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
   }
 
 }

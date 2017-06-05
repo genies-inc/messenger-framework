@@ -50,7 +50,15 @@ class LineBot implements Bot {
   }
 
   public function getProfile(String $userId) {
-    throw new \BadMethodCallException('まだ実装されていません。');
+    $res = $this->httpClient->get(
+      $this->getProfileEndpoint($userId),
+      ['Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN]
+    );
+    $profile = json_decode($res);
+    return [
+      'name' => $profile->displayName,
+      'profilePic' => $profile->pictureUrl
+    ];
   }
 
   private function getReplyEndpoint() {
@@ -59,6 +67,10 @@ class LineBot implements Bot {
 
   private function getPushEndpoint() {
     return $this->endpoint . 'v2/bot/message/push';
+  }
+
+  private function getProfileEndpoint($userId) {
+    return $this->endpoint . 'v2/bot/profile/' . $userId;
   }
 
 }

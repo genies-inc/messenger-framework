@@ -150,7 +150,7 @@ class MessengerBot {
       return $this->core->getProfile($userId);
       break;
       case 'line' :
-      return tester($userId);
+      return $this->core->getProfile($userId);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
