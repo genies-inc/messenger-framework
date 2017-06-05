@@ -145,13 +145,24 @@ class MessengerBot {
   }
 
   public function getProfile($userId) {
+    $profile = $this->core->getProfile($userId);
     switch ($this->type) {
       case 'facebook' :
-      return tester($userId);
-      break;
+      if (!isset($profile->first_name)) {
+        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+      }
+      return [
+        'name' => $profile->first_name . ' ' . $profile->last_name,
+        'profilePic' => $profile->profile_pic
+      ];
       case 'line' :
-      return tester($userId);
-      break;
+      if (!isset($profile->displayName)) {
+        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+      }
+      return [
+        'name' => $profile->displayName,
+        'profilePic' => $profile->pictureUrl
+      ];
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
     }

@@ -16,7 +16,7 @@ class FacebookBotTest extends TestCase {
   public function setUp() {
     $this->curlMock = null;
     $this->curlMock = $this->getMockBuilder(Curl::class)
-      ->setMethods(['post'])
+      ->setMethods([ 'post', 'get' ])
       ->getMock();
       /*
         postのモックについて
@@ -254,6 +254,23 @@ class FacebookBotTest extends TestCase {
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $x_hub_signature = 'sha1=' . hash_hmac('sha1', $jsonString, 'develop');
     $this->assertTrue($bot->testSignature($jsonString, $x_hub_signature));
+  }
+
+  public function testGetProfile() {
+    $this->curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        'https://graph.facebook.com/v2.6/1000000000000000?access_token=develop'
+      )->willReturn('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}');
+    $bot = new FacebookBot($this->curlMock);
+    $profile = new \StdClass();
+    $profile->first_name = 'Taro';
+    $profile->last_name = 'Test';
+    $profile->profile_pic = 'test.jpg';
+    $profile->locale = 'ja_JP';
+    $profile->timezone = 9;
+    $profile->gender = 'male';
+    $this->assertEquals($profile, $bot->getProfile('1000000000000000'));
   }
 
 }

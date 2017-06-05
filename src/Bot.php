@@ -14,4 +14,6 @@ interface Bot {
 
   public function testSignature(String $requestBody, String $signature);
 
+  public function getProfile(String $userId);
+
 }

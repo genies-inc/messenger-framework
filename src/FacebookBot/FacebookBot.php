@@ -47,6 +47,11 @@ class FacebookBot implements Bot {
     return $sample === $target;
   }
 
+  public function getProfile(String $userId) {
+    $res = $this->httpClient->get($this->getProfileEndpoint($userId));
+    return json_decode($res);
+  }
+
   private function sendMessage(String $to, MessageBuilder $builder) {
     $body = [
       'recipient' => [
@@ -59,6 +64,10 @@ class FacebookBot implements Bot {
 
   private function getMessageEndpoint() {
     return $this->endPoint . 'v2.6/me/messages' . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
+  }
+
+  private function getProfileEndpoint($userId) {
+    return $this->endPoint .'v2.6/' . $userId . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
   }
 
 }

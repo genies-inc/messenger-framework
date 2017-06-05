@@ -49,12 +49,24 @@ class LineBot implements Bot {
     return \json_decode($requestBody);
   }
 
+  public function getProfile(String $userId) {
+    $res = $this->httpClient->get(
+      $this->getProfileEndpoint($userId),
+      ['Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN]
+    );
+    return json_decode($res);
+  }
+
   private function getReplyEndpoint() {
     return $this->endpoint . 'v2/bot/message/reply';
   }
 
   private function getPushEndpoint() {
     return $this->endpoint . 'v2/bot/message/push';
+  }
+
+  private function getProfileEndpoint($userId) {
+    return $this->endpoint . 'v2/bot/profile/' . $userId;
   }
 
 }
