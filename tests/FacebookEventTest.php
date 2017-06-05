@@ -4,16 +4,26 @@ namespace MessengerFramework\Test;
 
 use PHPUnit\Framework\TestCase;
 use MessengerFramework\FacebookEvent;
+use MessengerFramework\HttpClient\Curl;
 
-require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
-
+// FIXME: Curlを持たせているのがおかしい、では生成時にクロージャを渡してあげる？それもややこしい
+// そもそもここでトークンを見ているのもおかしい
+// MessengerBot#getFilesOf($event)とするのはどうだろうか?
 class FacebookEventTest extends TestCase {
+
+  private $curlMock;
+
+  public function setUp() {
+    $this->curlMock = $this->getMockBuilder(Curl::class)
+      ->setMethods(['get'])
+      ->getMock();
+  }
 
   /**
    * @dataProvider messagingProvider
    */
   public function testConstructor($messaging, $expectedType) {
-    $event = new FacebookEvent($messaging);
+    $event = new FacebookEvent($messaging, $this->curlMock);
     $this->assertEquals($messaging, $event->rawData);
     $this->assertEquals($messaging->sender->id, $event->userId);
     $this->assertEquals($messaging->sender->id, $event->replyToken);
@@ -48,22 +58,22 @@ class FacebookEventTest extends TestCase {
   /**
    * @dataProvider fileEventProvider
    */
-  public function testGetFiles($event, $expected, $files) {
-    $event = new FacebookEvent($event);
-    // TODO: ファイルが一つしかない前提で書いている
-    // リクエストを投げてくれるクラスを作ったらそれをスタブで置き換えて試すこと!
-    global $file_get_contents_rtv;
-    $file_get_contents_rtv = $files[0];
-
-    $this->assertEquals($expected, $event->getFiles());
+  public function testGetFiles($event, $getUrl, $filename) {
+    $this->curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        $this->equalTo($getUrl)
+      )->willReturn('test');
+    $event = new FacebookEvent($event, $this->curlMock);
+    $this->assertEquals([ $filename => 'test' ], $event->getFiles());
   }
 
   public function fileEventProvider() {
     return [
       'file(image) message' => [
         json_decode('{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"./tests/resources/message_image.jpg"}}]}}'),
-        ['message_image.jpg' => file_get_contents('./tests/resources/message_image.jpg')],
-        [file_get_contents('./tests/resources/message_image.jpg')]
+        './tests/resources/message_image.jpg',
+        'message_image.jpg'
       ]
     ];
   }
