@@ -4,16 +4,23 @@ namespace MessengerFramework\Test;
 
 use PHPUnit\Framework\TestCase;
 use MessengerFramework\LineEvent;
-
-require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
+use MessengerFramework\HttpClient\Curl;
 
 class LineEventTest extends TestCase {
+
+  private $curlMock;
+
+  public function setUp() {
+    $this->curlMock = $this->getMockBuilder(Curl::class)
+      ->setMethods(['get'])
+      ->getMock();
+  }
 
   /**
    * @dataProvider eventProvider
    */
   public function testConstructor($rawEvent, $expectedType) {
-    $event = new LineEvent($rawEvent);
+    $event = new LineEvent($rawEvent, $this->curlMock);
     $this->assertEquals($rawEvent, $event->rawData);
     $this->assertEquals($rawEvent->source->userId, $event->userId);
     $this->assertEquals($rawEvent->replyToken, $event->replyToken);
@@ -48,23 +55,24 @@ class LineEventTest extends TestCase {
   /**
    * @dataProvider fileEventProvider
    */
-  public function testGetFiles($event, $expected, $files) {
-    $event = new LineEvent($event);
-
-    // TODO: ファイルが一つしかない前提で書いている
-    // リクエストを投げてくれるクラスを作ったらそれをスタブで置き換えて試すこと!
-    global $file_get_contents_rtv;
-    $file_get_contents_rtv = $files[0];
-
-    $this->assertEquals($expected, $event->getFiles());
+  public function testGetFiles($event, $fileId) {
+    $this->curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/' . $fileId . '/content'),
+        $this->equalTo([
+          'Authorization' => 'Bearer develop'
+        ])
+      )->willReturn('test');
+    $event = new LineEvent($event, $this->curlMock);
+    $this->assertEquals([$fileId . '.jpg' => 'test'], $event->getFiles());
   }
 
   public function fileEventProvider() {
     return [
       'file(image) message' => [
         json_decode('{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}'),
-        ['2222222222222.jpg' => file_get_contents('./tests/resources/message_image.jpg')],
-        [file_get_contents('./tests/resources/message_image.jpg')]
+        '2222222222222'
       ]
     ];
   }
