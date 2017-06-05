@@ -49,6 +49,10 @@ class LineBot implements Bot {
     return \json_decode($requestBody);
   }
 
+  public function getProfile(String $userId) {
+    throw new \BadMethodCallException('まだ実装されていません。');
+  }
+
   private function getReplyEndpoint() {
     return $this->endpoint . 'v2/bot/message/reply';
   }

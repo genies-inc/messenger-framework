@@ -147,7 +147,7 @@ class MessengerBot {
   public function getProfile($userId) {
     switch ($this->type) {
       case 'facebook' :
-      return tester($userId);
+      return $this->core->getProfile($userId);
       break;
       case 'line' :
       return tester($userId);
