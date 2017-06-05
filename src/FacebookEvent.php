@@ -2,14 +2,18 @@
 
 namespace  MessengerFramework;
 
-use  MessengerFramework\Event;
+use MessengerFramework\Event;
+use MessengerFramework\HttpClient\Curl;
 
 class FacebookEvent extends Event {
 
   // [ attachment#type => ファイルのURL ]
   private $fileUrls = null;
 
-  public function __construct($messaging) {
+  private $httpClient;
+
+  public function __construct($messaging, Curl $httpClient) {
+    $this->httpClient = $httpClient;
     $this->userId = $messaging->sender->id ?? null;
     $this->replyToken = $messaging->sender->id ?? null;
     $this->rawData = $messaging;
@@ -40,7 +44,7 @@ class FacebookEvent extends Event {
     $files = [];
     foreach ($this->fileUrls as $url) {
       $filename = $this->getKey($url);
-      $files[$filename] = file_get_contents();
+      $files[$filename] = $this->httpClient->get($url);
     }
     return $files;
   }

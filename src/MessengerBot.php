@@ -189,7 +189,7 @@ class MessengerBot {
 
       foreach ($entry->messaging as $messaging) {
         try {
-          $event = new FacebookEvent($messaging);
+          $event = new FacebookEvent($messaging, new Curl());
           array_push($events, $event);
         } catch (\InvalidArgumentException $e) {
           array_push($events, null);
