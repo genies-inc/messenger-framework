@@ -144,6 +144,19 @@ class MessengerBot {
     }
   }
 
+  public function addVideo(String $fileUrl, String $previewUrl = null) {
+    switch ($this->type) {
+      case 'facebook' :
+      array_push($this->messageWillSent, new FB\AttachmentMessageBuilder('video', $fileUrl));
+      break;
+      case 'line' :
+      array_push($this->messageWillSent, new Line\FileMessageBuilder('video', $fileUrl, $previewUrl));
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
   public function getProfile($userId) {
     $profile = $this->core->getProfile($userId);
     switch ($this->type) {

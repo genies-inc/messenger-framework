@@ -4,6 +4,7 @@ namespace MessengerFramework\LineBot;
 
 use MessengerFramework\MessageBuilder;
 use LINE\LINEBot\MessageBuilder\ImageMessageBuilder;
+use LINE\LINEBot\MessageBuilder\VideoMessageBuilder;
 
 class FileMessageBuilder implements MessageBuilder {
 
@@ -17,6 +18,9 @@ class FileMessageBuilder implements MessageBuilder {
     switch ($type) {
       case 'image' :
       $this->sdkBuilder = new ImageMessageBuilder($filePath, $previewData);
+      break;
+      case 'video' :
+      $this->sdkBuilder = new VideoMessageBuilder($filePath, $previewData);
       break;
       default :
       // TODO: LineAPIのsend message objectの未対応ファイルのエラーの責任をここじゃなくてAPIに押し付ける
