@@ -22,6 +22,12 @@ class Curl {
     ]);
 
     $response =  curl_exec($ch);
+    $code = curl_errno($ch);
+    if ($code !== CURLE_OK) {
+      $message = curl_error($ch);
+      curl_close($ch);
+      throw new \RuntimeException($message, $code);
+    }
     curl_close($ch);
     return $response;
   }
@@ -41,6 +47,12 @@ class Curl {
       CURLOPT_TIMEOUT => self::AWAIT_SECOND
     ]);
     $response = curl_exec($ch);
+    $code = curl_errno($ch);
+    if ($code !== CURLE_OK) {
+      $message = curl_error($ch);
+      curl_close($ch);
+      throw new \RuntimeException($message, $code);
+    }
     curl_close($ch);
     return $response;
   }
