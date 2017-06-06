@@ -3,7 +3,6 @@
 namespace MessengerFramework\LineBot;
 
 use MessengerFramework\MessageBuilder;
-use LINE\LINEBot\MessageBuilder\TextMessageBuilder as SDKTextMessageBuilder;
 
 class TextMessageBuilder implements MessageBuilder {
 
@@ -14,7 +13,12 @@ class TextMessageBuilder implements MessageBuilder {
   }
 
   public function buildMessage() {
-    return (new SDKTextMessageBuilder($this->text))->buildMessage();
+    return [
+      [
+        'type' => 'text',
+        'text' => $this->text
+      ]
+    ];
   }
 
 }
