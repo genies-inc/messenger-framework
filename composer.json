@@ -2,8 +2,7 @@
   "name": "genies/messengerframework",
   "description": "各サービスのMessengerBotのラッパー",
   "require": {
-    "php": "^7.1",
-    "linecorp/line-bot-sdk": "^2.0"
+    "php": "^7.1"
   },
   "require-dev": {
     "phpunit/phpunit": "^6.1"
