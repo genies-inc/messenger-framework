@@ -5,6 +5,8 @@ namespace MessengerFramework\HttpClient;
 // TODO: ヘッダ情報も含めて返すようにする
 class Curl {
 
+  private const AWAIT_SECOND = 12;
+
   public function get(String $url, Array $headers = null, Array $queryArray = null) {
     if (!is_null($queryArray)) {
       $query = http_build_query($queryArray);
@@ -15,7 +17,8 @@ class Curl {
     curl_setopt_array($ch, [
       CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
       CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_HTTPGET => true
+      CURLOPT_HTTPGET => true,
+      CURLOPT_TIMEOUT => self::AWAIT_SECOND
     ]);
 
     $response =  curl_exec($ch);
@@ -34,7 +37,8 @@ class Curl {
       CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
       CURLOPT_POST => true,
       CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray ?? []) : \http_build_query($bodyArray ?? []),
-      CURLOPT_RETURNTRANSFER => true
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_TIMEOUT => self::AWAIT_SECOND
     ]);
     $response = curl_exec($ch);
     curl_close($ch);
