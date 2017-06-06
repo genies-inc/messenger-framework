@@ -60,8 +60,12 @@ class MessengerBot {
       case 'facebook' :
       $responses = [];
       foreach ($this->messageWillSent as $message) {
-        $res = $this->core->replyMessage($replyToken, $message);
-        array_push($responses, \json_decode($res));
+        try {
+          $res = $this->core->replyMessage($replyToken, $message);
+          array_push($responses, json_decode($res));
+        } catch (\RuntimeException $e) {
+          array_push($responses, $e);
+        }
       }
       $this->messageWillSent = [];
       return \json_encode($responses);
@@ -71,7 +75,12 @@ class MessengerBot {
       foreach ($this->messageWillSent as $message) {
         $multiMessage->add($message);
       }
-      $res = $this->core->replyMessage($replyToken, $multiMessage);
+      try {
+        $res = $this->core->replyMessage($replyToken, $multiMessage);
+      } catch (\RuntimeException $e) {
+          $this->messageWillSent = [];
+          return $e;
+      }
       $this->messageWillSent = [];
       return $res;
       break;
@@ -85,8 +94,12 @@ class MessengerBot {
       case 'facebook' :
       $responses = [];
       foreach ($this->messageWillSent as $message) {
-        $res = $this->core->pushMessage($recipientId, $message);
-        array_push($responses, \json_decode($res));
+        try {
+          $res = $this->core->pushMessage($recipientId, $message);
+          array_push($responses, json_decode($res));
+        } catch (\RuntimeException $e) {
+          array_push($responses, $e);
+        }
       }
       $this->messageWillSent = [];
       return \json_encode($responses);
@@ -96,7 +109,12 @@ class MessengerBot {
       foreach ($this->messageWillSent as $message) {
         $multiMessage->add($message);
       }
-      $res = $this->core->pushMessage($recipientId, $multiMessage);
+      try {
+        $res = $this->core->replyMessage($replyToken, $multiMessage);
+      } catch (\RuntimeException $e) {
+          $this->messageWillSent = [];
+          return $e;
+      }
       $this->messageWillSent = [];
       return $res;
       break;
