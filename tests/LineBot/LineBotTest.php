@@ -116,7 +116,10 @@ class LineTest extends TestCase {
 
   }
 
-  public function testReplyFileMessage() {
+  /**
+   * @dataProvider fileDataProvider
+   */
+  public function testReplyFileMessage($type, $source, $preview, $expectedMessage) {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
@@ -126,18 +129,12 @@ class LineTest extends TestCase {
         ]),
         $this->equalTo([
           'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [
-            [
-              'type' => 'image',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
+          'messages' => [ $expectedMessage ]
         ]),
         $this->equalTo(true)
       );
     $bot = new LineBot($this->curlMock);
-    $builder = new FileMessageBuilder('image', 'https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
+    $builder = new FileMessageBuilder($type, $source, $preview);
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f', $builder);
     $this->addToAssertionCount(1);
   }
@@ -266,7 +263,10 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testPushFileMessage() {
+  /**
+   * @dataProvider fileDataProvider
+   */
+  public function testPushFileMessage($type, $source, $preview, $expectedMessage) {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
@@ -276,18 +276,12 @@ class LineTest extends TestCase {
         ]),
         $this->equalTo([
           'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'image',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
+          'messages' => [ $expectedMessage ]
         ]),
         $this->equalTo(true)
       );
     $bot = new LineBot($this->curlMock);
-    $builder = new FileMessageBuilder('image', 'https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
+    $builder = new FileMessageBuilder($type, $source, $preview);
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0', $builder);
     $this->addToAssertionCount(1);
   }
@@ -358,6 +352,35 @@ class LineTest extends TestCase {
     $profile->pictureUrl = 'test.jpg';
     $profile->statusMessage = 'ステータスメッセージ';
     $this->assertEquals($profile, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
+  }
+
+  public function fileDataProvider() {
+    return [
+      'image' => [
+        'image', 'https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg',
+        [
+          'type' => 'image',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
+          'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+        ]
+      ],
+      'video' => [
+        'video', 'https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg',
+        [
+          'type' => 'video',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
+          'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+        ]
+      ],
+      'audio' => [
+        'audio', 'https://www.sampleimage.com/sample.m4a', 10000,
+        [
+          'type' => 'audio',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
+          'duration' => 10000
+        ]
+      ]
+    ];
   }
 
 }

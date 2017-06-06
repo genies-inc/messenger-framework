@@ -414,6 +414,35 @@ class MessengerBotTest extends TestCase {
   /**
    * @backupGlobals enabled
    */
+  public function testAudioReplyFacebook() {
+    $requestBody = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
+    // Facebookからのリクエストとして設定する
+    // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト返信用にわざわざ作っているのを必要な部分だけにする
+    $signature = hash_hmac('sha1', $requestBody, self::FACEBOOK_APP_SECRET);
+    $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'sha1=' . $signature;
+    global $file_get_contents_rtv;
+    $file_get_contents_rtv = $requestBody;
+    $bot = new MessengerBot('facebook');
+
+    foreach ($bot->getEvents() as $event) {
+      $bot->addAudio('https://www.sampleimage.com/sample.mp3');
+      $bot->reply($event->replyToken);
+      $this->addToAssertionCount(1);
+    }
+  }
+
+  public function testAudioPushFacebook() {
+    // Facebookからのリクエストとして設定する
+    $bot = new MessengerBot('facebook');
+
+    $bot->addVideo('https://www.sampleimage.com/sample.mp3');
+    $response = $bot->push('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  /**
+   * @backupGlobals enabled
+   */
   public function testTextReplyLine() {
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
     // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト送信用にわざわざ作っているのを必要な部分だけにする
@@ -519,6 +548,33 @@ class MessengerBotTest extends TestCase {
     $bot = new MessengerBot('line');
 
     $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
+    $response = $bot->push('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
+  }
+
+  /**
+   * @backupGlobals enabled
+   */
+  public function testAudioReplyLine() {
+    $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
+    // TODO: リクエスト検証処理をスタブして有効なリクエストボディをテキスト送信用にわざわざ作っているのを必要な部分だけにする
+    $_SERVER['HTTP_X_LINE_SIGNATURE'] = base64_encode(hash_hmac('sha256', $requestBody, self::LINE_CHANNEL_SECRET, true));
+
+    global $file_get_contents_rtv;
+    $file_get_contents_rtv = $requestBody;
+    $bot = new MessengerBot('line');
+
+    foreach ($bot->getEvents() as $event) {
+      $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
+      $bot->reply($event->replyToken);
+      $this->addToAssertionCount(1);
+    }
+  }
+
+  public function testAudioPushLine() {
+    $bot = new MessengerBot('line');
+
+    $bot->addVideo('https://www.sampleimage.com/sample.m4a', 10000);
     $response = $bot->push('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }

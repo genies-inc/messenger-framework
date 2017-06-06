@@ -109,7 +109,10 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testReplyAttachmentMessage() {
+  /**
+   * @dataProvider attachmentDataProvider
+   */
+  public function testReplyAttachmentMessage($type, $source, $expectedMessage) {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
@@ -119,19 +122,12 @@ class FacebookBotTest extends TestCase {
           'recipient' => [
             'id' => '1000000000000000'
           ],
-          'message' => [
-            'attachment' => [
-              'type' => 'image',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.jpg'
-              ]
-            ]
-          ]
+          'message' => $expectedMessage
         ]),
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $builder = new AttachmentMessageBuilder('image', 'https://www.sampleimage.com/sample.jpg');
+    $builder = new AttachmentMessageBuilder($type, $source);
     $bot->replyMessage('1000000000000000', $builder);
     $this->addToAssertionCount(1);
   }
@@ -216,7 +212,10 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testPushAttachmentMessage() {
+  /**
+   * @dataProvider attachmentDataProvider
+   */
+  public function testPushAttachmentMessage($type, $source, $expectedMessage) {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
@@ -226,19 +225,12 @@ class FacebookBotTest extends TestCase {
           'recipient' => [
             'id' => '1000000000000000'
           ],
-          'message' => [
-            'attachment' => [
-              'type' => 'image',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.jpg'
-              ]
-            ]
-          ]
+          'message' => $expectedMessage
         ]),
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $builder = new AttachmentMessageBuilder('image', 'https://www.sampleimage.com/sample.jpg');
+    $builder = new AttachmentMessageBuilder($type, $source);
     $bot->pushMessage('1000000000000000', $builder);
     $this->addToAssertionCount(1);
   }
@@ -271,6 +263,44 @@ class FacebookBotTest extends TestCase {
     $profile->timezone = 9;
     $profile->gender = 'male';
     $this->assertEquals($profile, $bot->getProfile('1000000000000000'));
+  }
+
+  public function attachmentDataProvider() {
+    return [
+      'image' => [
+        'image', 'https://www.sampleimage.com/sample.jpg',
+        [
+          'attachment' => [
+            'type' => 'image',
+            'payload' => [
+              'url' => 'https://www.sampleimage.com/sample.jpg'
+            ]
+          ]
+        ]
+      ],
+      'video' => [
+        'video', 'https://www.sampleimage.com/sample.mp4',
+        [
+          'attachment' => [
+            'type' => 'video',
+            'payload' => [
+              'url' => 'https://www.sampleimage.com/sample.mp4'
+            ]
+          ]
+        ]
+      ],
+      'audio' => [
+        'audio', 'https://www.sampleimage.com/sample.mp3',
+        [
+          'attachment' => [
+            'type' => 'audio',
+            'payload' => [
+              'url' => 'https://www.sampleimage.com/sample.mp3'
+            ]
+          ]
+        ]
+      ]
+    ];
   }
 
 }
