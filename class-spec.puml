@@ -1,39 +1,5 @@
 @startuml
 
-namespace LINE {
-
-  namespace LINEBot {
-
-    interface "MessageBuilder" as IMessageBuilder
-    interface "TemplateActionBuilder" as ITemplateActionBuilder
-
-    namespace MessageBuilder {
-
-      interface "TemplateBuilder" as ITemplateBuilder
-      class TemplateMessageBuilder
-      class TextMessageBuilder
-      class ImageMessageBuilder
-
-      namespace TemplateBuilder {
-
-        class CarouselTemplateBuilder
-        class CarouselColumnTemplateBuilder
-
-      }
-
-    }
-
-    namespace TemplateActionBuilder {
-
-      class MessageTemplateActionBuilder
-      class PostbackTemplateActionBuilder
-
-    }
-
-  }
-
-}
-
 namespace MessengerFramework {
 
   interface "Bot" as IBot {
@@ -169,51 +135,5 @@ MessengerFramework.HttpClient.Curl -[hidden]d- MessengerFramework.FacebookBot.Fa
 
 MessengerFramework.FacebookEvent *.u.> MessengerFramework.HttpClient.Curl
 MessengerFramework.LineEvent *.u.> MessengerFramework.HttpClient.Curl
-
-' LINE公式SDK内の関連
-
-LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.ImageMessageBuilder
-LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.TemplateMessageBuilder
-LINE.LINEBot.IMessageBuilder -[hidden]d- LINE.LINEBot.MessageBuilder.TextMessageBuilder
-
-LINE.LINEBot.ITemplateActionBuilder -[hidden]d- LINE.LINEBot.TemplateActionBuilder
-
-LINE.LINEBot.MessageBuilder.TextMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
-
-LINE.LINEBot.MessageBuilder.ImageMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
-
-LINE.LINEBot.MessageBuilder.TemplateMessageBuilder -[hidden]l- LINE.LINEBot.MessageBuilder.ImageMessageBuilder
-LINE.LINEBot.MessageBuilder.TemplateMessageBuilder -[hidden]l- LINE.LINEBot.MessageBuilder.TextMessageBuilder
-LINE.LINEBot.MessageBuilder.TemplateMessageBuilder -[hidden]l- LINE.LINEBot.MessageBuilder.MultiMessageBuilder
-LINE.LINEBot.MessageBuilder.TemplateMessageBuilder .r.> LINE.LINEBot.MessageBuilder.ITemplateBuilder
-LINE.LINEBot.MessageBuilder.TemplateMessageBuilder .u.|> LINE.LINEBot.IMessageBuilder
-
-LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder .u.|> LINE.LINEBot.MessageBuilder.ITemplateBuilder
-LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder .u.> LINE.LINEBot.ITemplateActionBuilder
-
-LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselTemplateBuilder .u.|> LINE.LINEBot.MessageBuilder.ITemplateBuilder
-LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselTemplateBuilder .u.> LINE.LINEBot.ITemplateActionBuilder
-
-LINE.LINEBot.TemplateActionBuilder.PostbackTemplateActionBuilder .u.|> LINE.LINEBot.ITemplateActionBuilder
-
-LINE.LINEBot.TemplateActionBuilder.MessageTemplateActionBuilder .u.|> LINE.LINEBot.ITemplateActionBuilder
-
-
-' MessengerFrameworkとLINE公式SDKの関連
-
-MessengerFramework -[hidden]d- LINE
-MessengerFramework.FacebookBot -[hidden]d- LINE.LINEBot.TemplateActionBuilder
-MessengerFramework.LineBot -[hidden]d- LINE.LINEBot.MessageBuilder
-
-
-MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.CarouselMessageBuilder
-MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.TemplateActionBuilder.MessageTemplateActionBuilder
-MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.TemplateActionBuilder.PostbackTemplateActionBuilder
-MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselTemplateBuilder
-MessengerFramework.LineBot.CarouselMessageBuilder .d.> LINE.LINEBot.MessageBuilder.TemplateBuilder.CarouselColumnTemplateBuilder
-
-MessengerFramework.LineBot.FileMessageBuilder ..> LINE.LINEBot.MessageBuilder.ImageMessageBuilder
-
-MessengerFramework.LineBot.TextMessageBuilder ..> LINE.LINEBot.MessageBuilder.TextMessageBuilder
 
 @enduml
