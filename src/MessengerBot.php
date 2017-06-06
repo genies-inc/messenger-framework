@@ -60,8 +60,12 @@ class MessengerBot {
       case 'facebook' :
       $responses = [];
       foreach ($this->messageWillSent as $message) {
-        $res = $this->core->replyMessage($replyToken, $message);
-        array_push($responses, \json_decode($res));
+        try {
+          $res = $this->core->replyMessage($replyToken, $message);
+          array_push($responses, json_decode($res));
+        } catch (\RuntimeException $e) {
+          array_push($responses, self::buildCurlErrorResponse($e));
+        }
       }
       $this->messageWillSent = [];
       return \json_encode($responses);
@@ -71,7 +75,12 @@ class MessengerBot {
       foreach ($this->messageWillSent as $message) {
         $multiMessage->add($message);
       }
-      $res = $this->core->replyMessage($replyToken, $multiMessage);
+      try {
+        $res = $this->core->replyMessage($replyToken, $multiMessage);
+      } catch (\RuntimeException $e) {
+          $this->messageWillSent = [];
+          return self::buildCurlErrorResponse($e);
+      }
       $this->messageWillSent = [];
       return $res;
       break;
@@ -85,8 +94,12 @@ class MessengerBot {
       case 'facebook' :
       $responses = [];
       foreach ($this->messageWillSent as $message) {
-        $res = $this->core->pushMessage($recipientId, $message);
-        array_push($responses, \json_decode($res));
+        try {
+          $res = $this->core->pushMessage($recipientId, $message);
+          array_push($responses, json_decode($res));
+        } catch (\RuntimeException $e) {
+          array_push($responses, self::buildCurlErrorResponse($e));
+        }
       }
       $this->messageWillSent = [];
       return \json_encode($responses);
@@ -96,7 +109,12 @@ class MessengerBot {
       foreach ($this->messageWillSent as $message) {
         $multiMessage->add($message);
       }
-      $res = $this->core->pushMessage($recipientId, $multiMessage);
+      try {
+        $res = $this->core->replyMessage($replyToken, $multiMessage);
+      } catch (\RuntimeException $e) {
+          $this->messageWillSent = [];
+          return self::buildCurlErrorResponse($e);
+      }
       $this->messageWillSent = [];
       return $res;
       break;
@@ -138,6 +156,19 @@ class MessengerBot {
       break;
       case 'line' :
       array_push($this->messageWillSent, new Line\FileMessageBuilder('image', $fileUrl, $previewUrl));
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  public function addVideo(String $fileUrl, String $previewUrl = null) {
+    switch ($this->type) {
+      case 'facebook' :
+      array_push($this->messageWillSent, new FB\AttachmentMessageBuilder('video', $fileUrl));
+      break;
+      case 'line' :
+      array_push($this->messageWillSent, new Line\FileMessageBuilder('video', $fileUrl, $previewUrl));
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -230,6 +261,13 @@ class MessengerBot {
 
     return $events;
 
+  }
+
+  private static function buildCurlErrorResponse(\Exception $e) {
+    $err = new \stdClass();
+    $err->message = $e->getMessage();
+    $err->code = $e->getCode();
+    return $err;
   }
 
 }
