@@ -64,7 +64,7 @@ class MessengerBot {
           $res = $this->core->replyMessage($replyToken, $message);
           array_push($responses, json_decode($res));
         } catch (\RuntimeException $e) {
-          array_push($responses, $e);
+          array_push($responses, self::buildCurlErrorResponse($e));
         }
       }
       $this->messageWillSent = [];
@@ -79,7 +79,7 @@ class MessengerBot {
         $res = $this->core->replyMessage($replyToken, $multiMessage);
       } catch (\RuntimeException $e) {
           $this->messageWillSent = [];
-          return $e;
+          return self::buildCurlErrorResponse($e);
       }
       $this->messageWillSent = [];
       return $res;
@@ -98,7 +98,7 @@ class MessengerBot {
           $res = $this->core->pushMessage($recipientId, $message);
           array_push($responses, json_decode($res));
         } catch (\RuntimeException $e) {
-          array_push($responses, $e);
+          array_push($responses, self::buildCurlErrorResponse($e));
         }
       }
       $this->messageWillSent = [];
@@ -113,7 +113,7 @@ class MessengerBot {
         $res = $this->core->replyMessage($replyToken, $multiMessage);
       } catch (\RuntimeException $e) {
           $this->messageWillSent = [];
-          return $e;
+          return self::buildCurlErrorResponse($e);
       }
       $this->messageWillSent = [];
       return $res;
@@ -261,6 +261,13 @@ class MessengerBot {
 
     return $events;
 
+  }
+
+  private static function buildCurlErrorResponse(\Exception $e) {
+    $err = new \stdClass();
+    $err->message = $e->getMessage();
+    $err->code = $e->getCode();
+    return $err;
   }
 
 }
