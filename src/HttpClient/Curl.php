@@ -3,6 +3,10 @@
 namespace MessengerFramework\HttpClient;
 
 // TODO: ヘッダ情報も含めて返すようにする
+// TODO: Curlの実行時エラーは例外を投げるのではなく、成功時も含めたラップをした結果クラスを用意する
+// なぜならFW一番外側のMessengerBotはプラットフォームに依らない統一的な結果をユーザーに伝えたい
+// またMessengerBotは例外を吸収する必要があり、実行時例外が起きうることを知っている
+// なので各プラットフォームのBotの段階では例外が飛んで来る
 class Curl {
 
   private const AWAIT_SECOND = 12;
