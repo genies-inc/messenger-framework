@@ -58,7 +58,7 @@ class LineBot implements Bot {
   }
 
   // ファイル名 => バイナリ文字列
-  public function getFiles($event) {
+  public function getFile($event) {
     if (!isset($event->message->type) || $event->message->type === 'text') {
       return null;
     }
