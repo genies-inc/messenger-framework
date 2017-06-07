@@ -9,6 +9,8 @@ use  MessengerFramework\LineBot\LineBot;
 use  MessengerFramework\FacebookBot as FB;
 use  MessengerFramework\LineBot as Line;
 
+use MessengerFramework\Event;
+
 // MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
 class MessengerBot {
 
@@ -188,6 +190,12 @@ class MessengerBot {
     }
   }
 
+  // どのプラットフォームのイベントかはMessengerBotの状態に依存する
+  // 渡されたメッセージがFacebookのものであってもnew MessengerBot('line')だったらLineとして解釈
+  public function getFilesIn(Event $message) {
+    return $this->core->getFile($message->rawData);
+  }
+
   public function getProfile($userId) {
     $profile = $this->core->getProfile($userId);
     switch ($this->type) {
@@ -244,7 +252,7 @@ class MessengerBot {
 
       foreach ($entry->messaging as $messaging) {
         try {
-          $event = new FacebookEvent($messaging, new Curl());
+          $event = self::parseMessaging($messaging);
           array_push($events, $event);
         } catch (\InvalidArgumentException $e) {
           array_push($events, null);
@@ -253,6 +261,30 @@ class MessengerBot {
     }
 
     return $events;
+  }
+
+  private static function parseMessaging($messaging) {
+    $text = null;
+    $postbackData = null;
+    if (isset($messaging->message)) {
+      if (isset($messaging->message->attachments)) {
+        $type = 'Message.File';
+      } elseif (isset($messaging->message->text)) {
+        $type = 'Message.Text';
+        $text = $messaging->message->text;
+      } else {
+        throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
+      }
+    } elseif (isset($messaging->postback)) {
+      $type = 'Postback';
+      $postbackData = $messaging->postback->payload;
+    } else {
+      throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
+    }
+    $userId = $messaging->sender->id;
+    $replyToken = $messaging->sender->id;
+    $rawData = $messaging;
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
   }
 
   private static function convertLineEvents($rawEvents) {
@@ -265,7 +297,7 @@ class MessengerBot {
 
     foreach ($rawEvents->events as $rawEvent) {
       try {
-        $event = new LineEvent($rawEvent, new Curl());
+        $event = self::parseEvent($rawEvent);
         array_push($events, $event);
       } catch (\InvalidArgumentException $e) {
         array_push($events, null);
@@ -274,6 +306,35 @@ class MessengerBot {
 
     return $events;
 
+  }
+
+  private static function parseEvent($event) {
+    $text = null;
+    $postbackData = null;
+    if (!isset($event->type)) {
+      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
+    }
+
+    switch ($event->type) {
+      case 'message' :
+      if ($event->message->type === 'text') {
+        $type = 'Message.Text';
+        $text = $event->message->text;
+        break;
+      }
+      $type = 'Message.File';
+      break;
+      case 'postback' :
+      $type = 'Postback';
+      $postbackData = $event->postback->data;
+      break;
+      default :
+      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
+    }
+    $userId = $event->source->userId;
+    $replyToken = $event->replyToken;
+    $rawData = $event;
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
   }
 
   private static function buildCurlErrorResponse(\Exception $e) {

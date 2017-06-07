@@ -390,4 +390,31 @@ class LineTest extends TestCase {
     ];
   }
 
+  /**
+   * @dataProvider eventFileDataProvider
+   */
+  public function testGetFiles($requestBody, $expectedFiles, $expectedUrl, $expectedBinary) {
+    $this->curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        $this->equalTo($expectedUrl)
+      )->willReturn($expectedBinary);
+    $bot = new LineBot($this->curlMock);
+    $events = $bot->parseEvents($requestBody)->events;
+    foreach ($events as $event) {
+      $this->assertEquals($expectedFiles, $bot->getFiles($event));
+    }
+  }
+
+  public function eventFileDataProvider() {
+    return [
+      'image' => [
+        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}',
+        [ '2222222222222.jpg' => 'imageBinary'],
+        'https://api.line.me/v2/bot/message/2222222222222/content',
+        'imageBinary'
+      ]
+    ];
+  }
+
 }

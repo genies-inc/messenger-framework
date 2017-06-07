@@ -317,4 +317,33 @@ class FacebookBotTest extends TestCase {
     ];
   }
 
+  /**
+   * @dataProvider fileDataProvider
+   */
+  public function testGetFiles($requestBody, $expectedFiles, $expectedUrl, $expectedBinary) {
+    $this->curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        $this->equalTo($expectedUrl)
+      )->willReturn($expectedBinary);
+    $bot = new FacebookBot($this->curlMock);
+    $events = $bot->parseEvents($requestBody);
+    foreach ($events->entry as $entry) {
+      foreach ($entry->messaging as $messaging) {
+        $this->assertEquals($expectedFiles, $bot->getFiles($messaging));
+      }
+    }
+  }
+
+  public function fileDataProvider() {
+    return [
+      'image' => [
+        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}',
+        [ 'sample.jpg' => 'imageBinary'],
+        'https://www.sampleimage.com/sample.jpg',
+        'imageBinary'
+      ]
+    ];
+  }
+
 }

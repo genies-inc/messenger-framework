@@ -157,7 +157,7 @@ class MessengerBotTest extends TestCase {
     $this->setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
-    $this->assertContainsOnly(MessengerFramework\FacebookEvent::class, $bot->getEvents());
+    $this->assertContainsOnly(MessengerFramework\Event::class, $bot->getEvents());
   }
 
   public function facebookRequestProvider() {
@@ -237,7 +237,7 @@ class MessengerBotTest extends TestCase {
     $this->setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
-    $this->assertContainsOnly(MessengerFramework\LineEvent::class, $bot->getEvents());
+    $this->assertContainsOnly(MessengerFramework\Event::class, $bot->getEvents());
   }
 
   public function lineRequestProvider() {
