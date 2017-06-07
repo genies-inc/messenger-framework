@@ -57,6 +57,31 @@ class LineBot implements Bot {
     return json_decode($res);
   }
 
+  // ファイル名 => バイナリ文字列
+  public function getFiles($event) {
+    if (!isset($event->message->type) || $event->message->type === 'text') {
+      return null;
+    }
+    switch ($event->message->type) {
+      case 'image' :
+      $ext = '.jpg';
+      break;
+      case 'video' :
+      $ext = '.mp4';
+      break;
+      case 'audio' :
+      $ext = '.m4a';
+      break;
+      default :
+      break;
+    }
+    $file = $this->httpClient->get(
+      $this->getContentEndpoint($event->message->id),
+      [ 'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN ]
+    );
+    return [ $event->message->id . $ext => $file ];
+  }
+
   private function getReplyEndpoint() {
     return $this->endpoint . 'v2/bot/message/reply';
   }
@@ -67,6 +92,10 @@ class LineBot implements Bot {
 
   private function getProfileEndpoint($userId) {
     return $this->endpoint . 'v2/bot/profile/' . $userId;
+  }
+
+  private function getContentEndpoint($messageId) {
+    return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
   }
 
 }

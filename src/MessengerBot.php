@@ -192,15 +192,8 @@ class MessengerBot {
 
   // どのプラットフォームのイベントかはMessengerBotの状態に依存する
   // 渡されたメッセージがFacebookのものであってもnew MessengerBot('line')だったらLineとして解釈
-  public function getFilesIn($message) {
-    switch ($this->type) {
-      case 'facebook' :
-      break;
-      case 'line' :
-      break;
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
+  public function getFilesIn(Event $message) {
+    return $this->core->getFile($message->rawData);
   }
 
   public function getProfile($userId) {

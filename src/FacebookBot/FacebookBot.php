@@ -52,6 +52,19 @@ class FacebookBot implements Bot {
     return json_decode($res);
   }
 
+  // ファイル名 => バイナリ文字列
+  public function getFiles($messaging) {
+    if (!isset($messaging->message->attachments)) {
+      return null;
+    }
+    $files = [];
+    foreach ($messaging->message->attachments as $attachment) {
+      $url = $attachment->payload->url;
+      $files[$this->getKey($url)] = $this->httpClient->get($url);
+    }
+    return $files;
+  }
+
   private function sendMessage(String $to, MessageBuilder $builder) {
     $body = [
       'recipient' => [
@@ -68,6 +81,11 @@ class FacebookBot implements Bot {
 
   private function getProfileEndpoint($userId) {
     return $this->endPoint .'v2.6/' . $userId . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
+  }
+
+  private function getKey($url) {
+    preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
+    return $result[2];
   }
 
 }
