@@ -2,23 +2,28 @@
 
 namespace  MessengerFramework;
 
-// 正直サブクラス作るより外で組み立てるクラスを用意したほうが良さそうな予感もする
-// その場合コンストラクタの引数がすごいことになるのが問題
-abstract class Event {
+class Event {
 
-  public $replyToken = null;
+  public $replyToken;
 
-  public $userId = null;
+  public $userId;
 
-  public $type = null;
+  public $type;
 
-  public $rawData = null;
+  public $rawData;
 
-  public $text = null;
+  public $text;
 
-  public $postbackData = null;
+  public $postbackData;
 
-  abstract public function getFiles();
+  public function __construct(String $replyToken, String $userId, String $type, $rawData, String $text = null, String $postbackData = null) {
+    $this->replyToken = $replyToken;
+    $this->userId = $userId;
+    $this->type = $type;
+    $this->rawData = $rawData;
+    $this->text = $text;
+    $this->postbackData = $postbackData;
+  }
 
 }
 
