@@ -18,7 +18,7 @@ class MessengerBot {
 
   private $httpClient;
 
-  private $core;
+  public $core;
 
   private $messageWillSent = [];
 

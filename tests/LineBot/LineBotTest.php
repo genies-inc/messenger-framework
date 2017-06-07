@@ -332,6 +332,13 @@ class LineTest extends TestCase {
     $this->assertTrue($bot->testSignature($requestBody, $x_line_signature));
   }
 
+  public function testTestSignatureInvalidSignature() {
+    $bot = new LineBot($this->curlMock);
+    $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
+    $x_line_signature = base64_encode(hash_hmac('sha256', 'invalidString', true));
+    $this->assertFalse($bot->testSignature($requestBody, $x_line_signature));
+  }
+
   public function testParseEvents() {
     $bot = new LineBot($this->curlMock);
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
