@@ -112,7 +112,7 @@ class MessengerBot {
         $multiMessage->add($message);
       }
       try {
-        $res = $this->core->replyMessage($replyToken, $multiMessage);
+        $res = $this->core->pushMessage($recipientId, $multiMessage);
       } catch (\RuntimeException $e) {
           $this->messageWillSent = [];
           return self::buildCurlErrorResponse($e);
