@@ -28,11 +28,11 @@ class LineBot implements Bot {
     $messages = [];
     $i = 0;
     while ($i < 3) {
-      $message = array_pop($this->templates);
+      $message = array_shift($this->templates);
       if (is_null($message)) {
         return $messages;
       }
-      array_unshift($messages, $message);
+      array_push($messages, $message);
       $i += 1;
     }
     return $messages;

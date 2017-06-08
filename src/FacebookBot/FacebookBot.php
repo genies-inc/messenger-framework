@@ -154,7 +154,7 @@ class FacebookBot implements Bot {
       'recipient' => [
         'id' => $to
       ],
-      'message' => array_pop($this->templates)
+      'message' => array_shift($this->templates)
     ];
     return $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
   }
