@@ -565,27 +565,41 @@ class MessengerBotTest extends TestCase {
   public function templateMessageArgumentProvider() {
     return [
       'template height unmatched' => [
-        [['テンプレートタイトル', 'テンプレートの説明', 'https://www.sampleimage.com/thumbnail1.jpg', [
-          'title' => 'Postbackボタン',
-          'action' => 'postback',
-          'data' => 'key1=value1&key2=value2'
-        ], [
-          'title' => 'Messageボタン',
-          'action' => 'url',
-          'url' => 'http://hoge.com/fuga.jpg'
-        ]],['テンプレートタイトル2', 'テンプレートの説明2', 'https://www.sampleimage.com/thumbnail2.jpg', [
-          'title' => 'Postbackボタン2',
-          'action' => 'postback',
-          'data' => 'key1=value1&key2=value2'
-        ], [
-          'title' => 'Messageボタン2',
-          'action' => 'url',
-          'url' => 'http://hoge.com/fuga.jpg'
-        ], [
-          'title' => 'Messageボタン3',
-          'action' => 'url',
-          'url' => 'http://hoge.com/fuga.jpg'
-        ]]]
+        [
+          [ 'テンプレートタイトル', 'テンプレートの説明', 'https://www.sampleimage.com/thumbnail1.jpg',
+            [
+              [
+                'title' => 'Postbackボタン',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2'
+              ],
+              [
+                'title' => 'Messageボタン',
+                'action' => 'url',
+                'url' => 'http://hoge.com/fuga.jpg'
+              ]
+            ]
+          ],
+          [ 'テンプレートタイトル2', 'テンプレートの説明2', 'https://www.sampleimage.com/thumbnail2.jpg',
+            [
+              [
+                'title' => 'Postbackボタン2',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2'
+              ],
+              [
+                'title' => 'Messageボタン2',
+                'action' => 'url',
+                'url' => 'http://hoge.com/fuga.jpg'
+              ],
+              [
+                'title' => 'Messageボタン3',
+                'action' => 'url',
+                'url' => 'http://hoge.com/fuga.jpg'
+              ]
+            ]
+          ]
+        ]
       ]
     ];
 

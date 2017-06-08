@@ -22,7 +22,8 @@ class MessengerBot {
 
   public $core;
 
-  private $messageWillSent = [];
+  // これでFacebookBot内に溜めたテンプレートを数え、個数分メッセージをまとめて送るのに使う
+  private $facebookMessages = [];
 
   public function __construct($botType) {
     $this->requestBody = file_get_contents("php://input");
@@ -61,29 +62,23 @@ class MessengerBot {
     switch ($this->type) {
       case 'facebook' :
       $responses = [];
-      foreach ($this->messageWillSent as $message) {
+      foreach ($this->facebookMessages as $message) {
         try {
-          $res = $this->core->replyMessage($replyToken, $message);
+          $res = $this->core->replyMessage($replyToken);
           array_push($responses, json_decode($res));
         } catch (\RuntimeException $e) {
           array_push($responses, self::buildCurlErrorResponse($e));
         }
       }
-      $this->messageWillSent = [];
+      $this->facebookMessages = [];
       return \json_encode($responses);
       break;
       case 'line' :
-      $multiMessage = new Line\MultiMessageBuilder();
-      foreach ($this->messageWillSent as $message) {
-        $multiMessage->add($message);
-      }
       try {
-        $res = $this->core->replyMessage($replyToken, $multiMessage);
+        $res = $this->core->replyMessage($replyToken);
       } catch (\RuntimeException $e) {
-          $this->messageWillSent = [];
           return self::buildCurlErrorResponse($e);
       }
-      $this->messageWillSent = [];
       return $res;
       break;
       default :
@@ -95,29 +90,23 @@ class MessengerBot {
     switch ($this->type) {
       case 'facebook' :
       $responses = [];
-      foreach ($this->messageWillSent as $message) {
+      foreach ($this->facebookMessages as $message) {
         try {
-          $res = $this->core->pushMessage($recipientId, $message);
+          $res = $this->core->pushMessage($recipientId);
           array_push($responses, json_decode($res));
         } catch (\RuntimeException $e) {
           array_push($responses, self::buildCurlErrorResponse($e));
         }
       }
-      $this->messageWillSent = [];
+      $this->facebookMessages = [];
       return \json_encode($responses);
       break;
       case 'line' :
-      $multiMessage = new Line\MultiMessageBuilder();
-      foreach ($this->messageWillSent as $message) {
-        $multiMessage->add($message);
-      }
       try {
-        $res = $this->core->pushMessage($recipientId, $multiMessage);
+        $res = $this->core->pushMessage($recipientId);
       } catch (\RuntimeException $e) {
-          $this->messageWillSent = [];
           return self::buildCurlErrorResponse($e);
       }
-      $this->messageWillSent = [];
       return $res;
       break;
       default :
@@ -128,10 +117,10 @@ class MessengerBot {
   public function addText(String $message) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\TextMessageBuilder($message));
+      array_push($this->facebookMessages, $message);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\TextMessageBuilder($message));
+      $this->core->addText($message);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -141,10 +130,10 @@ class MessengerBot {
   public function addTemplate(Array $columns) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\GenericMessageBuilder($columns));
+      array_push($this->facebookMessages, $columns);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\CarouselMessageBuilder($columns));
+      $this->core->addCarousel($columns);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -154,10 +143,10 @@ class MessengerBot {
   public function addImage(String $fileUrl, String $previewUrl = null) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\AttachmentMessageBuilder('image', $fileUrl));
+      array_push($this->facebookMessages, $fileUrl);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\FileMessageBuilder('image', $fileUrl, $previewUrl));
+      $this->core->addImage($fileUrl, $previewUrl);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -167,23 +156,23 @@ class MessengerBot {
   public function addVideo(String $fileUrl, String $previewUrl = null) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\AttachmentMessageBuilder('video', $fileUrl));
+      array_push($this->facebookMessages, $fileUrl);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\FileMessageBuilder('video', $fileUrl, $previewUrl));
+      $this->core->addVideo($fileUrl, $previewUrl);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
     }
   }
 
-  public function addAudio(String $fileUrl, String $previewUrl = null) {
+  public function addAudio(String $fileUrl, Int $duration = null) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\AttachmentMessageBuilder('audio', $fileUrl));
+      array_push($this->facebookMessages, $fileUrl);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\FileMessageBuilder('audio', $fileUrl, $previewUrl));
+      $this->core->addAudio($fileUrl, $duration);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
