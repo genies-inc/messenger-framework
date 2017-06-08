@@ -2,15 +2,6 @@
 
 namespace  MessengerFramework;
 
-use  MessengerFramework\HttpClient\Curl;
-use  MessengerFramework\FacebookBot\FacebookBot;
-use  MessengerFramework\LineBot\LineBot;
-
-use  MessengerFramework\FacebookBot as FB;
-use  MessengerFramework\LineBot as Line;
-
-use MessengerFramework\Event;
-
 // MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
 class MessengerBot {
 

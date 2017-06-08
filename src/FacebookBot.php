@@ -1,9 +1,6 @@
 <?php
 
-namespace MessengerFramework\FacebookBot;
-
-use MessengerFramework\Bot;
-use MessengerFramework\HttpClient\Curl;
+namespace MessengerFramework;
 
 class FacebookBot implements Bot {
 

@@ -52,39 +52,27 @@ namespace MessengerFramework {
     リクエストの検証処理(FacebookやLineからのリクエストかどうか)はgetEvents()内で行う
   end note
 
-  namespace FacebookBot {
-
-    class FacebookBot {
-      + [String:BinaryString] getFiles(stdClass rawEvent)
-      + setText(String message)
-      + setGeneric([String:String|Array])
-      + setImage(String url)
-      + setVideo(String url)
-      + setAudio(String url)
-    }
-
+  class FacebookBot {
+    + [String:BinaryString] getFiles(stdClass rawEvent)
+    + setText(String message)
+    + setGeneric([String:String|Array])
+    + setImage(String url)
+    + setVideo(String url)
+    + setAudio(String url)
   }
 
-  namespace LineBot {
-
-    class LineBot {
-      + [String:BinaryString] getFile(stdClass rawEvent)
-      + addText(String url)
-      + addCarousel([String:String|Array])
-      + addImage(String url, String previewUrl)
-      + addVideo(String url, String previewUrl)
-      + addAudio(String url, Int duration)
-    }
-
+  class LineBot {
+    + [String:BinaryString] getFile(stdClass rawEvent)
+    + addText(String url)
+    + addCarousel([String:String|Array])
+    + addImage(String url, String previewUrl)
+    + addVideo(String url, String previewUrl)
+    + addAudio(String url, Int duration)
   }
 
-  namespace HttpClient {
-
-    class Curl {
-      + String post(String url, Array headers, Array bodyArray, Bool isJSON)
-      + String get(String url, Array headers, Array aueryArray)
-    }
-
+  class Curl {
+    + String post(String url, Array headers, Array bodyArray, Bool isJSON)
+    + String get(String url, Array headers, Array aueryArray)
   }
 
 }
@@ -92,15 +80,15 @@ namespace MessengerFramework {
 ' MessengerFramework内の関連
 
 MessengerFramework.MessengerBot *.l.> MessengerFramework.IBot
-MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.FacebookBot
-MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.LineBot
-MessengerFramework.MessengerBot .l.> MessengerFramework.HttpClient.Curl
+MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot
+MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot
+MessengerFramework.MessengerBot .l.> MessengerFramework.Curl
 MessengerFramework.MessengerBot .l.> MessengerFramework.Event
 
-MessengerFramework.FacebookBot.FacebookBot .u.|> MessengerFramework.IBot
-MessengerFramework.FacebookBot.FacebookBot *..> MessengerFramework.HttpClient.Curl
+MessengerFramework.FacebookBot .u.|> MessengerFramework.IBot
+MessengerFramework.FacebookBot *..> MessengerFramework.Curl
 
-MessengerFramework.LineBot.LineBot .u.|> MessengerFramework.IBot
-MessengerFramework.LineBot.LineBot *..> MessengerFramework.HttpClient.Curl
+MessengerFramework.LineBot .u.|> MessengerFramework.IBot
+MessengerFramework.LineBot *..> MessengerFramework.Curl
 
 @enduml

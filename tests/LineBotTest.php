@@ -2,8 +2,8 @@
 
 namespace MessengerFramework\Test;
 
-use MessengerFramework\LineBot\LineBot;
-use MessengerFramework\HttpClient\Curl;
+use MessengerFramework\LineBot;
+use MessengerFramework\Curl;
 use PHPUnit\Framework\TestCase;
 
 class LineTest extends TestCase {

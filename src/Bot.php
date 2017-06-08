@@ -2,8 +2,6 @@
 
 namespace  MessengerFramework;
 
-use  MessengerFramework\MessageBuilder;
-
 interface Bot {
 
   public function replyMessage(String $to);

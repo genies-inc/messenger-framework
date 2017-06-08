@@ -2,8 +2,8 @@
 
 namespace MessengerFramework\Test;
 
-use MessengerFramework\FacebookBot\FacebookBot;
-use MessengerFramework\HttpClient\Curl;
+use MessengerFramework\FacebookBot;
+use MessengerFramework\Curl;
 use PHPUnit\Framework\TestCase;
 
 class FacebookBotTest extends TestCase {

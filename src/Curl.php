@@ -1,6 +1,6 @@
 <?php
 
-namespace MessengerFramework\HttpClient;
+namespace MessengerFramework;
 
 // TODO: ヘッダ情報も含めて返すようにする
 // TODO: Curlの実行時エラーは例外を投げるのではなく、成功時も含めたラップをした結果クラスを用意する

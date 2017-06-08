@@ -1,9 +1,6 @@
 <?php
 
-namespace MessengerFramework\LineBot;
-
-use MessengerFramework\Bot;
-use MessengerFramework\HttpClient\Curl;
+namespace MessengerFramework;
 
 class LineBot implements Bot {
 
