@@ -3,7 +3,6 @@
 namespace MessengerFramework\LineBot;
 
 use MessengerFramework\Bot;
-use MessengerFramework\MessageBuilder;
 use MessengerFramework\HttpClient\Curl;
 
 class LineBot implements Bot {
@@ -16,28 +15,127 @@ class LineBot implements Bot {
 
   private $endpoint = 'https://api.line.me/';
 
+  private $templates = [];
+
   public function __construct(Curl $httpClient) {
     self::$LINE_CHANNEL_SECRET = getenv('LINE_CHANNEL_SECRET') ?: 'develop';
     self::$LINE_ACCESS_TOKEN = getenv('LINE_ACCESS_TOKEN') ?: 'develop';
     $this->httpClient = $httpClient;
   }
 
-  public function replyMessage(String $to, MessageBuilder $builder) {
+  // FIXME: 汚い
+  private function popRecent3Messages() {
+    $messages = [];
+    $i = 0;
+    while ($i < 3) {
+      $message = array_pop($this->templates);
+      if (is_null($message)) {
+        return $messages;
+      }
+      array_unshift($messages, $message);
+      $i += 1;
+    }
+    return $messages;
+  }
+
+  public function replyMessage(String $to) {
+
     return $this->httpClient->post($this->getReplyEndpoint(), [
       'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
     ], [
       'replyToken' => $to,
-      'messages' => $builder->buildMessage()
+      'messages' => $this->popRecent3Messages()
     ], true);
   }
 
-  public function pushMessage(String $to, MessageBuilder $builder) {
+  public function pushMessage(String $to) {
     return $this->httpClient->post($this->getPushEndpoint(), [
       'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
     ], [
       'to' => $to,
-      'messages' => $builder->buildMessage()
+      'messages' => $this->popRecent3Messages()
     ], true);
+  }
+
+  public function addText(String $message) {
+    array_push($this->templates, [
+      'type' => 'text',
+      'text' => $message
+    ]);
+  }
+
+  public function addCarousel(Array $columns) {
+    array_push($this->templates, [
+      'type' => 'template',
+      'altText' => 'alt text for carousel',
+      'template' => $this->buildCarousel($columns)
+    ]);
+  }
+
+  private function buildCarousel($source) {
+    $columns = [];
+    foreach ($source as $column) {
+      array_push($columns, $this->buildColumn($column));
+    }
+    return [
+      'type' => 'carousel',
+      'columns' => $columns,
+    ];
+  }
+
+  private function buildColumn($source) {
+    $actions = [];
+    foreach ($source[3] as $button) {
+      array_push($actions, $this->buildAction($button));
+    }
+    return [
+      'thumbnailImageUrl' => $source[2],
+      'title' => $source[0],
+      'text' => $source[1],
+      'actions' => $actions,
+    ];
+  }
+
+  private function buildAction($source) {
+    $action = [
+      'type' => $source['action'],
+      'label' => $source['title']
+    ];
+    switch ($source['action']) {
+      case 'postback' :
+      $action['data'] = $source['data'];
+      break;
+      case 'url' :
+      $action['uri'] = $source['url'];
+      $action['type'] = 'uri';
+      break;
+      default :
+    }
+    return $action;
+  }
+
+  public function addImage(String $url, String $previewUrl) {
+    array_push($this->templates, [
+      'type' => 'image',
+      'originalContentUrl' => $url,
+      'previewImageUrl' => $previewUrl,
+    ]);
+  }
+
+  public function addVideo(String $url, String $previewUrl) {
+    array_push($this->templates, [
+      'type' => 'video',
+      'originalContentUrl' => $url,
+      'previewImageUrl' => $previewUrl,
+    ]);
+  }
+
+  public function addAudio(String $url, Int $duration) {
+    array_push($this->templates, [
+      'type' => 'audio',
+      'originalContentUrl' => $url,
+      'duration' => $duration,
+    ]);
   }
 
   public function testSignature(String $requestBody, String $signature) {
