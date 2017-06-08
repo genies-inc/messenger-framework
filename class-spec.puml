@@ -14,25 +14,19 @@ namespace MessengerFramework {
     + buildMessage()
   }
 
-  abstract class Event {
+  class Event {
     + [Key => Value] rawData
     + String replyToken
     + String userId
     + String type
     + String|null text
     + [Key => Value]|null postbackData
-    + [String filename => BinaryString file]|null getFiles()
   }
 
   note top of Event
-    今のところはイベントの種類(MessageやPostback)は文字列で
-    厳しそうだったら型を作る
-    typeはMessage.TextとMessage.File、Postbackの3種類
+    Event#typeについて
+    Message.TextとMessage.File、Postbackの3種類
   end note
-
-  class FacebookEvent
-
-  class LineEvent
 
   class MessengerBot {
     - [MessageBuilder] messagesWillSent
@@ -41,9 +35,10 @@ namespace MessengerFramework {
     + addText(String message)
     + addTemplate(Array [String title, String description, String imageUrl, Array buttons])
     + addImage(String fileUrl, String|null previewUrl)
-    + push(String recipient)
-    + reply(String replyToken)
-    + getProfile(String userId)
+    + [String|Exception] push(String recipient)
+    + [String|Exception] reply(String replyToken)
+    + [String:String] getProfile(String userId)
+    + [String:BinaryString] getFilesIn(Event message)
     - notifyAlive()
     - validateRequest()
   }
@@ -61,7 +56,8 @@ namespace MessengerFramework {
 
   namespace FacebookBot {
 
-    class FacebookBot{
+    class FacebookBot {
+      + [String:BinaryString] getFiles(stdClass rawEvent)
     }
 
     class GenericMessageBuilder
@@ -72,7 +68,9 @@ namespace MessengerFramework {
 
   namespace LineBot {
 
-    class LineBot
+    class LineBot {
+      + [String:BinaryString] getFile(stdClass rawEvent)
+    }
     class CarouselMessageBuilder
     class FileMessageBuilder
     class TextMessageBuilder
@@ -82,8 +80,8 @@ namespace MessengerFramework {
   namespace HttpClient {
 
     class Curl {
-      + post()
-      + get()
+      + String post(String url, Array headers, Array bodyArray, Bool isJSON)
+      + String get(String url, Array headers, Array aueryArray)
     }
 
   }
@@ -101,9 +99,8 @@ MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.TextMessageB
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.CarouselMessageBuilder
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.FileMessageBuilder
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.TextMessageBuilder
-MessengerFramework.MessengerBot .r.> MessengerFramework.FacebookEvent
-MessengerFramework.MessengerBot .r.> MessengerFramework.LineEvent
 MessengerFramework.MessengerBot .l.> MessengerFramework.HttpClient.Curl
+MessengerFramework.MessengerBot .l.> MessengerFramework.Event
 
 MessengerFramework.IBot .d.> MessengerFramework.IMessageBuilder
 
@@ -119,6 +116,7 @@ MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.Carous
 MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.TextMessageBuilder
 MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.FileMessageBuilder
 MessengerFramework.LineBot.LineBot ..> MessengerFramework.IMessageBuilder
+MessengerFramework.LineBot.LineBot *..> MessengerFramework.HttpClient.Curl
 
 MessengerFramework.FacebookBot.GenericMessageBuilder .u.|> MessengerFramework.IMessageBuilder
 MessengerFramework.FacebookBot.AtachmentMessageBuilder .u.|> MessengerFramework.IMessageBuilder
@@ -128,13 +126,8 @@ MessengerFramework.LineBot.CarouselMessageBuilder .u.|> MessengerFramework.IMess
 MessengerFramework.LineBot.TextMessageBuilder .u.|> MessengerFramework.IMessageBuilder
 MessengerFramework.LineBot.FileMessageBuilder .u.|> MessengerFramework.IMessageBuilder
 
-MessengerFramework.Event <|-u- MessengerFramework.FacebookEvent
-MessengerFramework.Event <|-u- MessengerFramework.LineEvent
 MessengerFramework.Event -[hidden]d- MessengerFramework.LineBot.LineBot
 
 MessengerFramework.HttpClient.Curl -[hidden]d- MessengerFramework.FacebookBot.FacebookBot
-
-MessengerFramework.FacebookEvent *.u.> MessengerFramework.HttpClient.Curl
-MessengerFramework.LineEvent *.u.> MessengerFramework.HttpClient.Curl
 
 @enduml
