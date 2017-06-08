@@ -3,8 +3,8 @@
 namespace MessengerFramework {
 
   interface "Bot" as IBot {
-    + replyMessage(String to, MessageBuilder message)
-    + pushMessage(String to, MessageBuilder message)
+    + replyMessage(String to)
+    + pushMessage(String to)
     + testSignature(String requestBody, String signature)
     + parseEvent(String requestBody)
     + getProfile(String userId)

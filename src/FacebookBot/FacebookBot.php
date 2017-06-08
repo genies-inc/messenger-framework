@@ -3,7 +3,6 @@
 namespace MessengerFramework\FacebookBot;
 
 use MessengerFramework\Bot;
-use MessengerFramework\MessageBuilder;
 use MessengerFramework\HttpClient\Curl;
 
 class FacebookBot implements Bot {
@@ -16,18 +15,20 @@ class FacebookBot implements Bot {
 
   private $httpClient;
 
+  private $templates = [];
+
   public function __construct(Curl $curl) {
     self::$FACEBOOK_APP_SECRET = getenv('FACEBOOK_APP_SECRET') ?: 'develop';
     self::$FACEBOOK_ACCESS_TOKEN = getenv('FACEBOOK_ACCESS_TOKEN') ?: 'develop';
     $this->httpClient = $curl;
   }
 
-  public function replyMessage(String $to, MessageBuilder $builder) {
-    return $this->sendMessage($to, $builder);
+  public function replyMessage(String $to) {
+    return $this->sendMessage($to);
   }
 
-  public function pushMessage(String $to, MessageBuilder $builder) {
-    return $this->sendMessage($to, $builder);
+  public function pushMessage(String $to) {
+    return $this->sendMessage($to);
   }
 
   public function parseEvents(String $requestBody) {
@@ -65,12 +66,95 @@ class FacebookBot implements Bot {
     return $files;
   }
 
-  private function sendMessage(String $to, MessageBuilder $builder) {
+  public function setText(String $message) {
+    array_push($this->templates, [
+      'text' => $message
+    ]);
+  }
+
+  // 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
+  public function setGeneric(Array $columns) {
+    $elements = [];
+    foreach ($columns as $column) {
+      array_push($elements, $this->buildColumn($column));
+    }
+    array_push($this->templates, [
+      'attachment' => [
+        'type' => 'template',
+        'payload' => [
+          'template_type' => 'generic',
+          'elements' => $elements
+        ]
+      ]
+    ]);
+  }
+
+  private function buildColumn($source) {
+    $buttons = [];
+    foreach ($source[3] as $button) {
+      array_push($buttons, $this->buildButton($button));
+    }
+
+    $column = [
+      'title' => $source[0],
+      'subtitle' => $source[1],
+      'buttons' => $buttons
+    ];
+
+    if (!is_null($source[2])) {
+      $column['image_url'] = $source[2];
+    }
+
+    return $column;
+  }
+
+  private function buildButton($source) {
+    $button = [
+      'type' => $source['action'],
+      'title' => $source['title']
+    ];
+    switch ($source['action']) {
+      case 'postback' :
+      $button['payload'] = $source['data'];
+      break;
+      case 'url' :
+      $button['type'] = 'web_url';
+      $button['url'] = $source['url'];
+      break;
+      default :
+    }
+    return $button;
+  }
+
+  private function setAttachment($type, $url) {
+    array_push($this->templates, [
+      'attachment' => [
+        'type' => $type,
+        'payload' => [
+          'url' => $url
+        ]
+      ]
+    ]);
+  }
+
+  public function setImage(String $url) {
+    $this->setAttachment('image', $url);
+  }
+
+  public function setVideo(String $url) {
+    $this->setAttachment('video', $url);
+  }
+
+  public function setAudio(String $url) {
+    $this->setAttachment('audio', $url);
+  }
+
+  private function sendMessage(String $to) {
     $body = [
       'recipient' => [
         'id' => $to
       ],
-      'message' => $builder->buildMessage()
+      'message' => array_pop($this->templates)
     ];
     return $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
   }
