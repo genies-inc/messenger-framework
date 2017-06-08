@@ -117,6 +117,7 @@ class MessengerBot {
   public function addText(String $message) {
     switch ($this->type) {
       case 'facebook' :
+      $this->core->setText($message);
       array_push($this->facebookMessages, $message);
       break;
       case 'line' :
@@ -130,6 +131,7 @@ class MessengerBot {
   public function addTemplate(Array $columns) {
     switch ($this->type) {
       case 'facebook' :
+      $this->core->setGeneric($columns);
       array_push($this->facebookMessages, $columns);
       break;
       case 'line' :
@@ -143,6 +145,7 @@ class MessengerBot {
   public function addImage(String $fileUrl, String $previewUrl = null) {
     switch ($this->type) {
       case 'facebook' :
+      $this->core->setImage($fileUrl);
       array_push($this->facebookMessages, $fileUrl);
       break;
       case 'line' :
@@ -156,6 +159,7 @@ class MessengerBot {
   public function addVideo(String $fileUrl, String $previewUrl = null) {
     switch ($this->type) {
       case 'facebook' :
+      $this->core->setVideo($fileUrl);
       array_push($this->facebookMessages, $fileUrl);
       break;
       case 'line' :
@@ -169,6 +173,7 @@ class MessengerBot {
   public function addAudio(String $fileUrl, Int $duration = null) {
     switch ($this->type) {
       case 'facebook' :
+      $this->core->setAudio($fileUrl);
       array_push($this->facebookMessages, $fileUrl);
       break;
       case 'line' :
