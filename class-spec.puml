@@ -10,10 +10,6 @@ namespace MessengerFramework {
     + getProfile(String userId)
   }
 
-  interface "MessageBuilder" as IMessageBuilder {
-    + buildMessage()
-  }
-
   class Event {
     + [Key => Value] rawData
     + String replyToken
@@ -58,11 +54,12 @@ namespace MessengerFramework {
 
     class FacebookBot {
       + [String:BinaryString] getFiles(stdClass rawEvent)
+      + setText(String message)
+      + setGeneric([String:String|Array])
+      + setImage(String url)
+      + setVideo(String url)
+      + setAudio(String url)
     }
-
-    class GenericMessageBuilder
-    class AtachmentMessageBuilder
-    class TextMessageBuilder
 
   }
 
@@ -70,10 +67,12 @@ namespace MessengerFramework {
 
     class LineBot {
       + [String:BinaryString] getFile(stdClass rawEvent)
+      + addText(String url)
+      + addCarousel([String:String|Array])
+      + addImage(String url, String previewUrl)
+      + addVideo(String url, String previewUrl)
+      + addAudio(String url, Int duration)
     }
-    class CarouselMessageBuilder
-    class FileMessageBuilder
-    class TextMessageBuilder
 
   }
 
@@ -93,41 +92,13 @@ namespace MessengerFramework {
 MessengerFramework.MessengerBot *.l.> MessengerFramework.IBot
 MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.FacebookBot
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.LineBot
-MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.GenericMessageBuilder
-MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.AtachmentMessageBuilder
-MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot.TextMessageBuilder
-MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.CarouselMessageBuilder
-MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.FileMessageBuilder
-MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot.TextMessageBuilder
 MessengerFramework.MessengerBot .l.> MessengerFramework.HttpClient.Curl
 MessengerFramework.MessengerBot .l.> MessengerFramework.Event
 
-MessengerFramework.IBot .d.> MessengerFramework.IMessageBuilder
-
 MessengerFramework.FacebookBot.FacebookBot .u.|> MessengerFramework.IBot
-MessengerFramework.FacebookBot.FacebookBot -[hidden]d- MessengerFramework.FacebookBot.GenericMessageBuilder
-MessengerFramework.FacebookBot.FacebookBot -[hidden]d- MessengerFramework.FacebookBot.AtachmentMessageBuilder
-MessengerFramework.FacebookBot.FacebookBot -[hidden]d- MessengerFramework.FacebookBot.TextMessageBuilder
-MessengerFramework.FacebookBot.FacebookBot ..> MessengerFramework.IMessageBuilder
 MessengerFramework.FacebookBot.FacebookBot *..> MessengerFramework.HttpClient.Curl
 
 MessengerFramework.LineBot.LineBot .u.|> MessengerFramework.IBot
-MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.CarouselMessageBuilder
-MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.TextMessageBuilder
-MessengerFramework.LineBot.LineBot -[hidden]d- MessengerFramework.LineBot.FileMessageBuilder
-MessengerFramework.LineBot.LineBot ..> MessengerFramework.IMessageBuilder
 MessengerFramework.LineBot.LineBot *..> MessengerFramework.HttpClient.Curl
-
-MessengerFramework.FacebookBot.GenericMessageBuilder .u.|> MessengerFramework.IMessageBuilder
-MessengerFramework.FacebookBot.AtachmentMessageBuilder .u.|> MessengerFramework.IMessageBuilder
-MessengerFramework.FacebookBot.TextMessageBuilder .u.|> MessengerFramework.IMessageBuilder
-
-MessengerFramework.LineBot.CarouselMessageBuilder .u.|> MessengerFramework.IMessageBuilder
-MessengerFramework.LineBot.TextMessageBuilder .u.|> MessengerFramework.IMessageBuilder
-MessengerFramework.LineBot.FileMessageBuilder .u.|> MessengerFramework.IMessageBuilder
-
-MessengerFramework.Event -[hidden]d- MessengerFramework.LineBot.LineBot
-
-MessengerFramework.HttpClient.Curl -[hidden]d- MessengerFramework.FacebookBot.FacebookBot
 
 @enduml
