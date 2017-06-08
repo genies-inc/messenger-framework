@@ -2,11 +2,8 @@
 
 namespace MessengerFramework\Test;
 
-use MessengerFramework\FacebookBot\FacebookBot;
-use MessengerFramework\FacebookBot\TextMessageBuilder;
-use MessengerFramework\FacebookBot\GenericMessageBuilder;
-use MessengerFramework\FacebookBot\AttachmentMessageBuilder;
-use MessengerFramework\HttpClient\Curl;
+use MessengerFramework\FacebookBot;
+use MessengerFramework\Curl;
 use PHPUnit\Framework\TestCase;
 
 class FacebookBotTest extends TestCase {
@@ -46,8 +43,8 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $builder = new TextMessageBuilder('テスト');
-    $bot->replyMessage('1000000000000000', $builder);
+    $bot->setText('テスト');
+    $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
@@ -92,27 +89,27 @@ class FacebookBotTest extends TestCase {
     );
 
     $bot = new FacebookBot($this->curlMock);
-    $builder = new GenericMessageBuilder([
+    $bot->setGeneric([
       [
         'タイトル1', 'サブタイトル1', null, [
-          'title' => 'URLボタン',
-          'action' => 'url',
-          'url' => 'https://www.sampleimage.com/sample.jpg'
-        ], [
-          'title' => 'Postbackボタン',
-          'action' => 'postback',
-          'data' => 'key1=value1&key2=value2'
-        ]
+          [
+            'title' => 'URLボタン',
+            'action' => 'url',
+            'url' => 'https://www.sampleimage.com/sample.jpg'
+          ],
+          [
+            'title' => 'Postbackボタン',
+            'action' => 'postback',
+            'data' => 'key1=value1&key2=value2'
+          ]
+        ],
       ]
     ]);
-    $bot->replyMessage('1000000000000000', $builder);
+    $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
-  /**
-   * @dataProvider attachmentDataProvider
-   */
-  public function testReplyAttachmentMessage($type, $source, $expectedMessage) {
+  public function testReplyImageMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
@@ -122,13 +119,74 @@ class FacebookBotTest extends TestCase {
           'recipient' => [
             'id' => '1000000000000000'
           ],
-          'message' => $expectedMessage
+          'message' => [
+            'attachment' => [
+              'type' => 'image',
+              'payload' => [
+                'url' => 'https://www.sampleimage.com/sample.jpg'
+              ]
+            ]
+          ]
         ]),
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $builder = new AttachmentMessageBuilder($type, $source);
-    $bot->replyMessage('1000000000000000', $builder);
+    $bot->setImage('https://www.sampleimage.com/sample.jpg');
+    $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testReplyVideoMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [
+            'id' => '1000000000000000'
+          ],
+          'message' => [
+            'attachment' => [
+              'type' => 'video',
+              'payload' => [
+                'url' => 'https://www.sampleimage.com/sample.mp4'
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->setVideo('https://www.sampleimage.com/sample.mp4');
+    $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testReplyAudioMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [
+            'id' => '1000000000000000'
+          ],
+          'message' => [
+            'attachment' => [
+              'type' => 'audio',
+              'payload' => [
+                'url' => 'https://www.sampleimage.com/sample.mp3'
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->setAudio('https://www.sampleimage.com/sample.mp3');
+    $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
@@ -149,8 +207,8 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $builder = new TextMessageBuilder('テスト');
-    $bot->pushMessage('1000000000000000', $builder);
+    $bot->setText('テスト');
+    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
@@ -195,27 +253,27 @@ class FacebookBotTest extends TestCase {
     );
 
     $bot = new FacebookBot($this->curlMock);
-    $builder = new GenericMessageBuilder([
+    $bot->setGeneric([
       [
         'タイトル1', 'サブタイトル1', null, [
-          'title' => 'URLボタン',
-          'action' => 'url',
-          'url' => 'https://www.sampleimage.com/sample.jpg'
-        ], [
-          'title' => 'Postbackボタン',
-          'action' => 'postback',
-          'data' => 'key1=value1&key2=value2'
+          [
+            'title' => 'URLボタン',
+            'action' => 'url',
+            'url' => 'https://www.sampleimage.com/sample.jpg'
+          ],
+          [
+            'title' => 'Postbackボタン',
+            'action' => 'postback',
+            'data' => 'key1=value1&key2=value2'
+          ]
         ]
       ]
     ]);
-    $bot->pushMessage('1000000000000000', $builder);
+    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
-  /**
-   * @dataProvider attachmentDataProvider
-   */
-  public function testPushAttachmentMessage($type, $source, $expectedMessage) {
+  public function testPushImageMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
@@ -225,13 +283,74 @@ class FacebookBotTest extends TestCase {
           'recipient' => [
             'id' => '1000000000000000'
           ],
-          'message' => $expectedMessage
+          'message' => [
+            'attachment' => [
+              'type' => 'image',
+              'payload' => [
+                'url' => 'https://www.sampleimage.com/sample.jpg'
+              ]
+            ]
+          ]
         ]),
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $builder = new AttachmentMessageBuilder($type, $source);
-    $bot->pushMessage('1000000000000000', $builder);
+    $bot->setImage('https://www.sampleimage.com/sample.jpg');
+    $bot->pushMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushVideoMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [
+            'id' => '1000000000000000'
+          ],
+          'message' => [
+            'attachment' => [
+              'type' => 'video',
+              'payload' => [
+                'url' => 'https://www.sampleimage.com/sample.mp4'
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->setVideo('https://www.sampleimage.com/sample.mp4');
+    $bot->pushMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushAudioMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [
+            'id' => '1000000000000000'
+          ],
+          'message' => [
+            'attachment' => [
+              'type' => 'audio',
+              'payload' => [
+                'url' => 'https://www.sampleimage.com/sample.mp3'
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->setAudio('https://www.sampleimage.com/sample.mp3');
+    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
@@ -277,44 +396,6 @@ class FacebookBotTest extends TestCase {
     $profile->timezone = 9;
     $profile->gender = 'male';
     $this->assertEquals($profile, $bot->getProfile('1000000000000000'));
-  }
-
-  public function attachmentDataProvider() {
-    return [
-      'image' => [
-        'image', 'https://www.sampleimage.com/sample.jpg',
-        [
-          'attachment' => [
-            'type' => 'image',
-            'payload' => [
-              'url' => 'https://www.sampleimage.com/sample.jpg'
-            ]
-          ]
-        ]
-      ],
-      'video' => [
-        'video', 'https://www.sampleimage.com/sample.mp4',
-        [
-          'attachment' => [
-            'type' => 'video',
-            'payload' => [
-              'url' => 'https://www.sampleimage.com/sample.mp4'
-            ]
-          ]
-        ]
-      ],
-      'audio' => [
-        'audio', 'https://www.sampleimage.com/sample.mp3',
-        [
-          'attachment' => [
-            'type' => 'audio',
-            'payload' => [
-              'url' => 'https://www.sampleimage.com/sample.mp3'
-            ]
-          ]
-        ]
-      ]
-    ];
   }
 
   /**

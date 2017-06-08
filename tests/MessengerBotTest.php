@@ -3,11 +3,11 @@
 namespace MessengerFramework\Test;
 
 use PHPUnit\Framework\TestCase;
-use MessengerFramework;
 use MessengerFramework\MessengerBot;
-use MessengerFramework\FacebookBot\FacebookBot;
-use MessengerFramework\LineBot\LineBot;
-use MessengerFramework\HttpClient\Curl;
+use MessengerFramework\FacebookBot;
+use MessengerFramework\LineBot;
+use MessengerFramework\Curl;
+use MessengerFramework\Event;
 
 require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
 
@@ -157,7 +157,7 @@ class MessengerBotTest extends TestCase {
     $this->setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
-    $this->assertContainsOnly(MessengerFramework\Event::class, $bot->getEvents());
+    $this->assertContainsOnly(Event::class, $bot->getEvents());
   }
 
   public function facebookRequestProvider() {
@@ -166,7 +166,7 @@ class MessengerBotTest extends TestCase {
     */
     return [
       'facebook text message' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}' ],
-      'facebook image message' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"./tests/resources/message_image.jpg"}}]}}]}]}' ],
+      'facebook image message' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}' ],
       'facebook postback' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"sender":{"id":"1000000000000000"},"postback":{"payload":"text=Postback1\u0025E3\u002582\u002592\u0025E6\u00258A\u0025BC\u0025E3\u002581\u002597\u0025E3\u002581\u0025BE\u0025E3\u002581\u002597\u0025E3\u002581\u00259F"}}]}]}' ]
     ];
   }
@@ -237,7 +237,7 @@ class MessengerBotTest extends TestCase {
     $this->setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
-    $this->assertContainsOnly(MessengerFramework\Event::class, $bot->getEvents());
+    $this->assertContainsOnly(Event::class, $bot->getEvents());
   }
 
   public function lineRequestProvider() {
@@ -565,27 +565,41 @@ class MessengerBotTest extends TestCase {
   public function templateMessageArgumentProvider() {
     return [
       'template height unmatched' => [
-        [['テンプレートタイトル', 'テンプレートの説明', 'https://www.sampleimage.com/thumbnail1.jpg', [
-          'title' => 'Postbackボタン',
-          'action' => 'postback',
-          'data' => 'key1=value1&key2=value2'
-        ], [
-          'title' => 'Messageボタン',
-          'action' => 'url',
-          'url' => 'http://hoge.com/fuga.jpg'
-        ]],['テンプレートタイトル2', 'テンプレートの説明2', 'https://www.sampleimage.com/thumbnail2.jpg', [
-          'title' => 'Postbackボタン2',
-          'action' => 'postback',
-          'data' => 'key1=value1&key2=value2'
-        ], [
-          'title' => 'Messageボタン2',
-          'action' => 'url',
-          'url' => 'http://hoge.com/fuga.jpg'
-        ], [
-          'title' => 'Messageボタン3',
-          'action' => 'url',
-          'url' => 'http://hoge.com/fuga.jpg'
-        ]]]
+        [
+          [ 'テンプレートタイトル', 'テンプレートの説明', 'https://www.sampleimage.com/thumbnail1.jpg',
+            [
+              [
+                'title' => 'Postbackボタン',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2'
+              ],
+              [
+                'title' => 'Messageボタン',
+                'action' => 'url',
+                'url' => 'http://hoge.com/fuga.jpg'
+              ]
+            ]
+          ],
+          [ 'テンプレートタイトル2', 'テンプレートの説明2', 'https://www.sampleimage.com/thumbnail2.jpg',
+            [
+              [
+                'title' => 'Postbackボタン2',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2'
+              ],
+              [
+                'title' => 'Messageボタン2',
+                'action' => 'url',
+                'url' => 'http://hoge.com/fuga.jpg'
+              ],
+              [
+                'title' => 'Messageボタン3',
+                'action' => 'url',
+                'url' => 'http://hoge.com/fuga.jpg'
+              ]
+            ]
+          ]
+        ]
       ]
     ];
 
