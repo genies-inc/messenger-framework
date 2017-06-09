@@ -4,6 +4,7 @@ namespace MessengerFramework\Test;
 
 use MessengerFramework\LineBot;
 use MessengerFramework\Curl;
+use MessengerFramework\Event;
 use PHPUnit\Framework\TestCase;
 
 class LineTest extends TestCase {
@@ -473,10 +474,24 @@ class LineTest extends TestCase {
     $this->assertFalse($bot->testSignature($requestBody, $x_line_signature));
   }
 
+  /**
+   * @dataProvider requestBodyProvider
+   */
   public function testParseEvents() {
     $bot = new LineBot($this->curlMock);
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
-    $this->assertEquals(\json_decode($requestBody), $bot->parseEvents($requestBody));
+    $this->assertContainsOnly(Event::class, $bot->parseEvents($requestBody));
+  }
+
+  public function requestBodyProvider() {
+    /*
+      data case => [ requestBody ]
+    */
+    return [
+      'line text message' => [ '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}' ],
+      'line image message' => [ '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}' ],
+      'line postback' => [ '{"events":[{"type":"postback","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"postback":{"data":"key1=value1&key2=value2&key3=value3"}}]}' ],
+    ];
   }
 
   public function testGetProfile() {
@@ -505,7 +520,7 @@ class LineTest extends TestCase {
         $this->equalTo($expectedUrl)
       )->willReturn($expectedBinary);
     $bot = new LineBot($this->curlMock);
-    $events = $bot->parseEvents($requestBody)->events;
+    $events = $bot->parseEvents($requestBody);
     foreach ($events as $event) {
       $this->assertEquals($expectedFile, $bot->getFile($event));
     }

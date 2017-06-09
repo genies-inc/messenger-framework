@@ -32,13 +32,10 @@ class MessengerBot {
     if (!$this->validateSignature()) {
       throw new \UnexpectedValueException("正しい送信元からのリクエストではありません。");
     }
-
-    $rawEvents = $this->core->parseEvents($this->requestBody);
     switch ($this->type) {
       case 'facebook':
-      return self::convertFacebookEvents($rawEvents);
       case 'line':
-      return self::convertLineEvents($rawEvents);
+      return $this->core->parseEvents($this->requestBody);
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
     }
@@ -128,10 +125,10 @@ class MessengerBot {
   public function getFilesIn(Event $message) {
     switch ($this->type) {
       case 'facebook' :
-      return $this->core->getFiles($message->rawData);
+      return $this->core->getFiles($message);
       break;
       case 'line' :
-      return $this->core->getFile($message->rawData);
+      return $this->core->getFile($message);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -175,108 +172,6 @@ class MessengerBot {
     }
 
     return $this->core->testSignature($this->requestBody, $signature);
-  }
-
-  private static function convertFacebookEvents($rawEvents) {
-    $events = [];
-
-    // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
-    if (!isset($rawEvents->entry) || !is_array($rawEvents->entry)) {
-      throw new \UnexpectedValueException('Entryがない、またはEntryがサポートされていない形式です。');
-    }
-
-    foreach ($rawEvents->entry as $entry) {
-
-      // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
-      if (!isset($entry->messaging) || !is_array($entry->messaging)) {
-        throw new \UnexpectedValueException('Messagingがない、またはMessagingがサポートされていない形式です。');
-      }
-
-      foreach ($entry->messaging as $messaging) {
-        try {
-          $event = self::parseMessaging($messaging);
-          array_push($events, $event);
-        } catch (\InvalidArgumentException $e) {
-          array_push($events, null);
-        }
-      }
-    }
-
-    return $events;
-  }
-
-  private static function parseMessaging($messaging) {
-    $text = null;
-    $postbackData = null;
-    if (isset($messaging->message)) {
-      if (isset($messaging->message->attachments)) {
-        $type = 'Message.File';
-      } elseif (isset($messaging->message->text)) {
-        $type = 'Message.Text';
-        $text = $messaging->message->text;
-      } else {
-        throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
-      }
-    } elseif (isset($messaging->postback)) {
-      $type = 'Postback';
-      $postbackData = $messaging->postback->payload;
-    } else {
-      throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
-    }
-    $userId = $messaging->sender->id;
-    $replyToken = $messaging->sender->id;
-    $rawData = $messaging;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
-  }
-
-  private static function convertLineEvents($rawEvents) {
-    $events = [];
-
-    // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
-    if (!isset($rawEvents->events) || !is_array($rawEvents->events)) {
-      throw new \UnexpectedValueException('Eventsがない、またはEventsがサポートされていない形式です。');
-    }
-
-    foreach ($rawEvents->events as $rawEvent) {
-      try {
-        $event = self::parseEvent($rawEvent);
-        array_push($events, $event);
-      } catch (\InvalidArgumentException $e) {
-        array_push($events, null);
-      }
-    }
-
-    return $events;
-
-  }
-
-  private static function parseEvent($event) {
-    $text = null;
-    $postbackData = null;
-    if (!isset($event->type)) {
-      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
-    }
-
-    switch ($event->type) {
-      case 'message' :
-      if ($event->message->type === 'text') {
-        $type = 'Message.Text';
-        $text = $event->message->text;
-        break;
-      }
-      $type = 'Message.File';
-      break;
-      case 'postback' :
-      $type = 'Postback';
-      $postbackData = $event->postback->data;
-      break;
-      default :
-      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
-    }
-    $userId = $event->source->userId;
-    $replyToken = $event->replyToken;
-    $rawData = $event;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
   }
 
 }

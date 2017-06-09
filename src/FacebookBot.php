@@ -34,7 +34,7 @@ class FacebookBot implements Bot {
   }
 
   public function parseEvents(String $requestBody) {
-    return $obj = \json_decode($requestBody);
+    return self::convertFacebookEvents(\json_decode($requestBody));
   }
 
   public function testSignature(String $requestBody, String $signature) {
@@ -56,7 +56,8 @@ class FacebookBot implements Bot {
   }
 
   // ファイル名 => バイナリ文字列
-  public function getFiles($messaging) {
+  public function getFiles($event) {
+    $messaging = $event->rawData;
     if (!isset($messaging->message->attachments)) {
       return null;
     }
@@ -189,6 +190,58 @@ class FacebookBot implements Bot {
     $err->message = $e->getMessage();
     $err->code = $e->getCode();
     return $err;
+  }
+
+  private static function convertFacebookEvents($rawEvents) {
+    $events = [];
+
+    // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
+    if (!isset($rawEvents->entry) || !is_array($rawEvents->entry)) {
+      throw new \UnexpectedValueException('Entryがない、またはEntryがサポートされていない形式です。');
+    }
+
+    foreach ($rawEvents->entry as $entry) {
+
+      // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
+      if (!isset($entry->messaging) || !is_array($entry->messaging)) {
+        throw new \UnexpectedValueException('Messagingがない、またはMessagingがサポートされていない形式です。');
+      }
+
+      foreach ($entry->messaging as $messaging) {
+        try {
+          $event = self::parseMessaging($messaging);
+          array_push($events, $event);
+        } catch (\InvalidArgumentException $e) {
+          array_push($events, null);
+        }
+      }
+    }
+
+    return $events;
+  }
+
+  private static function parseMessaging($messaging) {
+    $text = null;
+    $postbackData = null;
+    if (isset($messaging->message)) {
+      if (isset($messaging->message->attachments)) {
+        $type = 'Message.File';
+      } elseif (isset($messaging->message->text)) {
+        $type = 'Message.Text';
+        $text = $messaging->message->text;
+      } else {
+        throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
+      }
+    } elseif (isset($messaging->postback)) {
+      $type = 'Postback';
+      $postbackData = $messaging->postback->payload;
+    } else {
+      throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
+    }
+    $userId = $messaging->sender->id;
+    $replyToken = $messaging->sender->id;
+    $rawData = $messaging;
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
   }
 
 }
