@@ -27,11 +27,11 @@ class MessengerBotTest extends TestCase {
     $this->curlMock->method('get')->willReturn('{"status":"success"}');
     $this->facebookBotMock = $this->getMockBuilder(FacebookBot::class)
       ->setConstructorArgs([$this->curlMock])
-      ->setMethods(['testSignature'])
+      ->setMethods([ 'testSignature', 'getProfile' ])
       ->getMock();
     $this->lineBotMock = $this->getMockBuilder(LineBot::class)
       ->setConstructorArgs([$this->curlMock])
-      ->setMethods(['testSignature'])
+      ->setMethods(['testSignature', 'getProfile' ])
       ->getMock();
   }
 
@@ -605,28 +605,28 @@ class MessengerBotTest extends TestCase {
 
   }
 
-  /**
-   * @dataProvider profileDataProvider
-   */
-  public function testGetProfile($platform, $userId) {
-    $bot = new MessengerBot($platform);
-    try {
-      $bot->getProfile($userId);
-      $this->fail('おかしなリクエストを送ったのにエラーになっていないです。');
-    } catch (\UnexpectedValueException $e) {
-      $this->addToAssertionCount(1);
-    }
+  public function testGetProfileFacebook() {
+    $bot = new MessengerBot('facebook');
+    $this->facebookBotMock->expects($this->once())
+      ->method('getProfile')
+      ->with(
+        '1000000000000000'
+      )->willReturn(json_decode('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}'));
+    $bot->core = $this->facebookBotMock;
+    $bot->getProfile('1000000000000000');
+    $this->addToAssertionCount(1);
   }
 
-  public function profileDataProvider() {
-    return [
-      'facebook profile' => [
-        'facebook', '1000000000000000'
-      ],
-      'line profile' => [
-        'line', '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
-      ]
-    ];
+  public function testGetProfileLine() {
+    $bot = new MessengerBot('line');
+    $this->lineBotMock->expects($this->once())
+      ->method('getProfile')
+      ->with(
+        '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+      )->willReturn(json_decode('{"displayName":"Taro Test","userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","pictureUrl":"test.jpg","statusMessage":"ステータスメッセージ"}'));
+    $bot->core = $this->lineBotMock;
+    $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
   }
 
   private function setFacebookBotMockTestSignatureForce(Bool $isSuccess) {
