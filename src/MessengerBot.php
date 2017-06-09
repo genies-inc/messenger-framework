@@ -2,13 +2,6 @@
 
 namespace  MessengerFramework;
 
-use  MessengerFramework\HttpClient\Curl;
-use  MessengerFramework\FacebookBot\FacebookBot;
-use  MessengerFramework\LineBot\LineBot;
-
-use  MessengerFramework\FacebookBot as FB;
-use  MessengerFramework\LineBot as Line;
-
 // MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
 class MessengerBot {
 
@@ -18,9 +11,10 @@ class MessengerBot {
 
   private $httpClient;
 
-  private $core;
+  public $core;
 
-  private $messageWillSent = [];
+  // これでFacebookBot内に溜めたテンプレートを数え、個数分メッセージをまとめて送るのに使う
+  private $facebookMessages = [];
 
   public function __construct($botType) {
     $this->requestBody = file_get_contents("php://input");
@@ -59,20 +53,23 @@ class MessengerBot {
     switch ($this->type) {
       case 'facebook' :
       $responses = [];
-      foreach ($this->messageWillSent as $message) {
-        $res = $this->core->replyMessage($replyToken, $message);
-        array_push($responses, \json_decode($res));
+      foreach ($this->facebookMessages as $message) {
+        try {
+          $res = $this->core->replyMessage($replyToken);
+          array_push($responses, json_decode($res));
+        } catch (\RuntimeException $e) {
+          array_push($responses, self::buildCurlErrorResponse($e));
+        }
       }
-      $this->messageWillSent = [];
+      $this->facebookMessages = [];
       return \json_encode($responses);
       break;
       case 'line' :
-      $multiMessage = new Line\MultiMessageBuilder();
-      foreach ($this->messageWillSent as $message) {
-        $multiMessage->add($message);
+      try {
+        $res = $this->core->replyMessage($replyToken);
+      } catch (\RuntimeException $e) {
+          return self::buildCurlErrorResponse($e);
       }
-      $res = $this->core->replyMessage($replyToken, $multiMessage);
-      $this->messageWillSent = [];
       return $res;
       break;
       default :
@@ -84,20 +81,23 @@ class MessengerBot {
     switch ($this->type) {
       case 'facebook' :
       $responses = [];
-      foreach ($this->messageWillSent as $message) {
-        $res = $this->core->pushMessage($recipientId, $message);
-        array_push($responses, \json_decode($res));
+      foreach ($this->facebookMessages as $message) {
+        try {
+          $res = $this->core->pushMessage($recipientId);
+          array_push($responses, json_decode($res));
+        } catch (\RuntimeException $e) {
+          array_push($responses, self::buildCurlErrorResponse($e));
+        }
       }
-      $this->messageWillSent = [];
+      $this->facebookMessages = [];
       return \json_encode($responses);
       break;
       case 'line' :
-      $multiMessage = new Line\MultiMessageBuilder();
-      foreach ($this->messageWillSent as $message) {
-        $multiMessage->add($message);
+      try {
+        $res = $this->core->pushMessage($recipientId);
+      } catch (\RuntimeException $e) {
+          return self::buildCurlErrorResponse($e);
       }
-      $res = $this->core->pushMessage($recipientId, $multiMessage);
-      $this->messageWillSent = [];
       return $res;
       break;
       default :
@@ -108,10 +108,11 @@ class MessengerBot {
   public function addText(String $message) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\TextMessageBuilder($message));
+      $this->core->setText($message);
+      array_push($this->facebookMessages, $message);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\TextMessageBuilder($message));
+      $this->core->addText($message);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -121,23 +122,68 @@ class MessengerBot {
   public function addTemplate(Array $columns) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\GenericMessageBuilder($columns));
+      $this->core->setGeneric($columns);
+      array_push($this->facebookMessages, $columns);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\CarouselMessageBuilder($columns));
+      $this->core->addCarousel($columns);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
     }
   }
 
-  public function addImage(String $fileUrl, String $previewUrl = null) {
+  public function addImage(String $fileUrl, String $previewUrl) {
     switch ($this->type) {
       case 'facebook' :
-      array_push($this->messageWillSent, new FB\AttachmentMessageBuilder('image', $fileUrl));
+      $this->core->setImage($fileUrl);
+      array_push($this->facebookMessages, $fileUrl);
       break;
       case 'line' :
-      array_push($this->messageWillSent, new Line\FileMessageBuilder('image', $fileUrl, $previewUrl));
+      $this->core->addImage($fileUrl, $previewUrl);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  public function addVideo(String $fileUrl, String $previewUrl) {
+    switch ($this->type) {
+      case 'facebook' :
+      $this->core->setVideo($fileUrl);
+      array_push($this->facebookMessages, $fileUrl);
+      break;
+      case 'line' :
+      $this->core->addVideo($fileUrl, $previewUrl);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  public function addAudio(String $fileUrl, Int $duration) {
+    switch ($this->type) {
+      case 'facebook' :
+      $this->core->setAudio($fileUrl);
+      array_push($this->facebookMessages, $fileUrl);
+      break;
+      case 'line' :
+      $this->core->addAudio($fileUrl, $duration);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  // どのプラットフォームのイベントかはMessengerBotの状態に依存する
+  // 渡されたメッセージがFacebookのものであってもnew MessengerBot('line')だったらLineとして解釈
+  public function getFilesIn(Event $message) {
+    switch ($this->type) {
+      case 'facebook' :
+      return $this->core->getFiles($message->rawData);
+      break;
+      case 'line' :
+      return $this->core->getFile($message->rawData);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -145,13 +191,24 @@ class MessengerBot {
   }
 
   public function getProfile($userId) {
+    $profile = $this->core->getProfile($userId);
     switch ($this->type) {
       case 'facebook' :
-      return tester($userId);
-      break;
+      if (!isset($profile->first_name)) {
+        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+      }
+      return [
+        'name' => $profile->first_name . ' ' . $profile->last_name,
+        'profilePic' => $profile->profile_pic
+      ];
       case 'line' :
-      return tester($userId);
-      break;
+      if (!isset($profile->displayName)) {
+        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+      }
+      return [
+        'name' => $profile->displayName,
+        'profilePic' => $profile->pictureUrl
+      ];
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
     }
@@ -189,7 +246,7 @@ class MessengerBot {
 
       foreach ($entry->messaging as $messaging) {
         try {
-          $event = new FacebookEvent($messaging, new Curl());
+          $event = self::parseMessaging($messaging);
           array_push($events, $event);
         } catch (\InvalidArgumentException $e) {
           array_push($events, null);
@@ -198,6 +255,30 @@ class MessengerBot {
     }
 
     return $events;
+  }
+
+  private static function parseMessaging($messaging) {
+    $text = null;
+    $postbackData = null;
+    if (isset($messaging->message)) {
+      if (isset($messaging->message->attachments)) {
+        $type = 'Message.File';
+      } elseif (isset($messaging->message->text)) {
+        $type = 'Message.Text';
+        $text = $messaging->message->text;
+      } else {
+        throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
+      }
+    } elseif (isset($messaging->postback)) {
+      $type = 'Postback';
+      $postbackData = $messaging->postback->payload;
+    } else {
+      throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
+    }
+    $userId = $messaging->sender->id;
+    $replyToken = $messaging->sender->id;
+    $rawData = $messaging;
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
   }
 
   private static function convertLineEvents($rawEvents) {
@@ -210,7 +291,7 @@ class MessengerBot {
 
     foreach ($rawEvents->events as $rawEvent) {
       try {
-        $event = new LineEvent($rawEvent, new Curl());
+        $event = self::parseEvent($rawEvent);
         array_push($events, $event);
       } catch (\InvalidArgumentException $e) {
         array_push($events, null);
@@ -219,6 +300,42 @@ class MessengerBot {
 
     return $events;
 
+  }
+
+  private static function parseEvent($event) {
+    $text = null;
+    $postbackData = null;
+    if (!isset($event->type)) {
+      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
+    }
+
+    switch ($event->type) {
+      case 'message' :
+      if ($event->message->type === 'text') {
+        $type = 'Message.Text';
+        $text = $event->message->text;
+        break;
+      }
+      $type = 'Message.File';
+      break;
+      case 'postback' :
+      $type = 'Postback';
+      $postbackData = $event->postback->data;
+      break;
+      default :
+      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
+    }
+    $userId = $event->source->userId;
+    $replyToken = $event->replyToken;
+    $rawData = $event;
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
+  }
+
+  private static function buildCurlErrorResponse(\Exception $e) {
+    $err = new \stdClass();
+    $err->message = $e->getMessage();
+    $err->code = $e->getCode();
+    return $err;
   }
 
 }

@@ -16,30 +16,38 @@ foreach ($bots as $bot) {
       [
         'テンプレートのタイトル1',
         'テンプレートの説明1',
+        'アイキャッチ画像のURL1',
         [
-          'title' => 'Postbackボタン1',
-          'action' => 'postback',
-          'data' => '何かデータ1'
-        ], [
-          'title' => 'Urlボタン1',
-          'action' => 'url',
-          'url' => 'アドレス1'
+          [
+            'title' => 'Postbackボタン1',
+            'action' => 'postback',
+            'data' => '何かデータ1'
+          ],
+          [
+            'title' => 'Urlボタン1',
+            'action' => 'url',
+            'url' => 'アドレス1'
+          ]
         ]
       ], [
         'テンプレートのタイトル2',
         'テンプレートの説明2',
+        'アイキャッチ画像のURL2',
         [
-          'title' => 'Postbackボタン2',
-          'action' => 'postback',
-          'data' => '何かデータ2'
-        ], [
-          'title' => 'Urlボタン2',
-          'action' => 'url',
-          'url' => 'アドレス2'
+          [
+            'title' => 'Postbackボタン2',
+            'action' => 'postback',
+            'data' => '何かデータ2'
+          ],
+          [
+            'title' => 'Urlボタン2',
+            'action' => 'url',
+            'url' => 'アドレス2'
+          ]
         ]
       ]
     ]);
-    $bot->addImage("ファイルのURL", "プレビューのURL(Line用)");
+    $bot->addImage("ファイルのURL", "プレビューのURL(Lineだけで必要だがFacebookでも必須引数とする)");
     $bot->reply($event->replyToken);
   }
 }
@@ -87,16 +95,14 @@ if ($event->type === "Message.Text") {
 
 // Facebook Message 1 - * File
 // Line Message 1 - 1 File
-// これを揃えるために送られてきたファイル一つでも[BinaryString]
-$event->getFiles();
+// これを揃えるために送られてきたファイル一つでも[ファイル名=>BinaryString]
+$bot->getFilesIn($event);
 
 /*
   Facebookのボットを詳細に使う時
 */
 
-use MessengerFramework;
-
-$curl = new MessengerFramework\HttpClient\Curl();
-$bot = new MessengerFramework\FacebookBot\FacebookBot($curl);
-$builder = new MessengerFramework\FacebookBot\TextMessageBuilder('test message');
-$bot->replyMessage('user id', $builder);
+$curl = new MessengerFramework\Curl();
+$bot = new MessengerFramework\FacebookBot($curl);
+$bot->addText('test message');
+$bot->replyMessage('user id');

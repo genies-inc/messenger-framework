@@ -3,7 +3,7 @@
 namespace MessengerFramework\Test;
 
 use PHPUnit\Framework\TestCase;
-use MessengerFramework\HttpClient\Curl;
+use MessengerFramework\Curl;
 
 class CurlTest extends TestCase {
 
