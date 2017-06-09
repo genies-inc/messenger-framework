@@ -16,5 +16,13 @@
     "psr-4": {
       "MessengerFramework\\Test\\": "tests/"
     }
+  },
+  "archive": {
+    "exclude": [
+      "*",
+      ".*",
+      "!/src/*",
+      "!README.md"
+    ]
   }
 }

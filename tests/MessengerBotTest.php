@@ -368,7 +368,7 @@ class MessengerBotTest extends TestCase {
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
-      $bot->addImage('https://www.sampleimage.com/sample.jpg');
+      $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
       $bot->reply($event->replyToken);
       $this->addToAssertionCount(1);
     }
@@ -378,7 +378,7 @@ class MessengerBotTest extends TestCase {
     $bot = new MessengerBot('facebook');
     $bot->core = $this->facebookBotMock;
 
-    $bot->addImage('https://www.sampleimage.com/sample.jpg');
+    $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
     $response = $bot->push('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -393,7 +393,7 @@ class MessengerBotTest extends TestCase {
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
-      $bot->addVideo('https://www.sampleimage.com/sample.mp4');
+      $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
       $bot->reply($event->replyToken);
       $this->addToAssertionCount(1);
     }
@@ -403,7 +403,7 @@ class MessengerBotTest extends TestCase {
     $bot = new MessengerBot('facebook');
     $bot->core = $this->facebookBotMock;
 
-    $bot->addVideo('https://www.sampleimage.com/sample.mp4');
+    $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
     $response = $bot->push('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -418,7 +418,7 @@ class MessengerBotTest extends TestCase {
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
-      $bot->addAudio('https://www.sampleimage.com/sample.mp3');
+      $bot->addAudio('https://www.sampleimage.com/sample.mp3', 10000);
       $bot->reply($event->replyToken);
       $this->addToAssertionCount(1);
     }
@@ -428,7 +428,7 @@ class MessengerBotTest extends TestCase {
     $bot = new MessengerBot('facebook');
     $bot->core = $this->facebookBotMock;
 
-    $bot->addVideo('https://www.sampleimage.com/sample.mp3');
+    $bot->addVideo('https://www.sampleimage.com/sample.mp3', 10000);
     $response = $bot->push('1000000000000000');
     $this->addToAssertionCount(1);
   }
