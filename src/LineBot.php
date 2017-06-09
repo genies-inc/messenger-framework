@@ -139,7 +139,7 @@ class LineBot implements Bot {
   }
 
   public function parseEvents(String $requestBody) {
-    return \json_decode($requestBody);
+    return self::convertLineEvents(\json_decode($requestBody));
   }
 
   public function getProfile(String $userId) {
@@ -152,10 +152,11 @@ class LineBot implements Bot {
 
   // ファイル名 => バイナリ文字列
   public function getFile($event) {
-    if (!isset($event->message->type) || $event->message->type === 'text') {
+    $rawEvent = $event->rawData;
+    if (!isset($rawEvent->message->type) || $rawEvent->message->type === 'text') {
       return null;
     }
-    switch ($event->message->type) {
+    switch ($rawEvent->message->type) {
       case 'image' :
       $ext = '.jpg';
       break;
@@ -169,10 +170,10 @@ class LineBot implements Bot {
       break;
     }
     $file = $this->httpClient->get(
-      $this->getContentEndpoint($event->message->id),
+      $this->getContentEndpoint($rawEvent->message->id),
       [ 'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN ]
     );
-    return [ $event->message->id . $ext => $file ];
+    return [ $rawEvent->message->id . $ext => $file ];
   }
 
   private function getReplyEndpoint() {
@@ -196,6 +197,56 @@ class LineBot implements Bot {
     $err->message = $e->getMessage();
     $err->code = $e->getCode();
     return $err;
+  }
+
+  private static function convertLineEvents($rawEvents) {
+    $events = [];
+
+    // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
+    if (!isset($rawEvents->events) || !is_array($rawEvents->events)) {
+      throw new \UnexpectedValueException('Eventsがない、またはEventsがサポートされていない形式です。');
+    }
+
+    foreach ($rawEvents->events as $rawEvent) {
+      try {
+        $event = self::parseEvent($rawEvent);
+        array_push($events, $event);
+      } catch (\InvalidArgumentException $e) {
+        array_push($events, null);
+      }
+    }
+
+    return $events;
+
+  }
+
+  private static function parseEvent($event) {
+    $text = null;
+    $postbackData = null;
+    if (!isset($event->type)) {
+      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
+    }
+
+    switch ($event->type) {
+      case 'message' :
+      if ($event->message->type === 'text') {
+        $type = 'Message.Text';
+        $text = $event->message->text;
+        break;
+      }
+      $type = 'Message.File';
+      break;
+      case 'postback' :
+      $type = 'Postback';
+      $postbackData = $event->postback->data;
+      break;
+      default :
+      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
+    }
+    $userId = $event->source->userId;
+    $replyToken = $event->replyToken;
+    $rawData = $event;
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
   }
 
 }
