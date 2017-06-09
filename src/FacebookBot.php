@@ -160,10 +160,15 @@ class FacebookBot implements Bot {
         ],
         'message' => $template
       ];
-      array_push($responses, $this->httpClient->post($this->getMessageEndpoint(), null, $body, true));
+      try {
+        $res = $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
+      } catch (\RuntimeException $e) {
+        $res = self::buildCurlErrorResponse($e);
+      }
+      array_push($responses, $res);
     }
     $this->templates = [];
-    return $responses;
+    return json_encode($responses);
   }
 
   private function getMessageEndpoint() {
@@ -177,6 +182,13 @@ class FacebookBot implements Bot {
   private function getKey($url) {
     preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
     return $result[2];
+  }
+
+  private static function buildCurlErrorResponse(\Exception $e) {
+    $err = new \stdClass();
+    $err->message = $e->getMessage();
+    $err->code = $e->getCode();
+    return $err;
   }
 
 }

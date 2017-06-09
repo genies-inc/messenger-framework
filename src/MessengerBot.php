@@ -9,12 +9,7 @@ class MessengerBot {
 
   private $type = '';
 
-  private $httpClient;
-
   public $core;
-
-  // これでFacebookBot内に溜めたテンプレートを数え、個数分メッセージをまとめて送るのに使う
-  private $facebookMessages = [];
 
   public function __construct($botType) {
     $this->requestBody = file_get_contents("php://input");
@@ -52,17 +47,7 @@ class MessengerBot {
   public function reply(String $replyToken) {
     switch ($this->type) {
       case 'facebook' :
-      $responses = [];
-      foreach ($this->facebookMessages as $message) {
-        try {
-          $res = $this->core->replyMessage($replyToken);
-          array_push($responses, json_decode($res));
-        } catch (\RuntimeException $e) {
-          array_push($responses, self::buildCurlErrorResponse($e));
-        }
-      }
-      $this->facebookMessages = [];
-      return \json_encode($responses);
+      return $this->core->replyMessage($replyToken);
       break;
       case 'line' :
       try {
@@ -80,17 +65,7 @@ class MessengerBot {
   public function push(String $recipientId) {
     switch ($this->type) {
       case 'facebook' :
-      $responses = [];
-      foreach ($this->facebookMessages as $message) {
-        try {
-          $res = $this->core->pushMessage($recipientId);
-          array_push($responses, json_decode($res));
-        } catch (\RuntimeException $e) {
-          array_push($responses, self::buildCurlErrorResponse($e));
-        }
-      }
-      $this->facebookMessages = [];
-      return \json_encode($responses);
+      return $this->core->pushMessage($recipientId);
       break;
       case 'line' :
       try {
@@ -108,9 +83,6 @@ class MessengerBot {
   public function addText(String $message) {
     switch ($this->type) {
       case 'facebook' :
-      $this->core->setText($message);
-      array_push($this->facebookMessages, $message);
-      break;
       case 'line' :
       $this->core->addText($message);
       break;
@@ -122,8 +94,7 @@ class MessengerBot {
   public function addTemplate(Array $columns) {
     switch ($this->type) {
       case 'facebook' :
-      $this->core->setGeneric($columns);
-      array_push($this->facebookMessages, $columns);
+      $this->core->addGeneric($columns);
       break;
       case 'line' :
       $this->core->addCarousel($columns);
@@ -136,9 +107,6 @@ class MessengerBot {
   public function addImage(String $fileUrl, String $previewUrl) {
     switch ($this->type) {
       case 'facebook' :
-      $this->core->setImage($fileUrl);
-      array_push($this->facebookMessages, $fileUrl);
-      break;
       case 'line' :
       $this->core->addImage($fileUrl, $previewUrl);
       break;
@@ -150,9 +118,6 @@ class MessengerBot {
   public function addVideo(String $fileUrl, String $previewUrl) {
     switch ($this->type) {
       case 'facebook' :
-      $this->core->setVideo($fileUrl);
-      array_push($this->facebookMessages, $fileUrl);
-      break;
       case 'line' :
       $this->core->addVideo($fileUrl, $previewUrl);
       break;
@@ -164,9 +129,6 @@ class MessengerBot {
   public function addAudio(String $fileUrl, Int $duration) {
     switch ($this->type) {
       case 'facebook' :
-      $this->core->setAudio($fileUrl);
-      array_push($this->facebookMessages, $fileUrl);
-      break;
       case 'line' :
       $this->core->addAudio($fileUrl, $duration);
       break;
