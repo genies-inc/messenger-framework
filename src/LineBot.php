@@ -20,38 +20,36 @@ class LineBot implements Bot {
     $this->httpClient = $httpClient;
   }
 
-  // FIXME: 汚い
-  private function popRecent3Messages() {
-    $messages = [];
-    $i = 0;
-    while ($i < 3) {
-      $message = array_shift($this->templates);
-      if (is_null($message)) {
-        return $messages;
-      }
-      array_push($messages, $message);
-      $i += 1;
-    }
-    return $messages;
-  }
-
   public function replyMessage(String $to) {
-
-    return $this->httpClient->post($this->getReplyEndpoint(), [
-      'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
-    ], [
-      'replyToken' => $to,
-      'messages' => $this->popRecent3Messages()
-    ], true);
+    $templates = $this->templates;
+    $this->templates = [];
+    try {
+      $res = $this->httpClient->post($this->getReplyEndpoint(), [
+        'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
+      ], [
+        'replyToken' => $to,
+        'messages' => $templates
+      ], true);
+    } catch (\RuntimeException $e) {
+      $res = self::buildCurlErrorResponse($e);
+    }
+    return json_encode($res);
   }
 
   public function pushMessage(String $to) {
-    return $this->httpClient->post($this->getPushEndpoint(), [
-      'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
-    ], [
-      'to' => $to,
-      'messages' => $this->popRecent3Messages()
-    ], true);
+    $templates = $this->templates;
+    $this->templates = [];
+    try {
+      $res = $this->httpClient->post($this->getPushEndpoint(), [
+        'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
+      ], [
+        'to' => $to,
+        'messages' => $templates
+      ], true);
+    } catch (\RuntimeException $e) {
+      $res = self::buildCurlErrorResponse($e);
+    }
+    return json_encode($res);
   }
 
   public function addText(String $message) {
@@ -191,6 +189,13 @@ class LineBot implements Bot {
 
   private function getContentEndpoint($messageId) {
     return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
+  }
+
+  private static function buildCurlErrorResponse(\Exception $e) {
+    $err = new \stdClass();
+    $err->message = $e->getMessage();
+    $err->code = $e->getCode();
+    return $err;
   }
 
 }
