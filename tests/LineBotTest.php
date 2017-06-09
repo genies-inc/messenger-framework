@@ -429,6 +429,36 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testExceptionOccurredWhenReply() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new LineBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->replyMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals($expected, json_decode($res));
+  }
+
+  public function testExceptionOccurredWhenPush() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new LineBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals($expected, json_decode($res));
+  }
+
   public function testTestSignature() {
     $bot = new LineBot($this->curlMock);
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';

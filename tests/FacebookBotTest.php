@@ -458,6 +458,36 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testExceptionOccurredWhenReply() {
+    $this->curlMock->expects($this->exactly(3))
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->replyMessage('1000000000000000');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals([$expected, $expected, $expected], json_decode($res));
+  }
+
+  public function testExceptionOccurredWhenPush() {
+    $this->curlMock->expects($this->exactly(3))
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->pushMessage('1000000000000000');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals([$expected, $expected, $expected], json_decode($res));
+  }
+
   public function testParseEvents() {
     $bot = new FacebookBot($this->curlMock);
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
