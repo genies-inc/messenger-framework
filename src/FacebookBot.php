@@ -20,10 +20,15 @@ class FacebookBot implements Bot {
     $this->httpClient = $curl;
   }
 
+  // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
   public function replyMessage(String $to) {
     return $this->sendMessage($to);
   }
 
+  // pushもreplyもやっていることは一緒だがあえて残している
+  // FacebookのAPIを意識するというコンセプトであればこれを消して
+  // sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
+  // しかしこのフレームワークはそうではない
   public function pushMessage(String $to) {
     return $this->sendMessage($to);
   }
@@ -63,14 +68,14 @@ class FacebookBot implements Bot {
     return $files;
   }
 
-  public function setText(String $message) {
+  public function addText(String $message) {
     array_push($this->templates, [
       'text' => $message
     ]);
   }
 
   // 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
-  public function setGeneric(Array $columns) {
+  public function addGeneric(Array $columns) {
     $elements = [];
     foreach ($columns as $column) {
       array_push($elements, $this->buildColumn($column));
@@ -123,7 +128,7 @@ class FacebookBot implements Bot {
     return $button;
   }
 
-  private function setAttachment($type, $url) {
+  private function addAttachment($type, $url) {
     array_push($this->templates, [
       'attachment' => [
         'type' => $type,
@@ -134,26 +139,36 @@ class FacebookBot implements Bot {
     ]);
   }
 
-  public function setImage(String $url) {
-    $this->setAttachment('image', $url);
+  public function addImage(String $url) {
+    $this->addAttachment('image', $url);
   }
 
-  public function setVideo(String $url) {
-    $this->setAttachment('video', $url);
+  public function addVideo(String $url) {
+    $this->addAttachment('video', $url);
   }
 
-  public function setAudio(String $url) {
-    $this->setAttachment('audio', $url);
+  public function addAudio(String $url) {
+    $this->addAttachment('audio', $url);
   }
 
   private function sendMessage(String $to) {
-    $body = [
-      'recipient' => [
-        'id' => $to
-      ],
-      'message' => array_shift($this->templates)
-    ];
-    return $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
+    $responses = [];
+    foreach ($this->templates as $template) {
+      $body = [
+        'recipient' => [
+          'id' => $to
+        ],
+        'message' => $template
+      ];
+      try {
+        $res = $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
+      } catch (\RuntimeException $e) {
+        $res = self::buildCurlErrorResponse($e);
+      }
+      array_push($responses, $res);
+    }
+    $this->templates = [];
+    return json_encode($responses);
   }
 
   private function getMessageEndpoint() {
@@ -167,6 +182,13 @@ class FacebookBot implements Bot {
   private function getKey($url) {
     preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
     return $result[2];
+  }
+
+  private static function buildCurlErrorResponse(\Exception $e) {
+    $err = new \stdClass();
+    $err->message = $e->getMessage();
+    $err->code = $e->getCode();
+    return $err;
   }
 
 }
