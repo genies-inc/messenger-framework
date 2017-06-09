@@ -47,7 +47,7 @@ foreach ($bots as $bot) {
         ]
       ]
     ]);
-    $bot->addImage("ファイルのURL", "プレビューのURL(Line用)");
+    $bot->addImage("ファイルのURL", "プレビューのURL(Lineだけで必要だがFacebookでも必須引数とする)");
     $bot->reply($event->replyToken);
   }
 }

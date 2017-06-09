@@ -133,7 +133,7 @@ class MessengerBot {
     }
   }
 
-  public function addImage(String $fileUrl, String $previewUrl = null) {
+  public function addImage(String $fileUrl, String $previewUrl) {
     switch ($this->type) {
       case 'facebook' :
       $this->core->setImage($fileUrl);
@@ -147,7 +147,7 @@ class MessengerBot {
     }
   }
 
-  public function addVideo(String $fileUrl, String $previewUrl = null) {
+  public function addVideo(String $fileUrl, String $previewUrl) {
     switch ($this->type) {
       case 'facebook' :
       $this->core->setVideo($fileUrl);
@@ -161,7 +161,7 @@ class MessengerBot {
     }
   }
 
-  public function addAudio(String $fileUrl, Int $duration = null) {
+  public function addAudio(String $fileUrl, Int $duration) {
     switch ($this->type) {
       case 'facebook' :
       $this->core->setAudio($fileUrl);
