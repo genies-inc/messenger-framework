@@ -47,15 +47,8 @@ class MessengerBot {
   public function reply(String $replyToken) {
     switch ($this->type) {
       case 'facebook' :
-      return $this->core->replyMessage($replyToken);
-      break;
       case 'line' :
-      try {
-        $res = $this->core->replyMessage($replyToken);
-      } catch (\RuntimeException $e) {
-          return self::buildCurlErrorResponse($e);
-      }
-      return $res;
+      return $this->core->replyMessage($replyToken);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -65,15 +58,8 @@ class MessengerBot {
   public function push(String $recipientId) {
     switch ($this->type) {
       case 'facebook' :
-      return $this->core->pushMessage($recipientId);
-      break;
       case 'line' :
-      try {
-        $res = $this->core->pushMessage($recipientId);
-      } catch (\RuntimeException $e) {
-          return self::buildCurlErrorResponse($e);
-      }
-      return $res;
+      return $this->core->pushMessage($recipientId);
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -291,13 +277,6 @@ class MessengerBot {
     $replyToken = $event->replyToken;
     $rawData = $event;
     return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
-  }
-
-  private static function buildCurlErrorResponse(\Exception $e) {
-    $err = new \stdClass();
-    $err->message = $e->getMessage();
-    $err->code = $e->getCode();
-    return $err;
   }
 
 }
