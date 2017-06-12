@@ -209,15 +209,11 @@ class FacebookBotTest extends TestCase {
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
         $this->equalTo(null),
         $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
+          'recipient' => [ 'id' => '1000000000000000' ],
           'message' => [
             'attachment' => [
               'type' => 'video',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.mp4'
-              ]
+              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
             ]
           ]
         ]),
@@ -229,6 +225,29 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testPushVideoMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [ 'id' => '1000000000000000' ],
+          'message' => [
+            'attachment' => [
+              'type' => 'video',
+              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addVideo('https://www.sampleimage.com/sample.mp4');
+    $bot->pushMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
   public function testReplyAudioMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
@@ -236,15 +255,11 @@ class FacebookBotTest extends TestCase {
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
         $this->equalTo(null),
         $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
+          'recipient' => [ 'id' => '1000000000000000' ],
           'message' => [
             'attachment' => [
               'type' => 'audio',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.mp3'
-              ]
+              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
             ]
           ]
         ]),
@@ -253,6 +268,29 @@ class FacebookBotTest extends TestCase {
     $bot = new FacebookBot($this->curlMock);
     $bot->addAudio('https://www.sampleimage.com/sample.mp3');
     $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushAudioMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [ 'id' => '1000000000000000' ],
+          'message' => [
+            'attachment' => [
+              'type' => 'audio',
+              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addAudio('https://www.sampleimage.com/sample.mp3');
+    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
@@ -356,60 +394,6 @@ class FacebookBotTest extends TestCase {
       ]
     ]);
     $bot->replyMessage('1000000000000000');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushVideoMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
-          'message' => [
-            'attachment' => [
-              'type' => 'video',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.mp4'
-              ]
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->curlMock);
-    $bot->addVideo('https://www.sampleimage.com/sample.mp4');
-    $bot->pushMessage('1000000000000000');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushAudioMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
-          'message' => [
-            'attachment' => [
-              'type' => 'audio',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.mp3'
-              ]
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->curlMock);
-    $bot->addAudio('https://www.sampleimage.com/sample.mp3');
-    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
