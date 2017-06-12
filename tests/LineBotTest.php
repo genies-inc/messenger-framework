@@ -12,7 +12,6 @@ class LineTest extends TestCase {
   private $curlMock;
 
   public function setUp() {
-    $this->curlMock = null;
     $this->curlMock = $this->getMockBuilder(Curl::class)
       ->setMethods([ 'post', 'get' ])
       ->getMock();
