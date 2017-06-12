@@ -73,68 +73,97 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testReplyCarouselMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [
-            [
-              'type' => 'template',
-              'altText' => 'alt text for carousel',
-              'template' => [
-                'type' => 'carousel',
-                'columns' => [
+  public function carouselMessageProvider() {
+    return [
+      'valid carousel message' => [
+        [
+          'type' => 'template',
+          'altText' => 'alt text for carousel',
+          'template' => [
+            'type' => 'carousel',
+            'columns' => [
+              [
+                'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
+                'title' => 'タイトル1',
+                'text' => 'サブタイトル1',
+                'actions' => [
                   [
-                    'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
-                    'title' => 'タイトル1',
-                    'text' => 'サブタイトル1',
-                    'actions' => [
-                      [
-                        'type' => 'uri',
-                        'label' => 'URLボタン',
-                        'uri' => 'https://www.sampleimage.com/sample.jpg'
-                      ],
-                      [
-                        'type' => 'postback',
-                        'label' => 'Postbackボタン',
-                        'data' => 'key1=value1&key2=value2'
-                      ]
-                    ]
+                    'type' => 'uri',
+                    'label' => 'URLボタン',
+                    'uri' => 'https://www.sampleimage.com/sample.jpg'
+                  ],
+                  [
+                    'type' => 'postback',
+                    'label' => 'Postbackボタン',
+                    'data' => 'key1=value1&key2=value2'
                   ]
                 ]
               ]
             ]
           ]
+        ],
+        [
+          [
+            'タイトル1', 'サブタイトル1', 'https://www.sampleimage.com/thumbnail.jpg', [
+              [
+                'title' => 'URLボタン',
+                'action' => 'url',
+                'url' => 'https://www.sampleimage.com/sample.jpg'
+              ],
+              [
+                'title' => 'Postbackボタン',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2'
+              ]
+            ],
+          ]
+        ]
+      ]
+    ];
+  }
+
+  /**
+   * @dataProvider carouselMessageProvider
+   */
+  public function testReplyCarouselMessage($expectedCarouselArray, $carouselSource) {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+          'messages' => [ $expectedCarouselArray ]
         ]),
         $this->equalTo(true)
       );
 
     $bot = new LineBot($this->curlMock);
-    $bot->addCarousel([
-      [
-        'タイトル1', 'サブタイトル1', 'https://www.sampleimage.com/thumbnail.jpg', [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ],
-      ]
-    ]);
+    $bot->addCarousel($carouselSource);
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
     $this->addToAssertionCount(1);
+  }
 
+  /**
+   * @dataProvider carouselMessageProvider
+   */
+  public function testPushCarouselMessage($expectedCarouselArray, $carouselSource) {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+          'messages' => [ $expectedCarouselArray ]
+        ]),
+        $this->equalTo(true)
+      );
+
+    $bot = new LineBot($this->curlMock);
+    $bot->addCarousel($carouselSource);
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
   }
 
   public function testReplyImageMessage() {
@@ -365,69 +394,6 @@ class LineTest extends TestCase {
       ]
     ]);
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushCarouselMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'template',
-              'altText' => 'alt text for carousel',
-              'template' => [
-                'type' => 'carousel',
-                'columns' => [
-                  [
-                    'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
-                    'title' => 'タイトル1',
-                    'text' => 'サブタイトル1',
-                    'actions' => [
-                      [
-                        'type' => 'uri',
-                        'label' => 'URLボタン',
-                        'uri' => 'https://www.sampleimage.com/sample.jpg'
-                      ],
-                      [
-                        'type' => 'postback',
-                        'label' => 'Postbackボタン',
-                        'data' => 'key1=value1&key2=value2'
-                      ]
-                    ]
-                  ]
-                ]
-              ]
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-
-    $bot = new LineBot($this->curlMock);
-    $bot->addCarousel([
-      [
-        'タイトル1', 'サブタイトル1', 'https://www.sampleimage.com/thumbnail.jpg', [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ],
-      ]
-    ]);
-    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }
 
