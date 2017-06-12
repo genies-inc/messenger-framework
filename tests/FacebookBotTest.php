@@ -163,15 +163,11 @@ class FacebookBotTest extends TestCase {
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
         $this->equalTo(null),
         $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
+          'recipient' => [ 'id' => '1000000000000000' ],
           'message' => [
             'attachment' => [
               'type' => 'image',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.jpg'
-              ]
+              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
             ]
           ]
         ]),
@@ -180,6 +176,29 @@ class FacebookBotTest extends TestCase {
     $bot = new FacebookBot($this->curlMock);
     $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushImageMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [ 'id' => '1000000000000000' ],
+          'message' => [
+            'attachment' => [
+              'type' => 'image',
+              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addImage('https://www.sampleimage.com/sample.jpg');
+    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
@@ -337,33 +356,6 @@ class FacebookBotTest extends TestCase {
       ]
     ]);
     $bot->replyMessage('1000000000000000');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushImageMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
-          'message' => [
-            'attachment' => [
-              'type' => 'image',
-              'payload' => [
-                'url' => 'https://www.sampleimage.com/sample.jpg'
-              ]
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->curlMock);
-    $bot->addImage('https://www.sampleimage.com/sample.jpg');
-    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
