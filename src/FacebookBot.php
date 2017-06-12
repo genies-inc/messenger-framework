@@ -56,7 +56,7 @@ class FacebookBot implements Bot {
   }
 
   // ファイル名 => バイナリ文字列
-  public function getFiles($event) {
+  public function getFiles(Event $event) {
     $messaging = $event->rawData;
     if (!isset($messaging->message->attachments)) {
       return null;
