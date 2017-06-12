@@ -229,6 +229,58 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testReplyConfirmMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
+        $this->equalTo([
+          'Authorization' => 'Bearer develop'
+        ]),
+        $this->equalTo([
+          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+          'messages' => [
+            [
+              'type' => 'template',
+              'altText' => 'alt text for confirm',
+              'template' => [
+                'type' => 'confirm',
+                'text' => 'タイトル',
+                'actions' => [
+                  [
+                    'type' => 'uri',
+                    'label' => 'URLボタン',
+                    'uri' => 'https://www.sampleimage.com/sample.jpg'
+                  ],
+                  [
+                    'type' => 'postback',
+                    'label' => 'Postbackボタン',
+                    'data' => 'key1=value1&key2=value2'
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new LineBot($this->curlMock);
+    $bot->addConfirm('タイトル', [
+      [
+        'title' => 'URLボタン',
+        'action' => 'url',
+        'url' => 'https://www.sampleimage.com/sample.jpg'
+      ],
+      [
+        'title' => 'Postbackボタン',
+        'action' => 'postback',
+        'data' => 'key1=value1&key2=value2'
+      ]
+    ]);
+    $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
   public function testPushTextMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
@@ -426,6 +478,58 @@ class LineTest extends TestCase {
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushConfirmMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([
+          'Authorization' => 'Bearer develop'
+        ]),
+        $this->equalTo([
+          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+          'messages' => [
+            [
+              'type' => 'template',
+              'altText' => 'alt text for confirm',
+              'template' => [
+                'type' => 'confirm',
+                'text' => 'タイトル',
+                'actions' => [
+                  [
+                    'type' => 'uri',
+                    'label' => 'URLボタン',
+                    'uri' => 'https://www.sampleimage.com/sample.jpg'
+                  ],
+                  [
+                    'type' => 'postback',
+                    'label' => 'Postbackボタン',
+                    'data' => 'key1=value1&key2=value2'
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new LineBot($this->curlMock);
+    $bot->addConfirm('タイトル', [
+      [
+        'title' => 'URLボタン',
+        'action' => 'url',
+        'url' => 'https://www.sampleimage.com/sample.jpg'
+      ],
+      [
+        'title' => 'Postbackボタン',
+        'action' => 'postback',
+        'data' => 'key1=value1&key2=value2'
+      ]
+    ]);
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }

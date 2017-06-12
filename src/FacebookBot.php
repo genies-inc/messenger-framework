@@ -129,27 +129,25 @@ class FacebookBot implements Bot {
     return $button;
   }
 
-  private function addAttachment($type, $url) {
-    array_push($this->templates, [
+  private function buildAttachment($type, $payload) {
+    return [
       'attachment' => [
         'type' => $type,
-        'payload' => [
-          'url' => $url
-        ]
+        'payload' => $payload
       ]
-    ]);
+    ];
   }
 
   public function addImage(String $url) {
-    $this->addAttachment('image', $url);
+    array_push($this->templates, $this->buildAttachment('image', [ 'url' => $url ]));
   }
 
   public function addVideo(String $url) {
-    $this->addAttachment('video', $url);
+    array_push($this->templates, $this->buildAttachment('video', [ 'url' => $url ]));
   }
 
   public function addAudio(String $url) {
-    $this->addAttachment('audio', $url);
+    array_push($this->templates, $this->buildAttachment('audio', [ 'url' => $url ]));
   }
 
   private function sendMessage(String $to) {
@@ -170,6 +168,22 @@ class FacebookBot implements Bot {
     }
     $this->templates = [];
     return json_encode($responses);
+  }
+
+  public function addButton(String $text, Array $replies) {
+    array_push($this->templates, $this->buildAttachment('template', $this->buildButtonTemplate($text, $replies)));
+  }
+
+  private function buildButtonTemplate(String $text, Array $replies) {
+    $buttons = [];
+    foreach ($replies as $reply) {
+      array_push($buttons, $this->buildButton($reply));
+    }
+    return [
+      'template_type' => 'button',
+      'text' => $text,
+      'buttons' => $buttons
+    ];
   }
 
   private function getMessageEndpoint() {

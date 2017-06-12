@@ -243,6 +243,57 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testReplyButtonMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [
+            'id' => '1000000000000000'
+          ],
+          'message' => [
+            'attachment' => [
+              'type' => 'template',
+              'payload' => [
+                'template_type' => 'button',
+                'text' => 'タイトル',
+                'buttons' => [
+                  [
+                    'type' => 'web_url',
+                    'url' => 'https://www.sampleimage.com/sample.jpg',
+                    'title' => 'URLボタン'
+                  ],
+                  [
+                    'type' => 'postback',
+                    'title' => 'Postbackボタン',
+                    'payload' => 'key1=value1&key2=value2'
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addButton('タイトル', [
+      [
+        'title' => 'URLボタン',
+        'action' => 'url',
+        'url' => 'https://www.sampleimage.com/sample.jpg'
+      ],
+      [
+        'title' => 'Postbackボタン',
+        'action' => 'postback',
+        'data' => 'key1=value1&key2=value2'
+      ]
+    ]);
+    $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
   public function testPushTextMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
@@ -455,6 +506,57 @@ class FacebookBotTest extends TestCase {
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
+    $bot->pushMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushButtonMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [
+            'id' => '1000000000000000'
+          ],
+          'message' => [
+            'attachment' => [
+              'type' => 'template',
+              'payload' => [
+                'template_type' => 'button',
+                'text' => 'タイトル',
+                'buttons' => [
+                  [
+                    'type' => 'web_url',
+                    'url' => 'https://www.sampleimage.com/sample.jpg',
+                    'title' => 'URLボタン'
+                  ],
+                  [
+                    'type' => 'postback',
+                    'title' => 'Postbackボタン',
+                    'payload' => 'key1=value1&key2=value2'
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addButton('タイトル', [
+      [
+        'title' => 'URLボタン',
+        'action' => 'url',
+        'url' => 'https://www.sampleimage.com/sample.jpg'
+      ],
+      [
+        'title' => 'Postbackボタン',
+        'action' => 'postback',
+        'data' => 'key1=value1&key2=value2'
+      ]
+    ]);
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
