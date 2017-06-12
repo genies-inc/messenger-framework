@@ -60,11 +60,18 @@ class LineBot implements Bot {
   }
 
   public function addCarousel(Array $columns) {
-    array_push($this->templates, [
+    array_push($this->templates, $this->buildTemplate(
+      'alt text for carousel',
+      $this->buildCarousel($columns)
+    ));
+  }
+
+  private function buildTemplate(String $altText, Array $template) {
+    return [
       'type' => 'template',
-      'altText' => 'alt text for carousel',
-      'template' => $this->buildCarousel($columns)
-    ]);
+      'altText' => $altText,
+      'template' => $template
+    ];
   }
 
   private function buildCarousel($source) {
@@ -131,6 +138,18 @@ class LineBot implements Bot {
       'originalContentUrl' => $url,
       'duration' => $duration,
     ]);
+  }
+
+  public function addConfirm(String $text, Array $buttons) {
+    $confirm = [
+      'type' => 'confirm',
+      'text' => $text,
+      'actions' => $this->buildAction($buttons)
+    ];
+    array_push($this->templates, $this->buildTemplate(
+      'alt text for confirm',
+      $confirm
+    ));
   }
 
   public function testSignature(String $requestBody, String $signature) {

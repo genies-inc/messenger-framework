@@ -120,6 +120,19 @@ class MessengerBot {
     }
   }
 
+  // はい、いいえにボタンを設定できる
+  // つまりURLやPostbackを設定できるのだがLineではMessageにしないと発言内容が出ない
+  public function addConfirm(String $text, Array $buttons) {
+    switch ($this->type) {
+      case 'facebook' :
+      return $this->core->addButton($text, $buttons);
+      case 'line' :
+      return $this->core->addConfirm($text, $buttons);
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
   // どのプラットフォームのイベントかはMessengerBotの状態に依存する
   // 渡されたメッセージがFacebookのものであってもnew MessengerBot('line')だったらLineとして解釈
   public function getFilesIn(Event $message) {
