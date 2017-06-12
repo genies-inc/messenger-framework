@@ -141,10 +141,14 @@ class LineBot implements Bot {
   }
 
   public function addConfirm(String $text, Array $buttons) {
+    $actions = [];
+    foreach ($buttons as $button) {
+      array_push($actions, $this->buildAction($button));
+    }
     $confirm = [
       'type' => 'confirm',
       'text' => $text,
-      'actions' => $this->buildAction($buttons)
+      'actions' => $actions
     ];
     array_push($this->templates, $this->buildTemplate(
       'alt text for confirm',
