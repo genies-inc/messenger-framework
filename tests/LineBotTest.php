@@ -315,9 +315,7 @@ class LineTest extends TestCase {
       ->method('post')
       ->with(
         $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
         $this->equalTo([
           'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
           'messages' => [
@@ -342,6 +340,39 @@ class LineTest extends TestCase {
     $bot->addText('テスト2');
     $bot->addText('テスト3');
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushMultiMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+          'messages' => [
+            [
+              'type' => 'text',
+              'text' => 'テスト1'
+            ],
+            [
+              'type' => 'text',
+              'text' => 'テスト2'
+            ],
+            [
+              'type' => 'text',
+              'text' => 'テスト3'
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new LineBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }
 
@@ -394,41 +425,6 @@ class LineTest extends TestCase {
       ]
     ]);
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushMultiMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'text',
-              'text' => 'テスト1'
-            ],
-            [
-              'type' => 'text',
-              'text' => 'テスト2'
-            ],
-            [
-              'type' => 'text',
-              'text' => 'テスト3'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new LineBot($this->curlMock);
-    $bot->addText('テスト1');
-    $bot->addText('テスト2');
-    $bot->addText('テスト3');
-    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }
 
