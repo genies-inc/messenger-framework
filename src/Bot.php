@@ -14,4 +14,6 @@ interface Bot {
 
   public function getProfile(String $userId);
 
+  public function getFiles(Event $event);
+
 }
