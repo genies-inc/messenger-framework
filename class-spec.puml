@@ -62,7 +62,7 @@ namespace MessengerFramework {
   }
 
   class LineBot {
-    + [String:BinaryString] getFile(stdClass rawEvent)
+    + [String:BinaryString] getFiles(stdClass rawEvent)
     + addText(String url)
     + addCarousel([String:String|Array])
     + addImage(String url, String previewUrl)

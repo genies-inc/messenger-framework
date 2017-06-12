@@ -522,7 +522,7 @@ class LineTest extends TestCase {
     $bot = new LineBot($this->curlMock);
     $events = $bot->parseEvents($requestBody);
     foreach ($events as $event) {
-      $this->assertEquals($expectedFile, $bot->getFile($event));
+      $this->assertEquals($expectedFile, $bot->getFiles($event));
     }
   }
 
