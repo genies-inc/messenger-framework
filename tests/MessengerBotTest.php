@@ -330,6 +330,34 @@ class MessengerBotTest extends TestCase {
   }
 
   /**
+   * @dataProvider confirmDataProvider
+   * @backupGlobals enabled
+   */
+  public function testConfirmReplyFacebook($titleSource, $buttonsSource) {
+    $this->setValidRequestBodyFacebook();
+    $bot = new MessengerBot('facebook');
+    $this->setFacebookBotMockTestSignatureForce(true);
+    $bot->core = $this->facebookBotMock;
+    foreach ($bot->getEvents() as $event) {
+      $bot->addConfirm($titleSource, $buttonsSource);
+      $bot->reply($event->replyToken);
+      $this->addToAssertionCount(1);
+    }
+  }
+
+  /**
+   * @dataProvider confirmDataProvider
+   */
+  public function testConfirmPushFacebook($titleSource, $buttonsSource) {
+    $bot = new MessengerBot('facebook');
+    $bot->core = $this->facebookBotMock;
+
+    $bot->addConfirm($titleSource, $buttonsSource);
+    $response = $bot->push('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  /**
    * @dataProvider templateMessageArgumentProvider
    * @backupGlobals enabled
    */
@@ -603,6 +631,55 @@ class MessengerBotTest extends TestCase {
       ]
     ];
 
+  }
+
+  /**
+   * @dataProvider confirmDataProvider
+   * @backupGlobals enabled
+   */
+  public function testConfirmReplyLine($titleSource, $buttonsSource) {
+    $this->setValidRequestBodyLine();
+    $bot = new MessengerBot('line');
+    $this->setLineBotMockTestSignatureForce(true);
+    $bot->core = $this->lineBotMock;
+
+    foreach ($bot->getEvents() as $event) {
+      $bot->addConfirm($titleSource, $buttonsSource);
+      $bot->reply($event->replyToken);
+      $this->addToAssertionCount(1);
+    }
+  }
+
+  /**
+   * @dataProvider confirmDataProvider
+   */
+  public function testConfirmPushLine($titleSource, $buttonsSource) {
+    $bot = new MessengerBot('line');
+    $bot->core = $this->lineBotMock;
+
+    $bot->addConfirm($titleSource, $buttonsSource);
+    $response = $bot->push('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
+  }
+
+  public function confirmDataProvider() {
+    return [
+      'valid confirm message' => [
+        'タイトル',
+        [
+          [
+            'title' => 'URLボタン',
+            'action' => 'url',
+            'url' => 'https://www.sampleimage.com/sample.jpg'
+          ],
+          [
+            'title' => 'Postbackボタン',
+            'action' => 'postback',
+            'data' => 'key1=value1&key2=value2'
+          ]
+        ]
+      ]
+    ];
   }
 
   public function testGetProfileFacebook() {
