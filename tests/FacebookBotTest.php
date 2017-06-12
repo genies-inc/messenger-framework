@@ -4,6 +4,7 @@ namespace MessengerFramework\Test;
 
 use MessengerFramework\FacebookBot;
 use MessengerFramework\Curl;
+use MessengerFramework\Event;
 use PHPUnit\Framework\TestCase;
 
 class FacebookBotTest extends TestCase {
@@ -43,7 +44,7 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setText('テスト');
+    $bot->addText('テスト');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -89,7 +90,7 @@ class FacebookBotTest extends TestCase {
     );
 
     $bot = new FacebookBot($this->curlMock);
-    $bot->setGeneric([
+    $bot->addGeneric([
       [
         'タイトル1', 'サブタイトル1', null, [
           [
@@ -131,7 +132,7 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setImage('https://www.sampleimage.com/sample.jpg');
+    $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -158,7 +159,7 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setVideo('https://www.sampleimage.com/sample.mp4');
+    $bot->addVideo('https://www.sampleimage.com/sample.mp4');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -185,7 +186,59 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setAudio('https://www.sampleimage.com/sample.mp3');
+    $bot->addAudio('https://www.sampleimage.com/sample.mp3');
+    $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testReplyMultiMessage() {
+    $this->curlMock->expects($this->exactly(3))
+      ->method('post')
+      ->withConsecutive(
+        [
+          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo(null),
+          $this->equalTo([
+            'recipient' => [
+              'id' => '1000000000000000'
+            ],
+            'message' => [
+              'text' => 'テスト1'
+            ]
+          ]),
+          $this->equalTo(true)
+        ],
+        [
+          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo(null),
+          $this->equalTo([
+            'recipient' => [
+              'id' => '1000000000000000'
+            ],
+            'message' => [
+              'text' => 'テスト2'
+            ]
+          ]),
+          $this->equalTo(true)
+        ], [
+          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo(null),
+          $this->equalTo([
+            'recipient' => [
+              'id' => '1000000000000000'
+            ],
+            'message' => [
+              'text' => 'テスト3'
+            ]
+          ]),
+          $this->equalTo(true)
+        ]
+      );
+
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -207,7 +260,7 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setText('テスト');
+    $bot->addText('テスト');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -253,7 +306,7 @@ class FacebookBotTest extends TestCase {
     );
 
     $bot = new FacebookBot($this->curlMock);
-    $bot->setGeneric([
+    $bot->addGeneric([
       [
         'タイトル1', 'サブタイトル1', null, [
           [
@@ -295,7 +348,7 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setImage('https://www.sampleimage.com/sample.jpg');
+    $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -322,7 +375,7 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setVideo('https://www.sampleimage.com/sample.mp4');
+    $bot->addVideo('https://www.sampleimage.com/sample.mp4');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
@@ -349,15 +402,112 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
       );
     $bot = new FacebookBot($this->curlMock);
-    $bot->setAudio('https://www.sampleimage.com/sample.mp3');
+    $bot->addAudio('https://www.sampleimage.com/sample.mp3');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
-  public function testParseEvents() {
+  public function testPushMultiMessage() {
+    $this->curlMock->expects($this->exactly(3))
+      ->method('post')
+      ->withConsecutive(
+        [
+          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo(null),
+          $this->equalTo([
+            'recipient' => [
+              'id' => '1000000000000000'
+            ],
+            'message' => [
+              'text' => 'テスト1'
+            ]
+          ]),
+          $this->equalTo(true)
+        ],
+        [
+          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo(null),
+          $this->equalTo([
+            'recipient' => [
+              'id' => '1000000000000000'
+            ],
+            'message' => [
+              'text' => 'テスト2'
+            ]
+          ]),
+          $this->equalTo(true)
+        ], [
+          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo(null),
+          $this->equalTo([
+            'recipient' => [
+              'id' => '1000000000000000'
+            ],
+            'message' => [
+              'text' => 'テスト3'
+            ]
+          ]),
+          $this->equalTo(true)
+        ]
+      );
+
     $bot = new FacebookBot($this->curlMock);
-    $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
-    $this->assertEquals(\json_decode($jsonString), $bot->parseEvents($jsonString));
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $bot->pushMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testExceptionOccurredWhenReply() {
+    $this->curlMock->expects($this->exactly(3))
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->replyMessage('1000000000000000');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals([$expected, $expected, $expected], json_decode($res));
+  }
+
+  public function testExceptionOccurredWhenPush() {
+    $this->curlMock->expects($this->exactly(3))
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->pushMessage('1000000000000000');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals([$expected, $expected, $expected], json_decode($res));
+  }
+
+  /**
+   * @dataProvider requestBodyProvider
+   * @backupGlobals enabled
+   */
+  public function testParseEvents($requestBody) {
+    $bot = new FacebookBot($this->curlMock);
+    $events = $bot->parseEvents($requestBody);
+    $this->assertContainsOnly(Event::class, $events);
+  }
+
+  public function requestBodyProvider() {
+    /*
+      data case => [ requestBody ]
+    */
+    return [
+      'facebook text message' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}' ],
+      'facebook image message' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}' ],
+      'facebook postback' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"sender":{"id":"1000000000000000"},"postback":{"payload":"text=Postback1\u0025E3\u002582\u002592\u0025E6\u00258A\u0025BC\u0025E3\u002581\u002597\u0025E3\u002581\u0025BE\u0025E3\u002581\u002597\u0025E3\u002581\u00259F"}}]}]}' ]
+    ];
   }
 
   public function testTestSignature() {
@@ -409,10 +559,8 @@ class FacebookBotTest extends TestCase {
       )->willReturn($expectedBinary);
     $bot = new FacebookBot($this->curlMock);
     $events = $bot->parseEvents($requestBody);
-    foreach ($events->entry as $entry) {
-      foreach ($entry->messaging as $messaging) {
-        $this->assertEquals($expectedFiles, $bot->getFiles($messaging));
-      }
+    foreach ($events as $event) {
+      $this->assertEquals($expectedFiles, $bot->getFiles($event));
     }
   }
 

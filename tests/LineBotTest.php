@@ -4,6 +4,7 @@ namespace MessengerFramework\Test;
 
 use MessengerFramework\LineBot;
 use MessengerFramework\Curl;
+use MessengerFramework\Event;
 use PHPUnit\Framework\TestCase;
 
 class LineTest extends TestCase {
@@ -429,6 +430,36 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testExceptionOccurredWhenReply() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new LineBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->replyMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals($expected, json_decode($res));
+  }
+
+  public function testExceptionOccurredWhenPush() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
+    $bot = new LineBot($this->curlMock);
+    $bot->addText('テスト1');
+    $bot->addText('テスト2');
+    $bot->addText('テスト3');
+    $res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $expected = new \stdClass();
+    $expected->code = 1;
+    $expected->message = 'Curlでエラーが起きました';
+    $this->assertEquals($expected, json_decode($res));
+  }
+
   public function testTestSignature() {
     $bot = new LineBot($this->curlMock);
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
@@ -443,10 +474,24 @@ class LineTest extends TestCase {
     $this->assertFalse($bot->testSignature($requestBody, $x_line_signature));
   }
 
+  /**
+   * @dataProvider requestBodyProvider
+   */
   public function testParseEvents() {
     $bot = new LineBot($this->curlMock);
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
-    $this->assertEquals(\json_decode($requestBody), $bot->parseEvents($requestBody));
+    $this->assertContainsOnly(Event::class, $bot->parseEvents($requestBody));
+  }
+
+  public function requestBodyProvider() {
+    /*
+      data case => [ requestBody ]
+    */
+    return [
+      'line text message' => [ '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}' ],
+      'line image message' => [ '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}' ],
+      'line postback' => [ '{"events":[{"type":"postback","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"postback":{"data":"key1=value1&key2=value2&key3=value3"}}]}' ],
+    ];
   }
 
   public function testGetProfile() {
@@ -475,7 +520,7 @@ class LineTest extends TestCase {
         $this->equalTo($expectedUrl)
       )->willReturn($expectedBinary);
     $bot = new LineBot($this->curlMock);
-    $events = $bot->parseEvents($requestBody)->events;
+    $events = $bot->parseEvents($requestBody);
     foreach ($events as $event) {
       $this->assertEquals($expectedFile, $bot->getFile($event));
     }

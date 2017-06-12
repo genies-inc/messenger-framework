@@ -20,16 +20,21 @@ class FacebookBot implements Bot {
     $this->httpClient = $curl;
   }
 
+  // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
   public function replyMessage(String $to) {
     return $this->sendMessage($to);
   }
 
+  // pushもreplyもやっていることは一緒だがあえて残している
+  // FacebookのAPIを意識するというコンセプトであればこれを消して
+  // sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
+  // しかしこのフレームワークはそうではない
   public function pushMessage(String $to) {
     return $this->sendMessage($to);
   }
 
   public function parseEvents(String $requestBody) {
-    return $obj = \json_decode($requestBody);
+    return self::convertFacebookEvents(\json_decode($requestBody));
   }
 
   public function testSignature(String $requestBody, String $signature) {
@@ -51,7 +56,8 @@ class FacebookBot implements Bot {
   }
 
   // ファイル名 => バイナリ文字列
-  public function getFiles($messaging) {
+  public function getFiles($event) {
+    $messaging = $event->rawData;
     if (!isset($messaging->message->attachments)) {
       return null;
     }
@@ -63,14 +69,14 @@ class FacebookBot implements Bot {
     return $files;
   }
 
-  public function setText(String $message) {
+  public function addText(String $message) {
     array_push($this->templates, [
       'text' => $message
     ]);
   }
 
   // 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
-  public function setGeneric(Array $columns) {
+  public function addGeneric(Array $columns) {
     $elements = [];
     foreach ($columns as $column) {
       array_push($elements, $this->buildColumn($column));
@@ -123,7 +129,7 @@ class FacebookBot implements Bot {
     return $button;
   }
 
-  private function setAttachment($type, $url) {
+  private function addAttachment($type, $url) {
     array_push($this->templates, [
       'attachment' => [
         'type' => $type,
@@ -134,26 +140,36 @@ class FacebookBot implements Bot {
     ]);
   }
 
-  public function setImage(String $url) {
-    $this->setAttachment('image', $url);
+  public function addImage(String $url) {
+    $this->addAttachment('image', $url);
   }
 
-  public function setVideo(String $url) {
-    $this->setAttachment('video', $url);
+  public function addVideo(String $url) {
+    $this->addAttachment('video', $url);
   }
 
-  public function setAudio(String $url) {
-    $this->setAttachment('audio', $url);
+  public function addAudio(String $url) {
+    $this->addAttachment('audio', $url);
   }
 
   private function sendMessage(String $to) {
-    $body = [
-      'recipient' => [
-        'id' => $to
-      ],
-      'message' => array_shift($this->templates)
-    ];
-    return $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
+    $responses = [];
+    foreach ($this->templates as $template) {
+      $body = [
+        'recipient' => [
+          'id' => $to
+        ],
+        'message' => $template
+      ];
+      try {
+        $res = $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
+      } catch (\RuntimeException $e) {
+        $res = self::buildCurlErrorResponse($e);
+      }
+      array_push($responses, $res);
+    }
+    $this->templates = [];
+    return json_encode($responses);
   }
 
   private function getMessageEndpoint() {
@@ -167,6 +183,65 @@ class FacebookBot implements Bot {
   private function getKey($url) {
     preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
     return $result[2];
+  }
+
+  private static function buildCurlErrorResponse(\Exception $e) {
+    $err = new \stdClass();
+    $err->message = $e->getMessage();
+    $err->code = $e->getCode();
+    return $err;
+  }
+
+  private static function convertFacebookEvents($rawEvents) {
+    $events = [];
+
+    // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
+    if (!isset($rawEvents->entry) || !is_array($rawEvents->entry)) {
+      throw new \UnexpectedValueException('Entryがない、またはEntryがサポートされていない形式です。');
+    }
+
+    foreach ($rawEvents->entry as $entry) {
+
+      // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
+      if (!isset($entry->messaging) || !is_array($entry->messaging)) {
+        throw new \UnexpectedValueException('Messagingがない、またはMessagingがサポートされていない形式です。');
+      }
+
+      foreach ($entry->messaging as $messaging) {
+        try {
+          $event = self::parseMessaging($messaging);
+          array_push($events, $event);
+        } catch (\InvalidArgumentException $e) {
+          array_push($events, null);
+        }
+      }
+    }
+
+    return $events;
+  }
+
+  private static function parseMessaging($messaging) {
+    $text = null;
+    $postbackData = null;
+    if (isset($messaging->message)) {
+      if (isset($messaging->message->attachments)) {
+        $type = 'Message.File';
+      } elseif (isset($messaging->message->text)) {
+        $type = 'Message.Text';
+        $text = $messaging->message->text;
+      } else {
+        throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
+      }
+    } elseif (isset($messaging->postback)) {
+      $type = 'Postback';
+      $postbackData = $messaging->postback->payload;
+    } else {
+      throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
+    }
+    $userId = $messaging->sender->id;
+    $replyToken = $messaging->sender->id;
+    $rawData = $messaging;
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
   }
 
 }
