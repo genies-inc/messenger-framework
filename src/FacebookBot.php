@@ -171,14 +171,18 @@ class FacebookBot implements Bot {
   }
 
   public function addButton(String $text, Array $replies) {
-    array_push($this->templates, $this->buildAttachment('template', $this->buildButtonTemplate()));
+    array_push($this->templates, $this->buildAttachment('template', $this->buildButtonTemplate($text, $replies)));
   }
 
   private function buildButtonTemplate(String $text, Array $replies) {
+    $buttons = [];
+    foreach ($replies as $reply) {
+      array_push($buttons, $this->buildButton($reply));
+    }
     return [
       'template_type' => 'button',
       'text' => $text,
-      'buttons' => $this->buildButton($replies)
+      'buttons' => $buttons
     ];
   }
 
