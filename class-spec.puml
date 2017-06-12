@@ -53,7 +53,7 @@ namespace MessengerFramework {
   end note
 
   class FacebookBot {
-    + [String:BinaryString] getFiles(stdClass rawEvent)
+    + [String:BinaryString] getFiles(Event event)
     + setText(String message)
     + setGeneric([String:String|Array])
     + setImage(String url)
@@ -62,7 +62,7 @@ namespace MessengerFramework {
   }
 
   class LineBot {
-    + [String:BinaryString] getFiles(stdClass rawEvent)
+    + [String:BinaryString] getFiles(Event event)
     + addText(String url)
     + addCarousel([String:String|Array])
     + addImage(String url, String previewUrl)
