@@ -34,12 +34,8 @@ class FacebookBotTest extends TestCase {
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
         $this->equalTo(null),
         $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
-          'message' => [
-            'text' => 'テスト'
-          ]
+          'recipient' => [ 'id' => '1000000000000000' ],
+          'message' => [ 'text' => 'テスト' ]
         ]),
         $this->equalTo(true)
       );
@@ -49,64 +45,114 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testReplyGenericMessage() {
+  public function testPushTextMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
         $this->equalTo(null),
         $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
-          'message' => [
-            'attachment' => [
-              'type' => 'template',
-              'payload' => [
-                'template_type' => 'generic',
-                'elements' => [
+          'recipient' => [ 'id' => '1000000000000000' ],
+          'message' => [ 'text' => 'テスト' ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addText('テスト');
+    $bot->pushMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  public function genericMessageDataProvider() {
+    return [
+      'valid generic message' => [
+        [
+          'attachment' => [
+            'type' => 'template',
+            'payload' => [
+              'template_type' => 'generic',
+              'elements' => [
+                [
+                  'title' => 'タイトル1',
+                  'subtitle' => 'サブタイトル1',
+                  'buttons' => [
                     [
-                    'title' => 'タイトル1',
-                    'subtitle' => 'サブタイトル1',
-                    'buttons' => [
-                      [
-                        'type' => 'web_url',
-                        'url' => 'https://www.sampleimage.com/sample.jpg',
-                        'title' => 'URLボタン'
-                      ],
-                      [
-                        'type' => 'postback',
-                        'title' => 'Postbackボタン',
-                        'payload' => 'key1=value1&key2=value2'
-                      ]
+                      'type' => 'web_url',
+                      'url' => 'https://www.sampleimage.com/sample.jpg',
+                      'title' => 'URLボタン'
+                    ],
+                    [
+                      'type' => 'postback',
+                      'title' => 'Postbackボタン',
+                      'payload' => 'key1=value1&key2=value2'
                     ]
                   ]
                 ]
               ]
             ]
           ]
+        ],
+        [
+          [
+            'タイトル1', 'サブタイトル1', null, [
+              [
+                'title' => 'URLボタン',
+                'action' => 'url',
+                'url' => 'https://www.sampleimage.com/sample.jpg'
+              ],
+              [
+                'title' => 'Postbackボタン',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2'
+              ]
+            ],
+          ]
+        ]
+      ]
+    ];
+  }
+
+  /**
+   * @dataProvider genericMessageDataProvider
+   */
+  public function testReplyGenericMessage($expectedGenericArray, $genericSource) {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [ 'id' => '1000000000000000' ],
+          'message' => $expectedGenericArray
         ]),
         $this->equalTo(true)
     );
 
     $bot = new FacebookBot($this->curlMock);
-    $bot->addGeneric([
-      [
-        'タイトル1', 'サブタイトル1', null, [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ],
-      ]
-    ]);
+    $bot->addGeneric($genericSource);
     $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  /**
+   * @dataProvider genericMessageDataProvider
+   */
+  public function testPushGenericMessage($expectedGenericArray, $genericSource) {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo([
+          'recipient' => [ 'id' => '1000000000000000' ],
+          'message' => $expectedGenericArray
+        ]),
+        $this->equalTo(true)
+    );
+
+    $bot = new FacebookBot($this->curlMock);
+    $bot->addGeneric($genericSource);
+    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
@@ -291,89 +337,6 @@ class FacebookBotTest extends TestCase {
       ]
     ]);
     $bot->replyMessage('1000000000000000');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushTextMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
-          'message' => [
-            'text' => 'テスト'
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->curlMock);
-    $bot->addText('テスト');
-    $bot->pushMessage('1000000000000000');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushGenericMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [
-            'id' => '1000000000000000'
-          ],
-          'message' => [
-            'attachment' => [
-              'type' => 'template',
-              'payload' => [
-                'template_type' => 'generic',
-                'elements' => [
-                    [
-                    'title' => 'タイトル1',
-                    'subtitle' => 'サブタイトル1',
-                    'buttons' => [
-                      [
-                        'type' => 'web_url',
-                        'url' => 'https://www.sampleimage.com/sample.jpg',
-                        'title' => 'URLボタン'
-                      ],
-                      [
-                        'type' => 'postback',
-                        'title' => 'Postbackボタン',
-                        'payload' => 'key1=value1&key2=value2'
-                      ]
-                    ]
-                  ]
-                ]
-              ]
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-    );
-
-    $bot = new FacebookBot($this->curlMock);
-    $bot->addGeneric([
-      [
-        'タイトル1', 'サブタイトル1', null, [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ]
-      ]
-    ]);
-    $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
