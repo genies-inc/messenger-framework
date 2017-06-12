@@ -32,9 +32,7 @@ class LineTest extends TestCase {
       ->method('post')
       ->with(
         $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
         $this->equalTo([
           'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
           'messages' => [
@@ -49,6 +47,29 @@ class LineTest extends TestCase {
     $bot = new LineBot($this->curlMock);
     $bot->addText('テスト');
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushTextMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+          'messages' => [
+            [
+              'type' => 'text',
+              'text' => 'テスト'
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new LineBot($this->curlMock);
+    $bot->addText('テスト');
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }
 
@@ -121,9 +142,7 @@ class LineTest extends TestCase {
       ->method('post')
       ->with(
         $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
         $this->equalTo([
           'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
           'messages' => [
@@ -142,14 +161,36 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testPushImageMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+          'messages' => [
+            [
+              'type' => 'image',
+              'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
+              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new LineBot($this->curlMock);
+    $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
+  }
+
   public function testReplyVideoMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
         $this->equalTo([
           'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
           'messages' => [
@@ -168,14 +209,36 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testPushVideoMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+          'messages' => [
+            [
+              'type' => 'video',
+              'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
+              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new LineBot($this->curlMock);
+    $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
+  }
+
   public function testReplyAudioMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
         $this->equalTo([
           'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
           'messages' => [
@@ -191,6 +254,30 @@ class LineTest extends TestCase {
     $bot = new LineBot($this->curlMock);
     $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
+  public function testPushAudioMessage() {
+    $this->curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+          'messages' => [
+            [
+              'type' => 'audio',
+              'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
+              'duration' => 10000
+            ]
+          ]
+        ]),
+        $this->equalTo(true)
+      );
+    $bot = new LineBot($this->curlMock);
+    $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }
 
@@ -281,31 +368,6 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  public function testPushTextMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'text',
-              'text' => 'テスト'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new LineBot($this->curlMock);
-    $bot->addText('テスト');
-    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-    $this->addToAssertionCount(1);
-  }
-
   public function testPushCarouselMessage() {
     $this->curlMock->expects($this->once())
       ->method('post')
@@ -365,84 +427,6 @@ class LineTest extends TestCase {
         ],
       ]
     ]);
-    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushImageMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'image',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new LineBot($this->curlMock);
-    $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
-    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushVideoMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'video',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new LineBot($this->curlMock);
-    $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
-    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-    $this->addToAssertionCount(1);
-  }
-
-  public function testPushAudioMessage() {
-    $this->curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([
-          'Authorization' => 'Bearer develop'
-        ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'audio',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
-              'duration' => 10000
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new LineBot($this->curlMock);
-    $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);
   }
