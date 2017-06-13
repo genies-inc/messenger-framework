@@ -114,29 +114,8 @@ class MessengerBot {
     return $this->core->getFiles($message);
   }
 
-  // TODO : 分ける処理を下に押し込む
   public function getProfile($userId) {
-    $profile = $this->core->getProfile($userId);
-    switch (true) {
-      case $this->core instanceof FacebookBot :
-      if (!isset($profile->first_name)) {
-        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-      }
-      return [
-        'name' => $profile->first_name . ' ' . $profile->last_name,
-        'profilePic' => $profile->profile_pic
-      ];
-      case $this->core instanceof LineBot :
-      if (!isset($profile->displayName)) {
-        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-      }
-      return [
-        'name' => $profile->displayName,
-        'profilePic' => $profile->pictureUrl
-      ];
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
+    return $this->core->getProfile($userId);
   }
 
   // MARK : Private

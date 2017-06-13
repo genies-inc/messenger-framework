@@ -60,7 +60,15 @@ class LineBot implements Bot {
       $this->getProfileEndpoint($userId),
       ['Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN]
     );
-    return json_decode($res);
+    $profile = json_decode($res);
+    if (!isset($profile->displayName)) {
+      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+    }
+    return [
+      'name' => $profile->displayName,
+      'profilePic' => $profile->pictureUrl,
+      'rawProfile' => $profile
+    ];
   }
 
   // ファイル名 => バイナリ文字列

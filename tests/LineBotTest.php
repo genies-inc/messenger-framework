@@ -534,7 +534,12 @@ class LineTest extends TestCase {
     $profile->userId = '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0';
     $profile->pictureUrl = 'test.jpg';
     $profile->statusMessage = 'ステータスメッセージ';
-    $this->assertEquals($profile, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
+    $wrapper = [
+      'name' => $profile->displayName,
+      'profilePic' => $profile->pictureUrl,
+      'rawProfile' => $profile
+    ];
+    $this->assertEquals($wrapper, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
   }
 
   /**

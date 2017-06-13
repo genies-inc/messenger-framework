@@ -46,7 +46,15 @@ class FacebookBot implements Bot {
 
   public function getProfile(String $userId) {
     $res = $this->httpClient->get($this->getProfileEndpoint($userId));
-    return json_decode($res);
+    $profile = json_decode($res);
+    if (!isset($profile->first_name)) {
+      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+    }
+    return [
+      'name' => $profile->first_name . ' ' . $profile->last_name,
+      'profilePic' => $profile->profile_pic,
+      'rawProfile' => $profile
+    ];
   }
 
   // ファイル名 => バイナリ文字列
