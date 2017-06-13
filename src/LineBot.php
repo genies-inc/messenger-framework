@@ -4,21 +4,15 @@ namespace MessengerFramework;
 
 class LineBot implements Bot {
 
-  private static $LINE_CHANNEL_SECRET;
-
-  private static $LINE_ACCESS_TOKEN;
-
-  private $httpClient;
-
-  private $endpoint = 'https://api.line.me/';
-
-  private $templates = [];
+  // MARK : Constructor
 
   public function __construct(Curl $httpClient) {
     self::$LINE_CHANNEL_SECRET = getenv('LINE_CHANNEL_SECRET') ?: 'develop';
     self::$LINE_ACCESS_TOKEN = getenv('LINE_ACCESS_TOKEN') ?: 'develop';
     $this->httpClient = $httpClient;
   }
+
+  // MARK : Bot Interface の実装
 
   public function replyMessage(String $to) {
     $templates = $this->templates;
@@ -50,110 +44,6 @@ class LineBot implements Bot {
       $res = self::buildCurlErrorResponse($e);
     }
     return json_encode($res);
-  }
-
-  public function addText(String $message) {
-    array_push($this->templates, [
-      'type' => 'text',
-      'text' => $message
-    ]);
-  }
-
-  public function addCarousel(Array $columns) {
-    array_push($this->templates, $this->buildTemplate(
-      'alt text for carousel',
-      $this->buildCarousel($columns)
-    ));
-  }
-
-  private function buildTemplate(String $altText, Array $template) {
-    return [
-      'type' => 'template',
-      'altText' => $altText,
-      'template' => $template
-    ];
-  }
-
-  private function buildCarousel($source) {
-    $columns = [];
-    foreach ($source as $column) {
-      array_push($columns, $this->buildColumn($column));
-    }
-    return [
-      'type' => 'carousel',
-      'columns' => $columns,
-    ];
-  }
-
-  private function buildColumn($source) {
-    $actions = [];
-    foreach ($source[3] as $button) {
-      array_push($actions, $this->buildAction($button));
-    }
-    return [
-      'thumbnailImageUrl' => $source[2],
-      'title' => $source[0],
-      'text' => $source[1],
-      'actions' => $actions,
-    ];
-  }
-
-  private function buildAction($source) {
-    $action = [
-      'type' => $source['action'],
-      'label' => $source['title']
-    ];
-    switch ($source['action']) {
-      case 'postback' :
-      $action['data'] = $source['data'];
-      break;
-      case 'url' :
-      $action['uri'] = $source['url'];
-      $action['type'] = 'uri';
-      break;
-      default :
-    }
-    return $action;
-  }
-
-  public function addImage(String $url, String $previewUrl) {
-    array_push($this->templates, [
-      'type' => 'image',
-      'originalContentUrl' => $url,
-      'previewImageUrl' => $previewUrl,
-    ]);
-  }
-
-  public function addVideo(String $url, String $previewUrl) {
-    array_push($this->templates, [
-      'type' => 'video',
-      'originalContentUrl' => $url,
-      'previewImageUrl' => $previewUrl,
-    ]);
-  }
-
-  public function addAudio(String $url, Int $duration) {
-    array_push($this->templates, [
-      'type' => 'audio',
-      'originalContentUrl' => $url,
-      'duration' => $duration,
-    ]);
-  }
-
-  public function addConfirm(String $text, Array $buttons) {
-    $actions = [];
-    foreach ($buttons as $button) {
-      array_push($actions, $this->buildAction($button));
-    }
-    $confirm = [
-      'type' => 'confirm',
-      'text' => $text,
-      'actions' => $actions
-    ];
-    array_push($this->templates, $this->buildTemplate(
-      'alt text for confirm',
-      $confirm
-    ));
   }
 
   public function testSignature(String $requestBody, String $signature) {
@@ -199,21 +89,64 @@ class LineBot implements Bot {
     return [ $rawEvent->message->id . $ext => $file ];
   }
 
-  private function getReplyEndpoint() {
-    return $this->endpoint . 'v2/bot/message/reply';
+  // MARK : Public LineBotのメソッド
+
+  public function addText(String $message) {
+    array_push($this->templates, [
+      'type' => 'text',
+      'text' => $message
+    ]);
   }
 
-  private function getPushEndpoint() {
-    return $this->endpoint . 'v2/bot/message/push';
+  public function addImage(String $url, String $previewUrl) {
+    array_push($this->templates, [
+      'type' => 'image',
+      'originalContentUrl' => $url,
+      'previewImageUrl' => $previewUrl,
+    ]);
   }
 
-  private function getProfileEndpoint($userId) {
-    return $this->endpoint . 'v2/bot/profile/' . $userId;
+  public function addVideo(String $url, String $previewUrl) {
+    array_push($this->templates, [
+      'type' => 'video',
+      'originalContentUrl' => $url,
+      'previewImageUrl' => $previewUrl,
+    ]);
   }
 
-  private function getContentEndpoint($messageId) {
-    return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
+  public function addAudio(String $url, Int $duration) {
+    array_push($this->templates, [
+      'type' => 'audio',
+      'originalContentUrl' => $url,
+      'duration' => $duration,
+    ]);
   }
+
+  public function addCarousel(Array $columns) {
+    array_push($this->templates, $this->buildTemplate(
+      'alt text for carousel',
+      $this->buildCarousel($columns)
+    ));
+  }
+
+  public function addConfirm(String $text, Array $buttons) {
+    array_push($this->templates, $this->buildTemplate(
+      'alt text for confirm',
+      $this->buildConfirm($text, $buttons)
+    ));
+  }
+
+  // MARK : Private
+
+  private static $LINE_CHANNEL_SECRET;
+
+  private static $LINE_ACCESS_TOKEN;
+
+  private $httpClient;
+
+  private $endpoint = 'https://api.line.me/';
+
+  private $templates = [];
 
   private static function buildCurlErrorResponse(\Exception $e) {
     $err = new \stdClass();
@@ -240,7 +173,6 @@ class LineBot implements Bot {
     }
 
     return $events;
-
   }
 
   private static function parseEvent($event) {
@@ -270,6 +202,84 @@ class LineBot implements Bot {
     $replyToken = $event->replyToken;
     $rawData = $event;
     return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
+  }
+
+  private function buildTemplate(String $altText, Array $template) {
+    return [
+      'type' => 'template',
+      'altText' => $altText,
+      'template' => $template
+    ];
+  }
+
+  private function buildCarousel($source) {
+    $columns = [];
+    foreach ($source as $column) {
+      array_push($columns, $this->buildColumn($column));
+    }
+    return [
+      'type' => 'carousel',
+      'columns' => $columns,
+    ];
+  }
+
+  private function buildConfirm(String $text, Array $buttons) {
+    $actions = [];
+    foreach ($buttons as $button) {
+      array_push($actions, $this->buildAction($button));
+    }
+    return [
+      'type' => 'confirm',
+      'text' => $text,
+      'actions' => $actions
+    ];
+  }
+
+  private function buildColumn($source) {
+    $actions = [];
+    foreach ($source[3] as $button) {
+      array_push($actions, $this->buildAction($button));
+    }
+    return [
+      'thumbnailImageUrl' => $source[2],
+      'title' => $source[0],
+      'text' => $source[1],
+      'actions' => $actions,
+    ];
+  }
+
+  private function buildAction($source) {
+    $action = [
+      'type' => $source['action'],
+      'label' => $source['title']
+    ];
+    switch ($source['action']) {
+      case 'postback' :
+      $action['data'] = $source['data'];
+      break;
+      case 'url' :
+      $action['uri'] = $source['url'];
+      $action['type'] = 'uri';
+      break;
+      default :
+    }
+    return $action;
+  }
+
+  private function getReplyEndpoint() {
+    return $this->endpoint . 'v2/bot/message/reply';
+  }
+
+  private function getPushEndpoint() {
+    return $this->endpoint . 'v2/bot/message/push';
+  }
+
+  private function getProfileEndpoint($userId) {
+    return $this->endpoint . 'v2/bot/profile/' . $userId;
+  }
+
+  private function getContentEndpoint($messageId) {
+    return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
   }
 
 }
