@@ -275,6 +275,10 @@ class LineBot implements Bot {
         $type = 'Message.Text';
         $text = $event->message->text;
         break;
+      } elseif ($event->message->type === 'location') {
+        $type = 'Message.Location';
+        $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
+        break;
       }
       $type = 'Message.File';
       break;
