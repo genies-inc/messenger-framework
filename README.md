@@ -59,7 +59,8 @@ $bot->reply($event->replyToken);
 
 # 仕様
 
-概要は`doc/class-spec.puml`内。
+概要は`doc/class-spec.puml`内。  
+ドキュメント(PHPDoc)は`composer gendoc`とコマンドで`doc/phpdoc/`に作成できる。
 
 フレームワーク全体でプラットフォームの差異を吸収するという考えで作られている。  
 Facebook、LineのMessengerBotを扱うためのフレームワークを用意し、それを更にラップするクラスを提供している。  
@@ -174,7 +175,7 @@ composer install
 
 ```
 # 全部走る
-vendor/bin/phpunit
+composer test
 # 特定のTestSuiteのみ走る
 vendor/bin/phpunit --testsuite "TestSuite名"
 ```

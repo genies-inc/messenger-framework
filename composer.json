@@ -1,6 +1,14 @@
 {
   "name": "genies/messengerframework",
   "description": "各サービスのMessengerBotのラッパー",
+  "scripts": {
+    "test": [
+      "phpunit --colors=always --configuration=phpunit.xml"
+    ],
+    "gendoc": [
+      "phpdoc run -d src -t doc/phpdoc --visibility public --ansi"
+    ]
+  },
   "require": {
     "php": "^7.1"
   },
