@@ -227,9 +227,25 @@ class FacebookBot implements Bot {
   private static function parseMessaging($messaging) {
     $text = null;
     $postbackData = null;
+    $location = null;
     if (isset($messaging->message)) {
       if (isset($messaging->message->attachments)) {
-        $type = 'Message.File';
+        $attachments = $messaging->message->attachments;
+        // FIXME : 汚すぎる
+        if (self::isLocationMessage($attachments)) {
+          $type = 'Message.Location';
+          foreach ($attachments as $attachment) {
+            if ($attachment->type !== 'location') {
+              continue;
+            }
+            $location = [
+              'lat' => $attachment->payload->coordinates->lat,
+              'long' => $attachment->payload->coordinates->long
+            ];
+          }
+        } else {
+          $type = 'Message.File';
+        }
       } elseif (isset($messaging->message->text)) {
         $type = 'Message.Text';
         $text = $messaging->message->text;
@@ -245,7 +261,7 @@ class FacebookBot implements Bot {
     $userId = $messaging->sender->id;
     $replyToken = $messaging->sender->id;
     $rawData = $messaging;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, null, $location);
   }
 
   private function sendMessage(String $to) {
@@ -266,6 +282,15 @@ class FacebookBot implements Bot {
     }
     $this->templates = [];
     return json_encode($responses);
+  }
+
+  private static function isLocationMessage($attachments) {
+    foreach ($attachments as $attachment) {
+      if ($attachment->type === 'location') {
+        return true;
+      }
+    }
+    return false;
   }
 
   private function buildAttachment($type, $payload) {
