@@ -683,24 +683,32 @@ class MessengerBotTest extends TestCase {
   }
 
   public function testGetProfileFacebook() {
+    $profile = json_decode('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}');
     $bot = new MessengerBot('facebook');
     $this->facebookBotMock->expects($this->once())
       ->method('getProfile')
-      ->with(
-        '1000000000000000'
-      )->willReturn(json_decode('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}'));
+      ->with('1000000000000000')
+      ->willReturn([
+        'name' => $profile->first_name . ' ' . $profile->last_name,
+        'profilePic' => $profile->profile_pic,
+        'rawProfile' => $profile
+      ]);
     $bot->core = $this->facebookBotMock;
     $bot->getProfile('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testGetProfileLine() {
+    $profile = json_decode('{"displayName":"Taro Test","userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","pictureUrl":"test.jpg","statusMessage":"ステータスメッセージ"}');
     $bot = new MessengerBot('line');
     $this->lineBotMock->expects($this->once())
       ->method('getProfile')
-      ->with(
-        '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
-      )->willReturn(json_decode('{"displayName":"Taro Test","userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","pictureUrl":"test.jpg","statusMessage":"ステータスメッセージ"}'));
+      ->with('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0')
+      ->willReturn([
+        'name' => $profile->displayName,
+        'profilePic' => $profile->pictureUrl,
+        'rawProfile' => $profile
+      ]);
     $bot->core = $this->lineBotMock;
     $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
     $this->addToAssertionCount(1);

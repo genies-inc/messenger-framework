@@ -1,42 +1,72 @@
 <?php
+/**
+ * FacebookBotを定義
+ */
 
 namespace MessengerFramework;
 
+/**
+ * [API] FacebookのMessengerのAPIを扱うためのクラス
+ *
+ * @access public
+ * @package MessengerFramework
+ */
 class FacebookBot implements Bot {
 
-  private static $FACEBOOK_APP_SECRET;
+  // MARK : Constructor
 
-  private static $FACEBOOK_ACCESS_TOKEN;
-
-  private $endPoint = 'https://graph.facebook.com/';
-
-  private $httpClient;
-
-  private $templates = [];
-
+  /**
+   * FacebookBot constructor
+   *
+   * @param Curl $curl
+   */
   public function __construct(Curl $curl) {
     self::$FACEBOOK_APP_SECRET = getenv('FACEBOOK_APP_SECRET') ?: 'develop';
     self::$FACEBOOK_ACCESS_TOKEN = getenv('FACEBOOK_ACCESS_TOKEN') ?: 'develop';
     $this->httpClient = $curl;
   }
 
+  // MARK : Bot Interface の実装
+
   // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
+  /**
+   * Facebookで送信予定のメッセージを返信する
+   *
+   * @param String $to
+   */
   public function replyMessage(String $to) {
     return $this->sendMessage($to);
   }
 
-  // pushもreplyもやっていることは一緒だがあえて残している
-  // FacebookのAPIを意識するというコンセプトであればこれを消して
-  // sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
-  // しかしこのフレームワークはそうではない
+  /**
+   * Facebookで送信予定のメッセージを送信する
+   *
+   * pushもreplyもやっていることは一緒だがあえて残している
+   * FacebookのAPIを意識するというコンセプトであればこれを消して
+   * sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
+   * しかしこのフレームワークはそうではない
+   *
+   * @param String $to
+   */
   public function pushMessage(String $to) {
     return $this->sendMessage($to);
   }
 
+  /**
+   * FacebookのWebhookリクエストを差異を吸収したEventの配列へ変換する
+   *
+   * @param String $requestBody
+   */
   public function parseEvents(String $requestBody) {
     return self::convertFacebookEvents(\json_decode($requestBody));
   }
 
+  /**
+   * FacebookからのWebhookリクエストかどうかを確認する
+   *
+   * @param String $requestBody
+   * @param String $signature
+   */
   public function testSignature(String $requestBody, String $signature) {
     $array = explode('=', $signature, 2);
     // FIXME: 汚い
@@ -50,12 +80,29 @@ class FacebookBot implements Bot {
     return $sample === $target;
   }
 
+  /**
+   * Facebookのユーザーのプロフィールを差異を吸収したものへ変換する
+   *
+   * @param String $userId
+   */
   public function getProfile(String $userId) {
     $res = $this->httpClient->get($this->getProfileEndpoint($userId));
-    return json_decode($res);
+    $profile = json_decode($res);
+    if (!isset($profile->first_name)) {
+      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+    }
+    return [
+      'name' => $profile->first_name . ' ' . $profile->last_name,
+      'profilePic' => $profile->profile_pic,
+      'rawProfile' => $profile
+    ];
   }
 
-  // ファイル名 => バイナリ文字列
+  /**
+   * FacebookのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param Event $event
+   */
   public function getFiles(Event $event) {
     $messaging = $event->rawData;
     if (!isset($messaging->message->attachments)) {
@@ -69,135 +116,78 @@ class FacebookBot implements Bot {
     return $files;
   }
 
+  // MARK : Public FacebookBotのメソッド
+
+  /**
+   * テキストメッセージを送信予定に追加する
+   *
+   * @param String $message
+   */
   public function addText(String $message) {
     array_push($this->templates, [
       'text' => $message
     ]);
   }
 
-  // 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
-  public function addGeneric(Array $columns) {
-    $elements = [];
-    foreach ($columns as $column) {
-      array_push($elements, $this->buildColumn($column));
-    }
-    array_push($this->templates, [
-      'attachment' => [
-        'type' => 'template',
-        'payload' => [
-          'template_type' => 'generic',
-          'elements' => $elements
-        ]
-      ]
-    ]);
-  }
-
-  private function buildColumn($source) {
-    $buttons = [];
-    foreach ($source[3] as $button) {
-      array_push($buttons, $this->buildButton($button));
-    }
-
-    $column = [
-      'title' => $source[0],
-      'subtitle' => $source[1],
-      'buttons' => $buttons
-    ];
-
-    if (!is_null($source[2])) {
-      $column['image_url'] = $source[2];
-    }
-
-    return $column;
-  }
-
-  private function buildButton($source) {
-    $button = [
-      'type' => $source['action'],
-      'title' => $source['title']
-    ];
-    switch ($source['action']) {
-      case 'postback' :
-      $button['payload'] = $source['data'];
-      break;
-      case 'url' :
-      $button['type'] = 'web_url';
-      $button['url'] = $source['url'];
-      break;
-      default :
-    }
-    return $button;
-  }
-
-  private function buildAttachment($type, $payload) {
-    return [
-      'attachment' => [
-        'type' => $type,
-        'payload' => $payload
-      ]
-    ];
-  }
-
+  /**
+   * 画像を送信予定に追加する
+   *
+   * @param String $url
+   */
   public function addImage(String $url) {
     array_push($this->templates, $this->buildAttachment('image', [ 'url' => $url ]));
   }
 
+  /**
+   * 動画を送信予定に追加する
+   *
+   * @param String $url
+   */
   public function addVideo(String $url) {
     array_push($this->templates, $this->buildAttachment('video', [ 'url' => $url ]));
   }
 
+  /**
+   * 音声を送信予定に追加する
+   *
+   * @param String $url
+   */
   public function addAudio(String $url) {
     array_push($this->templates, $this->buildAttachment('audio', [ 'url' => $url ]));
   }
 
-  private function sendMessage(String $to) {
-    $responses = [];
-    foreach ($this->templates as $template) {
-      $body = [
-        'recipient' => [
-          'id' => $to
-        ],
-        'message' => $template
-      ];
-      try {
-        $res = $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
-      } catch (\RuntimeException $e) {
-        $res = self::buildCurlErrorResponse($e);
-      }
-      array_push($responses, $res);
-    }
-    $this->templates = [];
-    return json_encode($responses);
+  /**
+   * Genericメッセージを送信予定に追加する
+   *
+   * 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
+   *
+   * @param Array $columns
+   */
+  public function addGeneric(Array $columns) {
+    array_push($this->templates, $this->buildAttachment('template', $this->buildCarouselTemplate($columns)));
   }
 
+  /**
+   * Buttonメッセージを送信予定に追加する
+   *
+   * @param String $text
+   * @param Array $replies
+   */
   public function addButton(String $text, Array $replies) {
     array_push($this->templates, $this->buildAttachment('template', $this->buildButtonTemplate($text, $replies)));
   }
 
-  private function buildButtonTemplate(String $text, Array $replies) {
-    $buttons = [];
-    foreach ($replies as $reply) {
-      array_push($buttons, $this->buildButton($reply));
-    }
-    return [
-      'template_type' => 'button',
-      'text' => $text,
-      'buttons' => $buttons
-    ];
-  }
+  // MARK : Private
 
-  private function getMessageEndpoint() {
-    return $this->endPoint . 'v2.6/me/messages' . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
-  }
+  private static $FACEBOOK_APP_SECRET;
 
-  private function getProfileEndpoint($userId) {
-    return $this->endPoint .'v2.6/' . $userId . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
-  }
+  private static $FACEBOOK_ACCESS_TOKEN;
 
-  private function getKey($url) {
-    preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
-    return $result[2];
-  }
+  private $endPoint = 'https://graph.facebook.com/';
+
+  private $httpClient;
+
+  private $templates = [];
 
   private static function buildCurlErrorResponse(\Exception $e) {
     $err = new \stdClass();
@@ -256,6 +246,108 @@ class FacebookBot implements Bot {
     $replyToken = $messaging->sender->id;
     $rawData = $messaging;
     return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
+  }
+
+  private function sendMessage(String $to) {
+    $responses = [];
+    foreach ($this->templates as $template) {
+      $body = [
+        'recipient' => [
+          'id' => $to
+        ],
+        'message' => $template
+      ];
+      try {
+        $res = $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
+      } catch (\RuntimeException $e) {
+        $res = self::buildCurlErrorResponse($e);
+      }
+      array_push($responses, $res);
+    }
+    $this->templates = [];
+    return json_encode($responses);
+  }
+
+  private function buildAttachment($type, $payload) {
+    return [
+      'attachment' => [
+        'type' => $type,
+        'payload' => $payload
+      ]
+    ];
+  }
+
+  private function buildCarouselTemplate(Array $columns) {
+    $elements = [];
+    foreach ($columns as $column) {
+      array_push($elements, $this->buildColumn($column));
+    }
+    return [
+      'template_type' => 'generic',
+      'elements' => $elements
+    ];
+  }
+
+  private function buildButtonTemplate(String $text, Array $replies) {
+    $buttons = [];
+    foreach ($replies as $reply) {
+      array_push($buttons, $this->buildButton($reply));
+    }
+    return [
+      'template_type' => 'button',
+      'text' => $text,
+      'buttons' => $buttons
+    ];
+  }
+
+  private function buildColumn($source) {
+    $buttons = [];
+    foreach ($source[3] as $button) {
+      array_push($buttons, $this->buildButton($button));
+    }
+
+    $column = [
+      'title' => $source[0],
+      'subtitle' => $source[1],
+      'buttons' => $buttons
+    ];
+
+    if (!is_null($source[2])) {
+      $column['image_url'] = $source[2];
+    }
+
+    return $column;
+  }
+
+  private function buildButton($source) {
+    $button = [
+      'type' => $source['action'],
+      'title' => $source['title']
+    ];
+    switch ($source['action']) {
+      case 'postback' :
+      $button['payload'] = $source['data'];
+      break;
+      case 'url' :
+      $button['type'] = 'web_url';
+      $button['url'] = $source['url'];
+      break;
+      default :
+    }
+    return $button;
+  }
+
+  private function getMessageEndpoint() {
+    return $this->endPoint . 'v2.6/me/messages' . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
+  }
+
+  private function getProfileEndpoint($userId) {
+    return $this->endPoint .'v2.6/' . $userId . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
+  }
+
+  private function getKey($url) {
+    preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
+    return $result[2];
   }
 
 }
