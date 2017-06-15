@@ -261,7 +261,7 @@ class FacebookBot implements Bot {
     $userId = $messaging->sender->id;
     $replyToken = $messaging->sender->id;
     $rawData = $messaging;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, null, $location);
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
   }
 
   private function sendMessage(String $to) {

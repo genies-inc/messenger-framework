@@ -295,7 +295,7 @@ class LineBot implements Bot {
     $userId = $event->source->userId;
     $replyToken = $event->replyToken;
     $rawData = $event;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, null, $location);
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
   }
 
   private function buildTemplate(String $altText, Array $template) {

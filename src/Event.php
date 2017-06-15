@@ -45,12 +45,6 @@ class Event {
    */
   public $postbackData;
 
-  // ファイルの種類 => Id
-  /**
-   * @var Bot 各プラットフォームのBotインタフェース
-   */
-  public $fileIds;
-
   /**
    * @var Array lat => 緯度, long => 経度
   */
@@ -65,17 +59,15 @@ class Event {
    * @param mix $rawData
    * @param String $text
    * @param String $postbackData
-   * @param Array $fileIds
    * @param Array $location lat => 緯度, long => 経度
    */
-  public function __construct(String $replyToken, String $userId, String $type, $rawData, String $text = null, String $postbackData = null, Array $fileIds = null, $location = null) {
+  public function __construct(String $replyToken, String $userId, String $type, $rawData, String $text = null, String $postbackData = null, $location = null) {
     $this->replyToken = $replyToken;
     $this->userId = $userId;
     $this->type = $type;
     $this->rawData = $rawData;
     $this->text = $text;
     $this->postbackData = $postbackData;
-    $this->fileIds = $fileIds;
     $this->location = $location;
   }
 
