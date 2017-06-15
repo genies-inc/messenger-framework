@@ -4,6 +4,8 @@ namespace  MessengerFramework;
 
 class Event {
 
+  // MARK : Public Eventのメソッド
+
   public $replyToken;
 
   public $userId;

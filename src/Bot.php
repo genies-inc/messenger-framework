@@ -4,6 +4,8 @@ namespace  MessengerFramework;
 
 interface Bot {
 
+  // MARK : Public
+
   public function replyMessage(String $to);
 
   public function pushMessage(String $to);
