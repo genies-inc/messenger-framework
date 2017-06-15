@@ -9,7 +9,7 @@ namespace MessengerFramework;
 // なので各プラットフォームのBotの段階では例外が飛んで来る
 class Curl {
 
-  private const AWAIT_SECOND = 12;
+  // MARK : Public Curlクラスのメソッド
 
   public function get(String $url, Array $headers = null, Array $queryArray = null) {
     if (!is_null($queryArray)) {
@@ -22,7 +22,7 @@ class Curl {
       CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_HTTPGET => true,
-      CURLOPT_TIMEOUT => self::AWAIT_SECOND
+      CURLOPT_TIMEOUT => self::$AWAIT_SECOND
     ]);
 
     $response =  curl_exec($ch);
@@ -48,7 +48,7 @@ class Curl {
       CURLOPT_POST => true,
       CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray ?? []) : \http_build_query($bodyArray ?? []),
       CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_TIMEOUT => self::AWAIT_SECOND
+      CURLOPT_TIMEOUT => self::$AWAIT_SECOND
     ]);
     $response = curl_exec($ch);
     $code = curl_errno($ch);
@@ -60,6 +60,10 @@ class Curl {
     curl_close($ch);
     return $response;
   }
+
+  // MARK : Private
+
+  private static $AWAIT_SECOND = 12;
 
   private function toHeaderArray(Array $from) {
     $header = [];
