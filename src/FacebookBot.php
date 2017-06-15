@@ -1,11 +1,25 @@
 <?php
+/**
+ * FacebookBotを定義
+ */
 
 namespace MessengerFramework;
 
+/**
+ * [API] FacebookのMessengerのAPIを扱うためのクラス
+ *
+ * @access public
+ * @package MessengerFramework
+ */
 class FacebookBot implements Bot {
 
   // MARK : Constructor
 
+  /**
+   * FacebookBot constructor
+   *
+   * @param Curl $curl
+   */
   public function __construct(Curl $curl) {
     self::$FACEBOOK_APP_SECRET = getenv('FACEBOOK_APP_SECRET') ?: 'develop';
     self::$FACEBOOK_ACCESS_TOKEN = getenv('FACEBOOK_ACCESS_TOKEN') ?: 'develop';
@@ -15,22 +29,44 @@ class FacebookBot implements Bot {
   // MARK : Bot Interface の実装
 
   // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
+  /**
+   * Facebookで送信予定のメッセージを返信する
+   *
+   * @param String $to
+   */
   public function replyMessage(String $to) {
     return $this->sendMessage($to);
   }
 
-  // pushもreplyもやっていることは一緒だがあえて残している
-  // FacebookのAPIを意識するというコンセプトであればこれを消して
-  // sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
-  // しかしこのフレームワークはそうではない
+  /**
+   * Facebookで送信予定のメッセージを送信する
+   *
+   * pushもreplyもやっていることは一緒だがあえて残している
+   * FacebookのAPIを意識するというコンセプトであればこれを消して
+   * sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
+   * しかしこのフレームワークはそうではない
+   *
+   * @param String $to
+   */
   public function pushMessage(String $to) {
     return $this->sendMessage($to);
   }
 
+  /**
+   * FacebookのWebhookリクエストを差異を吸収したEventの配列へ変換する
+   *
+   * @param String $requestBody
+   */
   public function parseEvents(String $requestBody) {
     return self::convertFacebookEvents(\json_decode($requestBody));
   }
 
+  /**
+   * FacebookからのWebhookリクエストかどうかを確認する
+   *
+   * @param String $requestBody
+   * @param String $signature
+   */
   public function testSignature(String $requestBody, String $signature) {
     $array = explode('=', $signature, 2);
     // FIXME: 汚い
@@ -44,6 +80,11 @@ class FacebookBot implements Bot {
     return $sample === $target;
   }
 
+  /**
+   * Facebookのユーザーのプロフィールを差異を吸収したものへ変換する
+   *
+   * @param String $userId
+   */
   public function getProfile(String $userId) {
     $res = $this->httpClient->get($this->getProfileEndpoint($userId));
     $profile = json_decode($res);
@@ -57,7 +98,11 @@ class FacebookBot implements Bot {
     ];
   }
 
-  // ファイル名 => バイナリ文字列
+  /**
+   * FacebookのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param Event $event
+   */
   public function getFiles(Event $event) {
     $messaging = $event->rawData;
     if (!isset($messaging->message->attachments)) {
@@ -73,29 +118,61 @@ class FacebookBot implements Bot {
 
   // MARK : Public FacebookBotのメソッド
 
+  /**
+   * テキストメッセージを送信予定に追加する
+   *
+   * @param String $message
+   */
   public function addText(String $message) {
     array_push($this->templates, [
       'text' => $message
     ]);
   }
 
+  /**
+   * 画像を送信予定に追加する
+   *
+   * @param String $url
+   */
   public function addImage(String $url) {
     array_push($this->templates, $this->buildAttachment('image', [ 'url' => $url ]));
   }
 
+  /**
+   * 動画を送信予定に追加する
+   *
+   * @param String $url
+   */
   public function addVideo(String $url) {
     array_push($this->templates, $this->buildAttachment('video', [ 'url' => $url ]));
   }
 
+  /**
+   * 音声を送信予定に追加する
+   *
+   * @param String $url
+   */
   public function addAudio(String $url) {
     array_push($this->templates, $this->buildAttachment('audio', [ 'url' => $url ]));
   }
 
-  // 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
+  /**
+   * Genericメッセージを送信予定に追加する
+   *
+   * 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
+   *
+   * @param Array $columns
+   */
   public function addGeneric(Array $columns) {
     array_push($this->templates, $this->buildAttachment('template', $this->buildCarouselTemplate($columns)));
   }
 
+  /**
+   * Buttonメッセージを送信予定に追加する
+   *
+   * @param String $text
+   * @param Array $replies
+   */
   public function addButton(String $text, Array $replies) {
     array_push($this->templates, $this->buildAttachment('template', $this->buildButtonTemplate($text, $replies)));
   }

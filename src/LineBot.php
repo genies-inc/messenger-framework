@@ -1,11 +1,25 @@
 <?php
+/**
+ * LineBotを定義
+ */
 
 namespace MessengerFramework;
 
+/**
+ * [API] LineのMessengerのAPIを扱うためのクラス
+ *
+ * @access public
+ * @package MessengerFramework
+ */
 class LineBot implements Bot {
 
   // MARK : Constructor
 
+  /**
+   * LineBot constructor
+   *
+   * @param Curl $httpClient
+   */
   public function __construct(Curl $httpClient) {
     self::$LINE_CHANNEL_SECRET = getenv('LINE_CHANNEL_SECRET') ?: 'develop';
     self::$LINE_ACCESS_TOKEN = getenv('LINE_ACCESS_TOKEN') ?: 'develop';
@@ -14,6 +28,11 @@ class LineBot implements Bot {
 
   // MARK : Bot Interface の実装
 
+  /**
+   * Lineで送信予定のメッセージを返信する
+   *
+   * @param String $to
+   */
   public function replyMessage(String $to) {
     $templates = $this->templates;
     $this->templates = [];
@@ -30,6 +49,11 @@ class LineBot implements Bot {
     return json_encode($res);
   }
 
+  /**
+   * Lineで送信予定のメッセージを送信する
+   *
+   * @param String $to
+   */
   public function pushMessage(String $to) {
     $templates = $this->templates;
     $this->templates = [];
@@ -46,15 +70,31 @@ class LineBot implements Bot {
     return json_encode($res);
   }
 
+  /**
+   * LineからのWebhookリクエストかどうかを確認する
+   *
+   * @param String $requestBody
+   * @param String $signature
+   */
   public function testSignature(String $requestBody, String $signature) {
     $sample = hash_hmac('sha256', $requestBody, self::$LINE_CHANNEL_SECRET, true);
     return hash_equals(base64_encode($sample), $signature);
   }
 
+  /**
+   * LineのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param String $requestBody
+   */
   public function parseEvents(String $requestBody) {
     return self::convertLineEvents(\json_decode($requestBody));
   }
 
+  /**
+   * Lineのユーザーのプロフィールを差異を吸収したものへ変換する
+   *
+   * @param String $userId
+   */
   public function getProfile(String $userId) {
     $res = $this->httpClient->get(
       $this->getProfileEndpoint($userId),
@@ -71,7 +111,11 @@ class LineBot implements Bot {
     ];
   }
 
-  // ファイル名 => バイナリ文字列
+  /**
+   * LineのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param Event $event
+   */
   public function getFiles(Event $event) {
     $rawEvent = $event->rawData;
     if (!isset($rawEvent->message->type) || $rawEvent->message->type === 'text') {
@@ -99,6 +143,11 @@ class LineBot implements Bot {
 
   // MARK : Public LineBotのメソッド
 
+  /**
+   * テキストメッセージを送信予定に追加する
+   *
+   * @param String $message
+   */
   public function addText(String $message) {
     array_push($this->templates, [
       'type' => 'text',
@@ -106,6 +155,12 @@ class LineBot implements Bot {
     ]);
   }
 
+  /**
+   * 画像を送信予定に追加する
+   *
+   * @param String $url
+   * @param String $previewUrl
+   */
   public function addImage(String $url, String $previewUrl) {
     array_push($this->templates, [
       'type' => 'image',
@@ -114,6 +169,12 @@ class LineBot implements Bot {
     ]);
   }
 
+  /**
+   * 動画を送信予定に追加する
+   *
+   * @param String $url
+   * @param String $previewUrl
+   */
   public function addVideo(String $url, String $previewUrl) {
     array_push($this->templates, [
       'type' => 'video',
@@ -122,6 +183,12 @@ class LineBot implements Bot {
     ]);
   }
 
+  /**
+   * 音声を送信予定に追加する
+   *
+   * @param String $url
+   * @param Int $duration
+   */
   public function addAudio(String $url, Int $duration) {
     array_push($this->templates, [
       'type' => 'audio',
@@ -130,6 +197,11 @@ class LineBot implements Bot {
     ]);
   }
 
+  /**
+   * Carouselメッセージを送信予定に追加する
+   *
+   * @param Array $columns
+   */
   public function addCarousel(Array $columns) {
     array_push($this->templates, $this->buildTemplate(
       'alt text for carousel',
@@ -137,6 +209,12 @@ class LineBot implements Bot {
     ));
   }
 
+  /**
+   * Confirmメッセージを送信予定に追加する
+   *
+   * @param String $text
+   * @param Array $buttons
+   */
   public function addConfirm(String $text, Array $buttons) {
     array_push($this->templates, $this->buildTemplate(
       'alt text for confirm',

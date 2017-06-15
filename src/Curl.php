@@ -1,4 +1,7 @@
 <?php
+/**
+ * Curlを定義
+ */
 
 namespace MessengerFramework;
 
@@ -7,10 +10,27 @@ namespace MessengerFramework;
 // なぜならFW一番外側のMessengerBotはプラットフォームに依らない統一的な結果をユーザーに伝えたい
 // またMessengerBotは例外を吸収する必要があり、実行時例外が起きうることを知っている
 // なので各プラットフォームのBotの段階では例外が飛んで来る
+
+/**
+ * Curlを扱うラッパークラス
+ *
+ * Webhookリクエストに応答するためにタイムアウトが設定してある
+ *
+ * @access public
+ */
 class Curl {
 
   // MARK : Public Curlクラスのメソッド
 
+  /**
+   * getリクエストを送る
+   *
+   * @param String $url
+   * @param Array $headers
+   * @param Array $queryArray
+   *
+   * @return String レスポンスボディ
+   */
   public function get(String $url, Array $headers = null, Array $queryArray = null) {
     if (!is_null($queryArray)) {
       $query = http_build_query($queryArray);
@@ -36,6 +56,16 @@ class Curl {
     return $response;
   }
 
+  /**
+   * postリクエストを送る
+   *
+   * @param String $url
+   * @param Array $headers
+   * @param Array $bodyArray
+   * @param Bool $isJSON
+   *
+   * @return String レスポンスボディ
+   */
   public function post(String $url, Array $headers = null, Array $bodyArray = null, Bool $isJSON = false) {
     $ch = curl_init($url);
     if ($isJSON) {

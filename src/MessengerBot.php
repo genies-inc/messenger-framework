@@ -1,10 +1,26 @@
 <?php
+/**
+ * MessengerBotを定義
+ */
 
 namespace  MessengerFramework;
 
-// MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
+/**
+ * [API] 各プラットフォームのMessengerBotのAPIを統一的なインタフェースで扱うラッパー
+ *
+ * MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
+ *
+ * @access public
+ * @package MessengerFramework
+ */
 class MessengerBot {
 
+  /**
+   * MessengerBot constructor
+   *
+   * @param String $botType
+   * @package MessengerFramework
+   */
   public function __construct($botType) {
     switch (strtolower($botType)) {
       case 'facebook' :
@@ -20,8 +36,16 @@ class MessengerBot {
 
   // MARK : Public MessengerBotのメソッド
 
+  /**
+   * @var Bot 各プラットフォームのBotインタフェース
+   */
   public $core;
 
+  /**
+   * Webhookリクエストをもとにどのプラットフォームの差異を吸収したEventの配列を返す
+   *
+   * @return Array プラットフォームの差異を吸収したEventの配列
+   */
   public function getEvents() {
     $requestBody = file_get_contents("php://input");
     if (!$this->validateSignature($requestBody)) {
@@ -30,14 +54,31 @@ class MessengerBot {
     return $this->core->parseEvents($requestBody);
   }
 
+  /**
+   * replyTokenを使って追加してきたメッセージを返信する
+   *
+   * @param String $replyToken
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   */
   public function reply(String $replyToken) {
     return $this->core->replyMessage($replyToken);
   }
 
+  /**
+   * recipientIdに向けて追加してきたメッセージを送信する
+   *
+   * @param String $recipientId
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   */
   public function push(String $recipientId) {
     return $this->core->pushMessage($recipientId);
   }
 
+  /**
+   * テキストメッセージを送信予定に追加する
+   *
+   * @param String $message
+   */
   public function addText(String $message) {
     switch (true) {
       case $this->core instanceof FacebookBot :
@@ -49,6 +90,12 @@ class MessengerBot {
     }
   }
 
+  /**
+   * 画像を送信予定に追加する
+   *
+   * @param String $fileUrl
+   * @param String $previewUrl
+   */
   public function addImage(String $fileUrl, String $previewUrl) {
     switch (true) {
       case $this->core instanceof FacebookBot :
@@ -60,6 +107,12 @@ class MessengerBot {
     }
   }
 
+  /**
+   * 動画を送信予定に追加する
+   *
+   * @param String $fileUrl
+   * @param String $previewUrl
+   */
   public function addVideo(String $fileUrl, String $previewUrl) {
     switch (true) {
       case $this->core instanceof FacebookBot :
@@ -71,6 +124,12 @@ class MessengerBot {
     }
   }
 
+  /**
+   * 音声を送信予定に追加する
+   *
+   * @param String $fileUrl
+   * @param Int $duration
+   */
   public function addAudio(String $fileUrl, Int $duration) {
     switch (true) {
       case $this->core instanceof FacebookBot :
@@ -82,8 +141,15 @@ class MessengerBot {
     }
   }
 
-  // はい、いいえにボタンを設定できる
-  // つまりURLやPostbackを設定できるのだがLineではMessageにしないと発言内容が出ない
+  /**
+   * Confirmメッセージを送信予定に追加する
+   *
+   * buttonsにMessageボタンを含められないので
+   * Lineではボタンを押してもユーザーの発言として表示されない
+   *
+   * @param String $text
+   * @param Array $buttons
+   */
   public function addConfirm(String $text, Array $buttons) {
     switch (true) {
       case $this->core instanceof FacebookBot :
@@ -95,6 +161,11 @@ class MessengerBot {
     }
   }
 
+  /**
+   * テンプレートメッセージを送信予定に追加する
+   *
+   * @param Array $columns
+   */
   public function addTemplate(Array $columns) {
     switch (true) {
       case $this->core instanceof FacebookBot :
@@ -108,12 +179,26 @@ class MessengerBot {
     }
   }
 
-  // どのプラットフォームのイベントかはMessengerBotの状態に依存する
-  // 渡されたメッセージがFacebookのものであってもnew MessengerBot('line')だったらLineとして解釈
+  /**
+   * 発生したEvent(メッセージ)中のファイルを取得する
+   *
+   * どのプラットフォームのEventとして解釈するかはこのMessengerBotクラスの状態に依存
+   *
+   * @param Event $message
+   * @return Array ファイル名 => バイナリ文字列 な連想配列
+   */
   public function getFilesIn(Event $message) {
     return $this->core->getFiles($message);
   }
 
+  /**
+   * userIdをもとにプロフィールを取得する
+   *
+   * userIdをどのプラットフォームのものとして扱うのかはMessengerBotの状態に依存
+   *
+   * @param String $userId
+   * @return Array name => ユーザー名, profilePic => プロフィール画像のURL, rawProfile => 元データ
+   */
   public function getProfile($userId) {
     return $this->core->getProfile($userId);
   }
