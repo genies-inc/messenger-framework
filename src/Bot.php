@@ -37,7 +37,7 @@ interface Bot {
    * requestBodyから各プラットフォームの差異を吸収したEventを取り出す
    *
    * @param String $requestBody
-   * @return Array Eventクラスの配列
+   * @return Event|null[] Eventクラスの配列
    */
   public function parseEvents(String $requestBody);
 

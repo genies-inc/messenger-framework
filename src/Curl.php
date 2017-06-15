@@ -26,8 +26,8 @@ class Curl {
    * getリクエストを送る
    *
    * @param String $url
-   * @param Array $headers
-   * @param Array $queryArray
+   * @param Array|null $headers
+   * @param Array|null $queryArray
    *
    * @return String レスポンスボディ
    */
@@ -60,8 +60,8 @@ class Curl {
    * postリクエストを送る
    *
    * @param String $url
-   * @param Array $headers
-   * @param Array $bodyArray
+   * @param Array|null $headers
+   * @param Array|null $bodyArray
    * @param Bool $isJSON
    *
    * @return String レスポンスボディ

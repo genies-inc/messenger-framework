@@ -44,7 +44,7 @@ class MessengerBot {
   /**
    * Webhookリクエストをもとにどのプラットフォームの差異を吸収したEventの配列を返す
    *
-   * @return Array プラットフォームの差異を吸収したEventの配列
+   * @return Event|null[] プラットフォームの差異を吸収したEventの配列
    */
   public function getEvents() {
     $requestBody = file_get_contents("php://input");
