@@ -239,8 +239,8 @@ class FacebookBot implements Bot {
               continue;
             }
             $location = [
-              'lat' => $attachment->payload->{'coordinates.lat'},
-              'long' => $attachment->payload->{'coordinates.long'}
+              'lat' => $attachment->payload->coordinates->lat,
+              'long' => $attachment->payload->coordinates->long
             ];
           }
         } else {
