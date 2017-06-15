@@ -264,6 +264,7 @@ class LineBot implements Bot {
   private static function parseEvent($event) {
     $text = null;
     $postbackData = null;
+    $location = null;
     if (!isset($event->type)) {
       throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
     }
@@ -277,6 +278,9 @@ class LineBot implements Bot {
       }
       $type = 'Message.File';
       break;
+      case 'location' :
+      $type = 'Message.Location';
+      $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
       case 'postback' :
       $type = 'Postback';
       $postbackData = $event->postback->data;
@@ -287,7 +291,7 @@ class LineBot implements Bot {
     $userId = $event->source->userId;
     $replyToken = $event->replyToken;
     $rawData = $event;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, null, $location);
   }
 
   private function buildTemplate(String $altText, Array $template) {
