@@ -230,9 +230,19 @@ class FacebookBot implements Bot {
     $location = null;
     if (isset($messaging->message)) {
       if (isset($messaging->message->attachments)) {
-        if (count($messaging->message->attachments) === 1 && $messaging->message->attachments[0]->type === 'location') {
+        $attachments = $messaging->message->attachments;
+        // FIXME : 汚すぎる
+        if (self::isLocationMessage($attachments)) {
           $type = 'Message.Location';
-          $location = [ 'lat' => $messaging->message->attachments[0]->payload->{'coordinates.lat'}, 'long' => $messaging->message->attachments[0]->payload->{'coordinates.long'} ];
+          foreach ($attachments as $attachment) {
+            if ($attachment->type !== 'location') {
+              continue;
+            }
+            $location = [
+              'lat' => $attachment->payload->{'coordinates.lat'},
+              'long' => $attachment->payload->{'coordinates.long'}
+            ];
+          }
         } else {
           $type = 'Message.File';
         }
@@ -272,6 +282,15 @@ class FacebookBot implements Bot {
     }
     $this->templates = [];
     return json_encode($responses);
+  }
+
+  private static function isLocationMessage($attachments) {
+    foreach ($attachments as $attachment) {
+      if ($attachment->type === 'location') {
+        return true;
+      }
+    }
+    return false;
   }
 
   private function buildAttachment($type, $payload) {
