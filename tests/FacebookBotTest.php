@@ -486,6 +486,7 @@ class FacebookBotTest extends TestCase {
     $this->assertEquals([$expected, $expected, $expected], json_decode($res));
   }
 
+  // TODO : テストが甘い、プロパティをチェックする
   /**
    * @dataProvider requestBodyProvider
    */

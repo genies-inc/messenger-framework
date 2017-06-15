@@ -501,6 +501,7 @@ class LineTest extends TestCase {
     $this->assertFalse($bot->testSignature($requestBody, $x_line_signature));
   }
 
+  // TODO : テストが甘い、プロパティをチェックする
   /**
    * @dataProvider requestBodyProvider
    */
