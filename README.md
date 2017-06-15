@@ -16,7 +16,7 @@ composer require genies/messengerframework
 
 # 使い方
 
-詳細はusage-example.phpを参照。
+詳細は`doc/usage-example.php`を参照。
 
 ## 読み込みと初期化
 
@@ -59,7 +59,7 @@ $bot->reply($event->replyToken);
 
 # 仕様
 
-概要は`class-spec.puml`内。
+概要は`doc/class-spec.puml`内。
 
 フレームワーク全体でプラットフォームの差異を吸収するという考えで作られている。  
 Facebook、LineのMessengerBotを扱うためのフレームワークを用意し、それを更にラップするクラスを提供している。  
