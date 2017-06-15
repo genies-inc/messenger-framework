@@ -52,6 +52,11 @@ class Event {
   public $fileIds;
 
   /**
+   * @var Array lat => 緯度, long => 経度
+  */
+  public $location;
+
+  /**
    * Event constructor
    *
    * @param String $replyToken
@@ -61,8 +66,9 @@ class Event {
    * @param String $text
    * @param String $postbackData
    * @param Array $fileIds
+   * @param Array $location lat => 緯度, long => 経度
    */
-  public function __construct(String $replyToken, String $userId, String $type, $rawData, String $text = null, String $postbackData = null, Array $fileIds = null) {
+  public function __construct(String $replyToken, String $userId, String $type, $rawData, String $text = null, String $postbackData = null, Array $fileIds = null, $location = null) {
     $this->replyToken = $replyToken;
     $this->userId = $userId;
     $this->type = $type;
@@ -70,6 +76,7 @@ class Event {
     $this->text = $text;
     $this->postbackData = $postbackData;
     $this->fileIds = $fileIds;
+    $this->location = $location;
   }
 
 }

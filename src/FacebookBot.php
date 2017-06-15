@@ -227,9 +227,15 @@ class FacebookBot implements Bot {
   private static function parseMessaging($messaging) {
     $text = null;
     $postbackData = null;
+    $location = null;
     if (isset($messaging->message)) {
       if (isset($messaging->message->attachments)) {
-        $type = 'Message.File';
+        if (count($messaging->message->attachments) === 1 && $messaging->message->attachments[0]->type === 'location') {
+          $type = 'Message.Location';
+          $location = [ 'lat' => $messaging->message->attachments[0]->payload->{'coordinates.lat'}, 'long' => $messaging->message->attachments[0]->payload->{'coordinates.long'} ];
+        } else {
+          $type = 'Message.File';
+        }
       } elseif (isset($messaging->message->text)) {
         $type = 'Message.Text';
         $text = $messaging->message->text;
@@ -245,7 +251,7 @@ class FacebookBot implements Bot {
     $userId = $messaging->sender->id;
     $replyToken = $messaging->sender->id;
     $rawData = $messaging;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, null, $location);
   }
 
   private function sendMessage(String $to) {
