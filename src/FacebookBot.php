@@ -240,19 +240,11 @@ class FacebookBot {
     if (isset($messaging->message)) {
       if (isset($messaging->message->attachments)) {
         $attachments = $messaging->message->attachments;
-        // FIXME : 汚すぎる
         if (self::_isLocationMessage($attachments)) {
           $type = 'Message.Location';
-          foreach ($attachments as $attachment) {
-            if ($attachment->type !== 'location') {
-              continue;
-            }
-            $location = [
-              'lat' => $attachment->payload->coordinates->lat,
-              'long' => $attachment->payload->coordinates->long
-            ];
-          }
+          $location = self::_buildLocation($attachments);
         } else {
+          // attachmentsが含まれていて位置情報が含まれていないものはMessage.Fileとして扱う
           $type = 'Message.File';
         }
       } elseif (isset($messaging->message->text)) {
@@ -300,6 +292,18 @@ class FacebookBot {
       }
     }
     return false;
+  }
+
+  private static function _buildLocation($attachments) {
+    foreach ($attachments as $attachment) {
+      if ($attachment->type !== 'location') {
+        continue;
+      }
+      return [
+        'lat' => $attachment->payload->coordinates->lat,
+        'long' => $attachment->payload->coordinates->long
+      ];
+    }
   }
 
   private function _buildAttachment($type, $payload) {
