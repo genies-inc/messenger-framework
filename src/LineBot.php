@@ -38,19 +38,7 @@ class LineBot implements Bot {
    * @param String $to
    */
   public function replyMessage(String $to) {
-    $templates = $this->_templates;
-    $this->_templates = [];
-    try {
-      $res = $this->_httpClient->post($this->_getReplyEndpoint(), [
-        'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
-      ], [
-        'replyToken' => $to,
-        'messages' => $templates
-      ], true);
-    } catch (\RuntimeException $e) {
-      $res = self::_buildCurlErrorResponse($e);
-    }
-    return json_encode($res);
+    return $this->_sendMessage($this->_getReplyEndpoint(), [ 'replyToken' => $to ]);
   }
 
   /**
@@ -59,19 +47,7 @@ class LineBot implements Bot {
    * @param String $to
    */
   public function pushMessage(String $to) {
-    $templates = $this->_templates;
-    $this->_templates = [];
-    try {
-      $res = $this->_httpClient->post($this->_getPushEndpoint(), [
-        'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
-      ], [
-        'to' => $to,
-        'messages' => $templates
-      ], true);
-    } catch (\RuntimeException $e) {
-      $res = self::_buildCurlErrorResponse($e);
-    }
-    return json_encode($res);
+    return $this->_sendMessage($this->_getPushEndpoint(), [ 'to' => $to ]);
   }
 
   /**
@@ -300,6 +276,18 @@ class LineBot implements Bot {
     $replyToken = $event->replyToken;
     $rawData = $event;
     return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+  }
+
+  private function _sendMessage(String $endpoint, Array $options) {
+    try {
+      $res = $this->_httpClient->post($endpoint, [
+        'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
+      ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
+    } catch (\RuntimeException $e) {
+      $res = self::_buildCurlErrorResponse($e);
+    }
+    $this->_templates = [];
+    return json_encode($res);
   }
 
   private function _buildTemplate(String $altText, Array $template) {
