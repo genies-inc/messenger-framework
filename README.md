@@ -61,7 +61,7 @@ $bot->reply($event->replyToken);
 
 概要は`docs/class-spec.puml`内。
 
-[ドキュメント(PHPDoc)](https://isirin.github.io/messenger-framework/)
+[ドキュメント(PHPDoc)](https://genies-inc.github.io/messenger-framework/)
 
 ドキュメント(PHPDoc)は`composer gendoc`とコマンドで`docs`に作成できる。
 
