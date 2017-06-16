@@ -233,6 +233,7 @@ class FacebookBot {
     return $events;
   }
 
+  // TODO : ステッカーがファイルメッセージとして認識されてしまうのを修正
   private static function _parseMessaging($messaging) {
     // messaging#senderが存在するかどうかを振り分ける意味もある
     if (!isset($messaging->message) && !isset($messaging->postback)) {

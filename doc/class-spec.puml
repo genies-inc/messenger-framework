@@ -7,14 +7,15 @@ namespace MessengerFramework {
     + String replyToken
     + String userId
     + String type
-    + String|null text
-    + [Key => Value]|null postbackData
-    + Array|null location
+    + Array data
+    + Array origin
   }
 
   note top of Event
     Event#typeについて
     Message.TextとMessage.File、Message.Location、Postbackの3種類
+    Event#dataについて
+    text、postback、locationのキーがイベントに合わせて作られる
   end note
 
   class MessengerBot {

@@ -86,11 +86,11 @@ foreach ($bot->events as $event) {
 // イベントの種類によってプロパティーの有る無しが変わるのか?
 // 何も返さなかったり、エラーを出すなど
 if ($event->type === "Message.Text") {
-  $event->text;
-  $event->files; // null
+  $event->data['text'];
+  $bot->getFilesIn($event); // null
 } elseif ($event->type === "Message.File") {
-  $event->text; // null
-  $event->files;
+  $event->data['text']; // not set
+  $bot->getFilesIn($event);
 }
 
 // Facebook Message 1 - * File
