@@ -246,6 +246,10 @@ class LineBot {
     return $events;
   }
 
+  private static function _isFileEvent(String $type) {
+    return $type === 'image' || $type === 'video' || $type === 'audio';
+  }
+
   private static function _parseEvent($event) {
     $text = null;
     $postbackData = null;
@@ -260,16 +264,21 @@ class LineBot {
         $type = 'Message.Text';
         $text = $event->message->text;
         break;
-      } elseif ($event->message->type === 'location') {
+      }
+      if ($event->message->type === 'location') {
         $type = 'Message.Location';
         $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
         break;
       }
-      $type = 'Message.File';
+      if (self::_isFileEvent($event->message->type)) {
+        $type = 'Message.File';
+        break;
+      }
       break;
       case 'location' :
       $type = 'Message.Location';
       $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
+      break;
       case 'postback' :
       $type = 'Postback';
       $postbackData = $event->postback->data;
