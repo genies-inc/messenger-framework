@@ -1,6 +1,10 @@
 <?php
 /**
  * LineBotを定義
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
  */
 
 namespace MessengerFramework;
