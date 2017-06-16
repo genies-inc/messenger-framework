@@ -7,39 +7,39 @@ use MessengerFramework\Curl;
 
 class CurlTest extends TestCase {
 
-  private static $NODE_PID;
+  private static $_NODE_PID;
 
-  private static $NODE_PORT = '8080';
+  private static $_NODE_PORT = '8080';
 
-  private static $NODE_HOST = 'localhost';
+  private static $_NODE_HOST = 'localhost';
 
-  private static $NODE_DIR = 'node';
+  private static $_NODE_DIR = 'node';
 
-  private static $URL;
+  private static $_URL;
 
   public static function setUpBeforeClass() {
-    $cmd = 'PORT=' . self::$NODE_PORT . ' HOST=' . self::$NODE_HOST . ' ' . self::$NODE_DIR . ' ./devtool/mirror_server/mirror.js >/dev/null 2>&1 & echo $!';
+    $cmd = 'PORT=' . self::$_NODE_PORT . ' HOST=' . self::$_NODE_HOST . ' ' . self::$_NODE_DIR . ' ./devtool/mirror_server/mirror.js >/dev/null 2>&1 & echo $!';
     exec($cmd, $output);
-    self::$NODE_PID = $output[0];
+    self::$_NODE_PID = $output[0];
 
-    if (self::$NODE_PID <= 0) {
+    if (self::$_NODE_PID <= 0) {
       echo 'ミラーサーバーの起動でエラーが出ました。';
       return;
     }
 
-    self::$URL = 'http://' . self::$NODE_HOST . ':' . self::$NODE_PORT;
+    self::$_URL = 'http://' . self::$_NODE_HOST . ':' . self::$_NODE_PORT;
 
     // TODO: サーバーの起動を待っているスリープをもう少しマシな方法に置き換える
     usleep(500000);
   }
 
   public static function tearDownAfterClass() {
-    if (self::$NODE_PID <= 0 || empty(self::$NODE_PID)) {
+    if (self::$_NODE_PID <= 0 || empty(self::$_NODE_PID)) {
       echo 'ミラーサーバーが起動していません。';
       return;
     }
 
-    \passthru('kill ' . self::$NODE_PID, $ret);
+    \passthru('kill ' . self::$_NODE_PID, $ret);
 
     if ($ret !== 0) {
       echo 'ミラーサーバーを正しく終了できませんでした。';
@@ -48,14 +48,14 @@ class CurlTest extends TestCase {
   }
 
   public function setUp() {
-    if (empty(self::$NODE_PID)) {
+    if (empty(self::$_NODE_PID)) {
       $this->fail('ミラーサーバーが起動していません。');
     }
   }
 
   public function testGet() {
     $curl = new Curl();
-    $res = $curl->get(self::$URL);
+    $res = $curl->get(self::$_URL);
     $jsonObject = \json_decode($res);
     $this->assertEquals("GET", $jsonObject->request->method);
   }
@@ -63,7 +63,7 @@ class CurlTest extends TestCase {
   public function testGetQuery() {
     $curl = new Curl();
     $query = ['key1' => 'value1'];
-    $res = $curl->get(self::$URL, null, $query);
+    $res = $curl->get(self::$_URL, null, $query);
     $jsonObject = \json_decode($res, true);
     $this->assertEquals("GET", $jsonObject['request']['method']);
     $this->assertEquals($query, $jsonObject['request']['query']);
@@ -74,7 +74,7 @@ class CurlTest extends TestCase {
     $header = [
       'TEST' => 'value'
     ];
-    $res = $curl->get(self::$URL, $header);
+    $res = $curl->get(self::$_URL, $header);
     $jsonObject = json_decode($res, true);
     $this->assertEquals("GET", $jsonObject['request']['method']);
     $responseHeader = $jsonObject['header'];
@@ -90,7 +90,7 @@ class CurlTest extends TestCase {
       'key1' => 'value1',
       'key2' => 'value2'
     ];
-    $res = $curl->post(self::$URL, null, $body, true);
+    $res = $curl->post(self::$_URL, null, $body, true);
     $jsonObject = \json_decode($res);
     $this->assertEquals("POST", $jsonObject->request->method);
     $this->assertEquals($body, json_decode($jsonObject->body, true));
@@ -102,7 +102,7 @@ class CurlTest extends TestCase {
       'key1' => 'value1',
       'key2' => 'value2'
     ];
-    $res = $curl->post(self::$URL, null, $body);
+    $res = $curl->post(self::$_URL, null, $body);
     $jsonObject = \json_decode($res);
     $this->assertEquals("POST", $jsonObject->request->method);
     $this->assertEquals(\http_build_query($body), $jsonObject->body);
@@ -110,7 +110,7 @@ class CurlTest extends TestCase {
 
   public function testHeaderContentJSON() {
     $curl = new Curl();
-    $res = $curl->post(self::$URL, null, null, true);
+    $res = $curl->post(self::$_URL, null, null, true);
     $jsonObject = \json_decode($res, true);
     $returnedRequestHeader = $jsonObject['header'];
     $this->assertArrayHasKey('content-type', $returnedRequestHeader);

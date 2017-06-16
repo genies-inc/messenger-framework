@@ -1,11 +1,31 @@
 {
   "name": "genies/messengerframework",
   "description": "各サービスのMessengerBotのラッパー",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "Kazuyuki Saka",
+          "role": "Manager / Developer"
+      },
+      {
+          "name": "Rintaro Ishikawa",
+          "role": "Developer"
+      }
+  ],
+  "scripts": {
+    "test": [
+      "phpunit --colors=always --configuration=phpunit.xml"
+    ],
+    "gendoc": [
+      "phpdoc run -d src -t doc/phpdoc --visibility public --ansi"
+    ]
+  },
   "require": {
     "php": "^7.1"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6.1"
+    "phpunit/phpunit": "^6.1",
+    "phpdocumentor/phpdocumentor": "^2.9"
   },
   "autoload": {
     "psr-4": {

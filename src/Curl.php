@@ -1,4 +1,11 @@
 <?php
+/**
+ * Curlを定義
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
+ */
 
 namespace MessengerFramework;
 
@@ -7,10 +14,28 @@ namespace MessengerFramework;
 // なぜならFW一番外側のMessengerBotはプラットフォームに依らない統一的な結果をユーザーに伝えたい
 // またMessengerBotは例外を吸収する必要があり、実行時例外が起きうることを知っている
 // なので各プラットフォームのBotの段階では例外が飛んで来る
+
+/**
+ * Curlを扱うラッパークラス
+ *
+ * Webhookリクエストに応答するためにタイムアウトが設定してある
+ *
+ * @access public
+ * @package MessengerFramework
+ */
 class Curl {
 
-  private const AWAIT_SECOND = 12;
+  // MARK : Public Curlクラスのメソッド
 
+  /**
+   * getリクエストを送る
+   *
+   * @param String $url
+   * @param Array|null $headers
+   * @param Array|null $queryArray
+   *
+   * @return String レスポンスボディ
+   */
   public function get(String $url, Array $headers = null, Array $queryArray = null) {
     if (!is_null($queryArray)) {
       $query = http_build_query($queryArray);
@@ -19,10 +44,10 @@ class Curl {
     $ch = curl_init($url);
 
     curl_setopt_array($ch, [
-      CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
+      CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_HTTPGET => true,
-      CURLOPT_TIMEOUT => self::AWAIT_SECOND
+      CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
     ]);
 
     $response =  curl_exec($ch);
@@ -36,6 +61,16 @@ class Curl {
     return $response;
   }
 
+  /**
+   * postリクエストを送る
+   *
+   * @param String $url
+   * @param Array|null $headers
+   * @param Array|null $bodyArray
+   * @param Bool $isJSON
+   *
+   * @return String レスポンスボディ
+   */
   public function post(String $url, Array $headers = null, Array $bodyArray = null, Bool $isJSON = false) {
     $ch = curl_init($url);
     if ($isJSON) {
@@ -44,11 +79,11 @@ class Curl {
     }
 
     curl_setopt_array($ch, [
-      CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
+      CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
       CURLOPT_POST => true,
       CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray ?? []) : \http_build_query($bodyArray ?? []),
       CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_TIMEOUT => self::AWAIT_SECOND
+      CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
     ]);
     $response = curl_exec($ch);
     $code = curl_errno($ch);
@@ -61,7 +96,11 @@ class Curl {
     return $response;
   }
 
-  private function toHeaderArray(Array $from) {
+  // MARK : Private
+
+  private static $_AWAIT_SECOND = 12;
+
+  private function _toHeaderArray(Array $from) {
     $header = [];
     foreach ($from as $key => $value) {
       array_push($header, join(': ', [$key, $value]));

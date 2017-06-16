@@ -1,21 +1,32 @@
 <?php
+/**
+ * MessengerBotを定義
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
+ */
 
 namespace  MessengerFramework;
 
-// MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
+/**
+ * [API] 各プラットフォームのMessengerBotのAPIを統一的なインタフェースで扱うラッパー
+ *
+ * MessengerBotクラスを使う側が何のBotかは最初に指定して使うのでリクエストから判別するような機能はいらない
+ *
+ * @access public
+ * @package MessengerFramework
+ */
 class MessengerBot {
 
-  private $requestBody = '';
-
-  private $type = '';
-
-  public $core;
-
+  /**
+   * MessengerBot constructor
+   *
+   * @param String $botType
+   * @package MessengerFramework
+   */
   public function __construct($botType) {
-    $this->requestBody = file_get_contents("php://input");
-    $this->type = strtolower($botType);
-
-    switch ($this->type) {
+    switch (strtolower($botType)) {
       case 'facebook' :
       $this->core = new FacebookBot(new Curl());
       break;
@@ -25,48 +36,57 @@ class MessengerBot {
       default :
       throw new \InvalidArgumentException("指定されたプラットフォームはサポートされていません。", 1);
     }
-
   }
 
+  // MARK : Public MessengerBotのメソッド
+
+  /**
+   * @var Bot 各プラットフォームのBotインタフェース
+   */
+  public $core;
+
+  /**
+   * Webhookリクエストをもとにどのプラットフォームの差異を吸収したEventの配列を返す
+   *
+   * @return Event|null[] プラットフォームの差異を吸収したEventの配列
+   */
   public function getEvents() {
-    if (!$this->validateSignature()) {
+    $requestBody = file_get_contents("php://input");
+    if (!$this->_validateSignature($requestBody)) {
       throw new \UnexpectedValueException("正しい送信元からのリクエストではありません。");
     }
-    switch ($this->type) {
-      case 'facebook':
-      case 'line':
-      return $this->core->parseEvents($this->requestBody);
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
+    return $this->core->parseEvents($requestBody);
   }
 
+  /**
+   * replyTokenを使って追加してきたメッセージを返信する
+   *
+   * @param String $replyToken
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   */
   public function reply(String $replyToken) {
-    switch ($this->type) {
-      case 'facebook' :
-      case 'line' :
-      return $this->core->replyMessage($replyToken);
-      break;
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
+    return $this->core->replyMessage($replyToken);
   }
 
+  /**
+   * recipientIdに向けて追加してきたメッセージを送信する
+   *
+   * @param String $recipientId
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   */
   public function push(String $recipientId) {
-    switch ($this->type) {
-      case 'facebook' :
-      case 'line' :
-      return $this->core->pushMessage($recipientId);
-      break;
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
+    return $this->core->pushMessage($recipientId);
   }
 
+  /**
+   * テキストメッセージを送信予定に追加する
+   *
+   * @param String $message
+   */
   public function addText(String $message) {
-    switch ($this->type) {
-      case 'facebook' :
-      case 'line' :
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      case $this->core instanceof LineBot :
       $this->core->addText($message);
       break;
       default :
@@ -74,23 +94,16 @@ class MessengerBot {
     }
   }
 
-  public function addTemplate(Array $columns) {
-    switch ($this->type) {
-      case 'facebook' :
-      $this->core->addGeneric($columns);
-      break;
-      case 'line' :
-      $this->core->addCarousel($columns);
-      break;
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
-  }
-
+  /**
+   * 画像を送信予定に追加する
+   *
+   * @param String $fileUrl
+   * @param String $previewUrl
+   */
   public function addImage(String $fileUrl, String $previewUrl) {
-    switch ($this->type) {
-      case 'facebook' :
-      case 'line' :
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      case $this->core instanceof LineBot :
       $this->core->addImage($fileUrl, $previewUrl);
       break;
       default :
@@ -98,10 +111,16 @@ class MessengerBot {
     }
   }
 
+  /**
+   * 動画を送信予定に追加する
+   *
+   * @param String $fileUrl
+   * @param String $previewUrl
+   */
   public function addVideo(String $fileUrl, String $previewUrl) {
-    switch ($this->type) {
-      case 'facebook' :
-      case 'line' :
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      case $this->core instanceof LineBot :
       $this->core->addVideo($fileUrl, $previewUrl);
       break;
       default :
@@ -109,10 +128,16 @@ class MessengerBot {
     }
   }
 
+  /**
+   * 音声を送信予定に追加する
+   *
+   * @param String $fileUrl
+   * @param Int $duration
+   */
   public function addAudio(String $fileUrl, Int $duration) {
-    switch ($this->type) {
-      case 'facebook' :
-      case 'line' :
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      case $this->core instanceof LineBot :
       $this->core->addAudio($fileUrl, $duration);
       break;
       default :
@@ -120,58 +145,83 @@ class MessengerBot {
     }
   }
 
-  // どのプラットフォームのイベントかはMessengerBotの状態に依存する
-  // 渡されたメッセージがFacebookのものであってもnew MessengerBot('line')だったらLineとして解釈
+  /**
+   * Confirmメッセージを送信予定に追加する
+   *
+   * buttonsにMessageボタンを含められないので
+   * Lineではボタンを押してもユーザーの発言として表示されない
+   *
+   * @param String $text
+   * @param Array $buttons
+   */
+  public function addConfirm(String $text, Array $buttons) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      return $this->core->addButton($text, $buttons);
+      case $this->core instanceof LineBot :
+      return $this->core->addConfirm($text, $buttons);
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
+   * テンプレートメッセージを送信予定に追加する
+   *
+   * @param Array $columns
+   */
+  public function addTemplate(Array $columns) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      $this->core->addGeneric($columns);
+      break;
+      case $this->core instanceof LineBot :
+      $this->core->addCarousel($columns);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
+   * 発生したEvent(メッセージ)中のファイルを取得する
+   *
+   * どのプラットフォームのEventとして解釈するかはこのMessengerBotクラスの状態に依存
+   *
+   * @param Event $message
+   * @return Array ファイル名 => バイナリ文字列 な連想配列
+   */
   public function getFilesIn(Event $message) {
-    switch ($this->type) {
-      case 'facebook' :
-      return $this->core->getFiles($message);
-      break;
-      case 'line' :
-      return $this->core->getFile($message);
-      break;
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
+    return $this->core->getFiles($message);
   }
 
+  /**
+   * userIdをもとにプロフィールを取得する
+   *
+   * userIdをどのプラットフォームのものとして扱うのかはMessengerBotの状態に依存
+   *
+   * @param String $userId
+   * @return Array name => ユーザー名, profilePic => プロフィール画像のURL, rawProfile => 元データ
+   */
   public function getProfile($userId) {
-    $profile = $this->core->getProfile($userId);
-    switch ($this->type) {
-      case 'facebook' :
-      if (!isset($profile->first_name)) {
-        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-      }
-      return [
-        'name' => $profile->first_name . ' ' . $profile->last_name,
-        'profilePic' => $profile->profile_pic
-      ];
-      case 'line' :
-      if (!isset($profile->displayName)) {
-        throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-      }
-      return [
-        'name' => $profile->displayName,
-        'profilePic' => $profile->pictureUrl
-      ];
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
+    return $this->core->getProfile($userId);
   }
 
-  private function validateSignature() {
-    switch ($this->type) {
-      case 'facebook' :
+  // MARK : Private
+
+  private function _validateSignature($requestBody) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
       $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'] ?? 'invalid';
       break;
-      case 'line' :
+      case $this->core instanceof LineBot :
       $signature = $_SERVER['HTTP_X_LINE_SIGNATURE'] ?? 'invalid';
       break;
       default :
       break;
     }
 
-    return $this->core->testSignature($this->requestBody, $signature);
+    return $this->core->testSignature($requestBody, $signature);
   }
 
 }

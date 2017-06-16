@@ -1,157 +1,126 @@
 <?php
+/**
+ * LineBotを定義
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
+ */
 
 namespace MessengerFramework;
 
+/**
+ * [API] LineのMessengerのAPIを扱うためのクラス
+ *
+ * @access public
+ * @package MessengerFramework
+ */
 class LineBot implements Bot {
 
-  private static $LINE_CHANNEL_SECRET;
+  // MARK : Constructor
 
-  private static $LINE_ACCESS_TOKEN;
-
-  private $httpClient;
-
-  private $endpoint = 'https://api.line.me/';
-
-  private $templates = [];
-
+  /**
+   * LineBot constructor
+   *
+   * @param Curl $httpClient
+   */
   public function __construct(Curl $httpClient) {
-    self::$LINE_CHANNEL_SECRET = getenv('LINE_CHANNEL_SECRET') ?: 'develop';
-    self::$LINE_ACCESS_TOKEN = getenv('LINE_ACCESS_TOKEN') ?: 'develop';
-    $this->httpClient = $httpClient;
+    self::$_LINE_CHANNEL_SECRET = getenv('LINE_CHANNEL_SECRET') ?: 'develop';
+    self::$_LINE_ACCESS_TOKEN = getenv('LINE_ACCESS_TOKEN') ?: 'develop';
+    $this->_httpClient = $httpClient;
   }
 
+  // MARK : Bot Interface の実装
+
+  /**
+   * Lineで送信予定のメッセージを返信する
+   *
+   * @param String $to
+   */
   public function replyMessage(String $to) {
-    $templates = $this->templates;
-    $this->templates = [];
+    $templates = $this->_templates;
+    $this->_templates = [];
     try {
-      $res = $this->httpClient->post($this->getReplyEndpoint(), [
-        'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
+      $res = $this->_httpClient->post($this->_getReplyEndpoint(), [
+        'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
       ], [
         'replyToken' => $to,
         'messages' => $templates
       ], true);
     } catch (\RuntimeException $e) {
-      $res = self::buildCurlErrorResponse($e);
+      $res = self::_buildCurlErrorResponse($e);
     }
     return json_encode($res);
   }
 
+  /**
+   * Lineで送信予定のメッセージを送信する
+   *
+   * @param String $to
+   */
   public function pushMessage(String $to) {
-    $templates = $this->templates;
-    $this->templates = [];
+    $templates = $this->_templates;
+    $this->_templates = [];
     try {
-      $res = $this->httpClient->post($this->getPushEndpoint(), [
-        'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN
+      $res = $this->_httpClient->post($this->_getPushEndpoint(), [
+        'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
       ], [
         'to' => $to,
         'messages' => $templates
       ], true);
     } catch (\RuntimeException $e) {
-      $res = self::buildCurlErrorResponse($e);
+      $res = self::_buildCurlErrorResponse($e);
     }
     return json_encode($res);
   }
 
-  public function addText(String $message) {
-    array_push($this->templates, [
-      'type' => 'text',
-      'text' => $message
-    ]);
-  }
-
-  public function addCarousel(Array $columns) {
-    array_push($this->templates, [
-      'type' => 'template',
-      'altText' => 'alt text for carousel',
-      'template' => $this->buildCarousel($columns)
-    ]);
-  }
-
-  private function buildCarousel($source) {
-    $columns = [];
-    foreach ($source as $column) {
-      array_push($columns, $this->buildColumn($column));
-    }
-    return [
-      'type' => 'carousel',
-      'columns' => $columns,
-    ];
-  }
-
-  private function buildColumn($source) {
-    $actions = [];
-    foreach ($source[3] as $button) {
-      array_push($actions, $this->buildAction($button));
-    }
-    return [
-      'thumbnailImageUrl' => $source[2],
-      'title' => $source[0],
-      'text' => $source[1],
-      'actions' => $actions,
-    ];
-  }
-
-  private function buildAction($source) {
-    $action = [
-      'type' => $source['action'],
-      'label' => $source['title']
-    ];
-    switch ($source['action']) {
-      case 'postback' :
-      $action['data'] = $source['data'];
-      break;
-      case 'url' :
-      $action['uri'] = $source['url'];
-      $action['type'] = 'uri';
-      break;
-      default :
-    }
-    return $action;
-  }
-
-  public function addImage(String $url, String $previewUrl) {
-    array_push($this->templates, [
-      'type' => 'image',
-      'originalContentUrl' => $url,
-      'previewImageUrl' => $previewUrl,
-    ]);
-  }
-
-  public function addVideo(String $url, String $previewUrl) {
-    array_push($this->templates, [
-      'type' => 'video',
-      'originalContentUrl' => $url,
-      'previewImageUrl' => $previewUrl,
-    ]);
-  }
-
-  public function addAudio(String $url, Int $duration) {
-    array_push($this->templates, [
-      'type' => 'audio',
-      'originalContentUrl' => $url,
-      'duration' => $duration,
-    ]);
-  }
-
+  /**
+   * LineからのWebhookリクエストかどうかを確認する
+   *
+   * @param String $requestBody
+   * @param String $signature
+   */
   public function testSignature(String $requestBody, String $signature) {
-    $sample = hash_hmac('sha256', $requestBody, self::$LINE_CHANNEL_SECRET, true);
+    $sample = hash_hmac('sha256', $requestBody, self::$_LINE_CHANNEL_SECRET, true);
     return hash_equals(base64_encode($sample), $signature);
   }
 
+  /**
+   * LineのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param String $requestBody
+   */
   public function parseEvents(String $requestBody) {
-    return self::convertLineEvents(\json_decode($requestBody));
+    return self::_convertLineEvents(\json_decode($requestBody));
   }
 
+  /**
+   * Lineのユーザーのプロフィールを差異を吸収したものへ変換する
+   *
+   * @param String $userId
+   */
   public function getProfile(String $userId) {
-    $res = $this->httpClient->get(
-      $this->getProfileEndpoint($userId),
-      ['Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN]
+    $res = $this->_httpClient->get(
+      $this->_getProfileEndpoint($userId),
+      ['Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN]
     );
-    return json_decode($res);
+    $profile = json_decode($res);
+    if (!isset($profile->displayName)) {
+      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
+    }
+    return [
+      'name' => $profile->displayName,
+      'profilePic' => $profile->pictureUrl,
+      'rawProfile' => $profile
+    ];
   }
 
-  // ファイル名 => バイナリ文字列
-  public function getFile($event) {
+  /**
+   * LineのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param Event $event
+   */
+  public function getFiles(Event $event) {
     $rawEvent = $event->rawData;
     if (!isset($rawEvent->message->type) || $rawEvent->message->type === 'text') {
       return null;
@@ -169,37 +138,114 @@ class LineBot implements Bot {
       default :
       break;
     }
-    $file = $this->httpClient->get(
-      $this->getContentEndpoint($rawEvent->message->id),
-      [ 'Authorization' => 'Bearer ' . self::$LINE_ACCESS_TOKEN ]
+    $file = $this->_httpClient->get(
+      $this->_getContentEndpoint($rawEvent->message->id),
+      [ 'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN ]
     );
     return [ $rawEvent->message->id . $ext => $file ];
   }
 
-  private function getReplyEndpoint() {
-    return $this->endpoint . 'v2/bot/message/reply';
+  // MARK : Public LineBotのメソッド
+
+  /**
+   * テキストメッセージを送信予定に追加する
+   *
+   * @param String $message
+   */
+  public function addText(String $message) {
+    array_push($this->_templates, [
+      'type' => 'text',
+      'text' => $message
+    ]);
   }
 
-  private function getPushEndpoint() {
-    return $this->endpoint . 'v2/bot/message/push';
+  /**
+   * 画像を送信予定に追加する
+   *
+   * @param String $url
+   * @param String $previewUrl
+   */
+  public function addImage(String $url, String $previewUrl) {
+    array_push($this->_templates, [
+      'type' => 'image',
+      'originalContentUrl' => $url,
+      'previewImageUrl' => $previewUrl,
+    ]);
   }
 
-  private function getProfileEndpoint($userId) {
-    return $this->endpoint . 'v2/bot/profile/' . $userId;
+  /**
+   * 動画を送信予定に追加する
+   *
+   * @param String $url
+   * @param String $previewUrl
+   */
+  public function addVideo(String $url, String $previewUrl) {
+    array_push($this->_templates, [
+      'type' => 'video',
+      'originalContentUrl' => $url,
+      'previewImageUrl' => $previewUrl,
+    ]);
   }
 
-  private function getContentEndpoint($messageId) {
-    return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
+  /**
+   * 音声を送信予定に追加する
+   *
+   * @param String $url
+   * @param Int $duration
+   */
+  public function addAudio(String $url, Int $duration) {
+    array_push($this->_templates, [
+      'type' => 'audio',
+      'originalContentUrl' => $url,
+      'duration' => $duration,
+    ]);
   }
 
-  private static function buildCurlErrorResponse(\Exception $e) {
+  /**
+   * Carouselメッセージを送信予定に追加する
+   *
+   * @param Array $columns
+   */
+  public function addCarousel(Array $columns) {
+    array_push($this->_templates, $this->_buildTemplate(
+      'alt text for carousel',
+      $this->_buildCarousel($columns)
+    ));
+  }
+
+  /**
+   * Confirmメッセージを送信予定に追加する
+   *
+   * @param String $text
+   * @param Array $buttons
+   */
+  public function addConfirm(String $text, Array $buttons) {
+    array_push($this->_templates, $this->_buildTemplate(
+      'alt text for confirm',
+      $this->_buildConfirm($text, $buttons)
+    ));
+  }
+
+  // MARK : Private
+
+  private static $_LINE_CHANNEL_SECRET;
+
+  private static $_LINE_ACCESS_TOKEN;
+
+  private $_httpClient;
+
+  private $_endpoint = 'https://api.line.me/';
+
+  private $_templates = [];
+
+  private static function _buildCurlErrorResponse(\Exception $e) {
     $err = new \stdClass();
     $err->message = $e->getMessage();
     $err->code = $e->getCode();
     return $err;
   }
 
-  private static function convertLineEvents($rawEvents) {
+  private static function _convertLineEvents($rawEvents) {
     $events = [];
 
     // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
@@ -209,7 +255,7 @@ class LineBot implements Bot {
 
     foreach ($rawEvents->events as $rawEvent) {
       try {
-        $event = self::parseEvent($rawEvent);
+        $event = self::_parseEvent($rawEvent);
         array_push($events, $event);
       } catch (\InvalidArgumentException $e) {
         array_push($events, null);
@@ -217,12 +263,12 @@ class LineBot implements Bot {
     }
 
     return $events;
-
   }
 
-  private static function parseEvent($event) {
+  private static function _parseEvent($event) {
     $text = null;
     $postbackData = null;
+    $location = null;
     if (!isset($event->type)) {
       throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
     }
@@ -233,9 +279,16 @@ class LineBot implements Bot {
         $type = 'Message.Text';
         $text = $event->message->text;
         break;
+      } elseif ($event->message->type === 'location') {
+        $type = 'Message.Location';
+        $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
+        break;
       }
       $type = 'Message.File';
       break;
+      case 'location' :
+      $type = 'Message.Location';
+      $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
       case 'postback' :
       $type = 'Postback';
       $postbackData = $event->postback->data;
@@ -246,7 +299,85 @@ class LineBot implements Bot {
     $userId = $event->source->userId;
     $replyToken = $event->replyToken;
     $rawData = $event;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData);
+    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+  }
+
+  private function _buildTemplate(String $altText, Array $template) {
+    return [
+      'type' => 'template',
+      'altText' => $altText,
+      'template' => $template
+    ];
+  }
+
+  private function _buildCarousel($source) {
+    $columns = [];
+    foreach ($source as $column) {
+      array_push($columns, $this->_buildColumn($column));
+    }
+    return [
+      'type' => 'carousel',
+      'columns' => $columns,
+    ];
+  }
+
+  private function _buildConfirm(String $text, Array $buttons) {
+    $actions = [];
+    foreach ($buttons as $button) {
+      array_push($actions, $this->_buildAction($button));
+    }
+    return [
+      'type' => 'confirm',
+      'text' => $text,
+      'actions' => $actions
+    ];
+  }
+
+  private function _buildColumn($source) {
+    $actions = [];
+    foreach ($source[3] as $button) {
+      array_push($actions, $this->_buildAction($button));
+    }
+    return [
+      'thumbnailImageUrl' => $source[2],
+      'title' => $source[0],
+      'text' => $source[1],
+      'actions' => $actions,
+    ];
+  }
+
+  private function _buildAction($source) {
+    $action = [
+      'type' => $source['action'],
+      'label' => $source['title']
+    ];
+    switch ($source['action']) {
+      case 'postback' :
+      $action['data'] = $source['data'];
+      break;
+      case 'url' :
+      $action['uri'] = $source['url'];
+      $action['type'] = 'uri';
+      break;
+      default :
+    }
+    return $action;
+  }
+
+  private function _getReplyEndpoint() {
+    return $this->_endpoint . 'v2/bot/message/reply';
+  }
+
+  private function _getPushEndpoint() {
+    return $this->_endpoint . 'v2/bot/message/push';
+  }
+
+  private function _getProfileEndpoint($userId) {
+    return $this->_endpoint . 'v2/bot/profile/' . $userId;
+  }
+
+  private function _getContentEndpoint($messageId) {
+    return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
   }
 
 }
