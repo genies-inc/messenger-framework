@@ -258,9 +258,6 @@ class LineBot {
     $userId = $event->source->userId;
     $replyToken = $event->replyToken;
     $rawData = $event;
-    $text = null;
-    $postbackData = null;
-    $location = null;
 
     switch ($event->type) {
       case 'postback' :
