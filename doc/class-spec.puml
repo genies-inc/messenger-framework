@@ -14,7 +14,7 @@ namespace MessengerFramework {
 
   note top of Event
     Event#typeについて
-    Message.TextとMessage.File、Postbackの3種類
+    Message.TextとMessage.File、Message.Location、Postbackの3種類
   end note
 
   class MessengerBot {
@@ -35,13 +35,6 @@ namespace MessengerFramework {
   }
 
   note top of MessengerBot
-    複数送信する予定のメッセージの内容messagesWillSentを
-    ここで持たせてreplyMessagesやpushMessagesが実際に呼ばれた時に
-    個々の実装に依って(LineだとMultiMessageBuilder、Facebookならリクエスト複数)送信する
-
-    設定ファイル(項目の説明を書いておく)から
-    LineやFacebookにあったトークンを読み込みBotインタフェースのクラスとCurlを生成する
-
     リクエストの検証処理(FacebookやLineからのリクエストかどうか)はgetEvents()内で行う
   end note
 
