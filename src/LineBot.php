@@ -98,9 +98,6 @@ class LineBot implements Bot {
    */
   public function getFiles(Event $event) {
     $rawEvent = $event->rawData;
-    if (!isset($rawEvent->message->type) || $rawEvent->message->type === 'text') {
-      return null;
-    }
     switch ($rawEvent->message->type) {
       case 'image' :
       $ext = '.jpg';
