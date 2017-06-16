@@ -17,7 +17,7 @@ class MessengerBotTest extends TestCase {
 
   public $lineBotMock;
 
-  private $curlMock;
+  private $_curlMock;
 
   public function setUp() {
     $this->curlMock = $this->getMockBuilder(Curl::class)
@@ -48,10 +48,10 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testGetEventsValidFacebook() {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'this is a valid signature';
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     try {
@@ -66,10 +66,10 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testGetEventsInvalidFacebook() {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $_SERVER['HTTP_X_HUB_SIGNATURE'] = 'this is not a valid signature';
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(false);
+    $this->_setFacebookBotMockTestSignatureForce(false);
     $bot->core = $this->facebookBotMock;
 
     try {
@@ -84,7 +84,7 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testGetEventsNoSignatureFacebook() {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $bot = new MessengerBot('facebook');
 
     try {
@@ -99,10 +99,10 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testGetEventsValidLine() {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $_SERVER['HTTP_X_LINE_SIGNATURE'] = 'this is a valid signature';
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     try {
@@ -117,10 +117,10 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testGetEventsInvalidLine() {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $_SERVER['HTTP_X_LINE_SIGNATURE'] = 'this is not a valid signature';
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(false);
+    $this->_setLineBotMockTestSignatureForce(false);
     $bot->core = $this->lineBotMock;
 
     try {
@@ -135,7 +135,7 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testGetEventsNoSignatureLine() {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $bot = new MessengerBot('line');
 
     try {
@@ -154,7 +154,7 @@ class MessengerBotTest extends TestCase {
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     $this->assertContainsOnly(Event::class, $bot->getEvents());
@@ -179,7 +179,7 @@ class MessengerBotTest extends TestCase {
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     try {
@@ -210,7 +210,7 @@ class MessengerBotTest extends TestCase {
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     $events = $bot->getEvents();
@@ -234,7 +234,7 @@ class MessengerBotTest extends TestCase {
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     $this->assertContainsOnly(Event::class, $bot->getEvents());
@@ -259,7 +259,7 @@ class MessengerBotTest extends TestCase {
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     try {
@@ -288,7 +288,7 @@ class MessengerBotTest extends TestCase {
     global $file_get_contents_rtv;
     $file_get_contents_rtv = $requestBody;
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     $events = $bot->getEvents();
@@ -308,9 +308,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testTextReplyFacebook() {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -334,9 +334,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testConfirmReplyFacebook($titleSource, $buttonsSource) {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
     foreach ($bot->getEvents() as $event) {
       $bot->addConfirm($titleSource, $buttonsSource);
@@ -362,9 +362,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testTemplateReplyFacebook($templateArg) {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -390,9 +390,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testImageReplyFacebook() {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -415,9 +415,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testVideoReplyFacebook() {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -440,9 +440,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testAudioReplyFacebook() {
-    $this->setValidRequestBodyFacebook();
+    $this->_setValidRequestBodyFacebook();
     $bot = new MessengerBot('facebook');
-    $this->setFacebookBotMockTestSignatureForce(true);
+    $this->_setFacebookBotMockTestSignatureForce(true);
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -465,9 +465,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testTextReplyLine() {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -491,9 +491,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testTemplateReplyLine($templateArg) {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -519,9 +519,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testImageReplyLine() {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -544,9 +544,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testVideoReplyLine() {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -569,9 +569,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testAudioReplyLine() {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -638,9 +638,9 @@ class MessengerBotTest extends TestCase {
    * @backupGlobals enabled
    */
   public function testConfirmReplyLine($titleSource, $buttonsSource) {
-    $this->setValidRequestBodyLine();
+    $this->_setValidRequestBodyLine();
     $bot = new MessengerBot('line');
-    $this->setLineBotMockTestSignatureForce(true);
+    $this->_setLineBotMockTestSignatureForce(true);
     $bot->core = $this->lineBotMock;
 
     foreach ($bot->getEvents() as $event) {
@@ -714,25 +714,25 @@ class MessengerBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
-  private function setFacebookBotMockTestSignatureForce(Bool $isSuccess) {
+  private function _setFacebookBotMockTestSignatureForce(Bool $isSuccess) {
     $this->facebookBotMock->expects($this->once())
       ->method('testSignature')
       ->willReturn($isSuccess);
   }
 
-  private function setLineBotMockTestSignatureForce(Bool $isSuccess) {
+  private function _setLineBotMockTestSignatureForce(Bool $isSuccess) {
     $this->lineBotMock->expects($this->once())
       ->method('testSignature')
       ->willReturn($isSuccess);
   }
 
-  private function setValidRequestBodyFacebook() {
+  private function _setValidRequestBodyFacebook() {
     global $file_get_contents_rtv;
     $requestBody = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $file_get_contents_rtv = $requestBody;
   }
 
-  private function setValidRequestBodyLine() {
+  private function _setValidRequestBodyLine() {
     global $file_get_contents_rtv;
     $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
     $file_get_contents_rtv = $requestBody;

@@ -1,6 +1,10 @@
 <?php
 /**
  * MessengerBotを定義
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
  */
 
 namespace  MessengerFramework;
@@ -44,11 +48,11 @@ class MessengerBot {
   /**
    * Webhookリクエストをもとにどのプラットフォームの差異を吸収したEventの配列を返す
    *
-   * @return Array プラットフォームの差異を吸収したEventの配列
+   * @return Event|null[] プラットフォームの差異を吸収したEventの配列
    */
   public function getEvents() {
     $requestBody = file_get_contents("php://input");
-    if (!$this->validateSignature($requestBody)) {
+    if (!$this->_validateSignature($requestBody)) {
       throw new \UnexpectedValueException("正しい送信元からのリクエストではありません。");
     }
     return $this->core->parseEvents($requestBody);
@@ -205,7 +209,7 @@ class MessengerBot {
 
   // MARK : Private
 
-  private function validateSignature($requestBody) {
+  private function _validateSignature($requestBody) {
     switch (true) {
       case $this->core instanceof FacebookBot :
       $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'] ?? 'invalid';

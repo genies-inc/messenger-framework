@@ -18,6 +18,7 @@ namespace MessengerFramework {
     + String type
     + String|null text
     + [Key => Value]|null postbackData
+    + Array|null location
   }
 
   note top of Event

@@ -1,6 +1,10 @@
 <?php
 /**
  * Eventを定義
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
  */
 
 namespace  MessengerFramework;
@@ -16,37 +20,37 @@ class Event {
   // MARK : Public Eventのメソッド
 
   /**
-   * @var Bot 各プラットフォームのBotインタフェース
+   * @var String プラットフォームで共通して返信に使う文字列
    */
   public $replyToken;
 
   /**
-   * @var Bot 各プラットフォームのBotインタフェース
+   * @var String プラットフォームで共通して一意にユーザーを識別する文字列
    */
   public $userId;
 
   /**
-   * @var Bot 各プラットフォームのBotインタフェース
+   * @var String イベント(メッセージ)の種類
    */
   public $type;
 
   /**
-   * @var Bot 各プラットフォームのBotインタフェース
+   * @var stdClass 各プラットフォームのイベントをstdClass化したもの
    */
   public $rawData;
 
   /**
-   * @var Bot 各プラットフォームのBotインタフェース
+   * @var String|null イベント(メッセージ)についてきたテキスト
    */
   public $text;
 
   /**
-   * @var Bot 各プラットフォームのBotインタフェース
+   * @var String|null Postbackイベントで返ってきた文字列データ
    */
   public $postbackData;
 
   /**
-   * @var Array lat => 緯度, long => 経度
+   * @var Array|null lat => 緯度, long => 経度
   */
   public $location;
 
@@ -56,10 +60,10 @@ class Event {
    * @param String $replyToken
    * @param String $userId
    * @param String $type
-   * @param mix $rawData
-   * @param String $text
-   * @param String $postbackData
-   * @param Array $location lat => 緯度, long => 経度
+   * @param stdClass $rawData
+   * @param String|null $text
+   * @param String|null $postbackData
+   * @param Array|null $location lat => 緯度, long => 経度
    */
   public function __construct(String $replyToken, String $userId, String $type, $rawData, String $text = null, String $postbackData = null, $location = null) {
     $this->replyToken = $replyToken;

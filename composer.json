@@ -1,6 +1,17 @@
 {
   "name": "genies/messengerframework",
   "description": "各サービスのMessengerBotのラッパー",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "Kazuyuki Saka",
+          "role": "Manager / Developer"
+      },
+      {
+          "name": "Rintaro Ishikawa",
+          "role": "Developer"
+      }
+  ],
   "scripts": {
     "test": [
       "phpunit --colors=always --configuration=phpunit.xml"

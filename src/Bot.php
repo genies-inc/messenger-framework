@@ -1,6 +1,10 @@
 <?php
 /**
  * Botを定義
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
  */
 
 namespace  MessengerFramework;
@@ -37,7 +41,7 @@ interface Bot {
    * requestBodyから各プラットフォームの差異を吸収したEventを取り出す
    *
    * @param String $requestBody
-   * @return Array Eventクラスの配列
+   * @return Event|null[] Eventクラスの配列
    */
   public function parseEvents(String $requestBody);
 
