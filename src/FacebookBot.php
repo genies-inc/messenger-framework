@@ -233,44 +233,41 @@ class FacebookBot {
     return $events;
   }
 
+  // TODO : ステッカーがファイルメッセージとして認識されてしまうのを修正
   private static function _parseMessaging($messaging) {
-    $text = null;
-    $postbackData = null;
-    $location = null;
-    if (isset($messaging->message)) {
-      if (isset($messaging->message->attachments)) {
-        $attachments = $messaging->message->attachments;
-        // FIXME : 汚すぎる
-        if (self::_isLocationMessage($attachments)) {
-          $type = 'Message.Location';
-          foreach ($attachments as $attachment) {
-            if ($attachment->type !== 'location') {
-              continue;
-            }
-            $location = [
-              'lat' => $attachment->payload->coordinates->lat,
-              'long' => $attachment->payload->coordinates->long
-            ];
-          }
-        } else {
-          $type = 'Message.File';
-        }
-      } elseif (isset($messaging->message->text)) {
-        $type = 'Message.Text';
-        $text = $messaging->message->text;
-      } else {
-        throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
-      }
-    } elseif (isset($messaging->postback)) {
-      $type = 'Postback';
-      $postbackData = $messaging->postback->payload;
-    } else {
-      throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
+    // messaging#senderが存在するかどうかを振り分ける意味もある
+    if (!isset($messaging->message) && !isset($messaging->postback)) {
+      return null;
     }
+
     $userId = $messaging->sender->id;
     $replyToken = $messaging->sender->id;
     $rawData = $messaging;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+    $data = null;
+
+    if (isset($messaging->postback)) {
+      // Postbackの時
+      $type = 'Postback';
+      $data = [ 'postback' => $messaging->postback->payload ];
+    } elseif (isset($messaging->message->attachments)) {
+      // messageの時、かつ付属する情報があった時
+      if (self::_isLocationMessage($messaging->message->attachments)) {
+        $type = 'Message.Location';
+        $data = [ 'location' => self::_buildLocation($messaging->message->attachments) ];
+      } else {
+        // attachmentsが含まれていて位置情報が含まれていないものはMessage.Fileとして扱う
+        $type = 'Message.File';
+      }
+    } elseif (isset($messaging->message->text)) {
+      // messageの時、かつ付属する文字列があった時
+      $type = 'Message.Text';
+      $data = [ 'text' => $messaging->message->text ];
+    } else {
+      // messaging#message形式としては満たしていたが、未対応のイベント
+      return null;
+    }
+
+    return new Event($replyToken, $userId, $type, $rawData, $data);
   }
 
   private function _sendMessage(String $to) {
@@ -300,6 +297,18 @@ class FacebookBot {
       }
     }
     return false;
+  }
+
+  private static function _buildLocation($attachments) {
+    foreach ($attachments as $attachment) {
+      if ($attachment->type !== 'location') {
+        continue;
+      }
+      return [
+        'lat' => $attachment->payload->coordinates->lat,
+        'long' => $attachment->payload->coordinates->long
+      ];
+    }
   }
 
   private function _buildAttachment($type, $payload) {
