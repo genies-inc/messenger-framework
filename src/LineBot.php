@@ -12,10 +12,12 @@ namespace MessengerFramework;
 /**
  * [API] LineのMessengerのAPIを扱うためのクラス
  *
+ * 引数として受けるEventや結果として返すファイルの配列は各プラットフォームのものが統一されている
+ *
  * @access public
  * @package MessengerFramework
  */
-class LineBot implements Bot {
+class LineBot {
 
   // MARK : Constructor
 
@@ -36,6 +38,7 @@ class LineBot implements Bot {
    * Lineで送信予定のメッセージを返信する
    *
    * @param String $to
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
    */
   public function replyMessage(String $to) {
     return $this->_sendMessage($this->_getReplyEndpoint(), [ 'replyToken' => $to ]);
@@ -45,9 +48,20 @@ class LineBot implements Bot {
    * Lineで送信予定のメッセージを送信する
    *
    * @param String $to
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
    */
   public function pushMessage(String $to) {
     return $this->_sendMessage($this->_getPushEndpoint(), [ 'to' => $to ]);
+  }
+
+  /**
+   * LineのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param String $requestBody
+   * @return Event|null[] Eventクラスの配列
+   */
+  public function parseEvents(String $requestBody) {
+    return self::_convertLineEvents(\json_decode($requestBody));
   }
 
   /**
@@ -55,6 +69,7 @@ class LineBot implements Bot {
    *
    * @param String $requestBody
    * @param String $signature
+   * @return Bool 正しい送信元からのリクエストかどうか
    */
   public function testSignature(String $requestBody, String $signature) {
     $sample = hash_hmac('sha256', $requestBody, self::$_LINE_CHANNEL_SECRET, true);
@@ -62,18 +77,10 @@ class LineBot implements Bot {
   }
 
   /**
-   * LineのEvent(メッセージ)中に含まれるファイルを取得する
-   *
-   * @param String $requestBody
-   */
-  public function parseEvents(String $requestBody) {
-    return self::_convertLineEvents(\json_decode($requestBody));
-  }
-
-  /**
    * Lineのユーザーのプロフィールを差異を吸収したものへ変換する
    *
    * @param String $userId
+   * @return Array プラットフォームの差異が吸収されたプロフィールを表す連想配列
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get(
@@ -95,6 +102,7 @@ class LineBot implements Bot {
    * LineのEvent(メッセージ)中に含まれるファイルを取得する
    *
    * @param Event $event
+   * @return Array ファイル名 => バイナリ文字列 の連想配列
    */
   public function getFiles(Event $event) {
     $rawEvent = $event->rawData;
