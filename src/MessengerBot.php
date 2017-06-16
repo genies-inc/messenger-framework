@@ -41,7 +41,7 @@ class MessengerBot {
   // MARK : Public MessengerBotのメソッド
 
   /**
-   * @var Bot 各プラットフォームのBotインタフェース
+   * @var FacebookBot|LineBot 各プラットフォームのBotインタフェース
    */
   public $core;
 

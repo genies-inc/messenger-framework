@@ -12,10 +12,12 @@ namespace MessengerFramework;
 /**
  * [API] FacebookのMessengerのAPIを扱うためのクラス
  *
+ * 引数として受けるEventや結果として返すファイルの配列は各プラットフォームのものが統一されている
+ *
  * @access public
  * @package MessengerFramework
  */
-class FacebookBot implements Bot {
+class FacebookBot {
 
   // MARK : Constructor
 
@@ -37,6 +39,7 @@ class FacebookBot implements Bot {
    * Facebookで送信予定のメッセージを返信する
    *
    * @param String $to
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
    */
   public function replyMessage(String $to) {
     return $this->_sendMessage($to);
@@ -51,6 +54,7 @@ class FacebookBot implements Bot {
    * しかしこのフレームワークはそうではない
    *
    * @param String $to
+   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
    */
   public function pushMessage(String $to) {
     return $this->_sendMessage($to);
@@ -60,6 +64,7 @@ class FacebookBot implements Bot {
    * FacebookのWebhookリクエストを差異を吸収したEventの配列へ変換する
    *
    * @param String $requestBody
+   * @return Event|null[] Eventクラスの配列
    */
   public function parseEvents(String $requestBody) {
     return self::_convertFacebookEvents(\json_decode($requestBody));
@@ -70,6 +75,7 @@ class FacebookBot implements Bot {
    *
    * @param String $requestBody
    * @param String $signature
+   * @return Bool 正しい送信元からのリクエストかどうか
    */
   public function testSignature(String $requestBody, String $signature) {
     $array = explode('=', $signature, 2);
@@ -88,6 +94,7 @@ class FacebookBot implements Bot {
    * Facebookのユーザーのプロフィールを差異を吸収したものへ変換する
    *
    * @param String $userId
+   * @return Array プラットフォームの差異が吸収されたプロフィールを表す連想配列
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
@@ -106,6 +113,7 @@ class FacebookBot implements Bot {
    * FacebookのEvent(メッセージ)中に含まれるファイルを取得する
    *
    * @param Event $event
+   * @return Array ファイル名 => バイナリ文字列 の連想配列
    */
   public function getFiles(Event $event) {
     $messaging = $event->rawData;

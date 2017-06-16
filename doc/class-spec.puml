@@ -2,15 +2,6 @@
 
 namespace MessengerFramework {
 
-  interface "Bot" as IBot {
-    + replyMessage(String to)
-    + pushMessage(String to)
-    + testSignature(String requestBody, String signature)
-    + parseEvent(String requestBody)
-    + getProfile(String userId)
-    + [String:BinaryString] getFiles(Event event)
-  }
-
   class Event {
     + [Key => Value] rawData
     + String replyToken
@@ -28,7 +19,7 @@ namespace MessengerFramework {
 
   class MessengerBot {
     - [MessageBuilder] messagesWillSent
-    + Bot core
+    + FacebookBot|LineBot core
     + [Event:stdObject|null] getEvents()
     + addText(String message)
     + addTemplate(Array [String title, String description, String imageUrl, Array buttons])
@@ -55,6 +46,12 @@ namespace MessengerFramework {
   end note
 
   class FacebookBot {
+    + replyMessage(String to)
+    + pushMessage(String to)
+    + testSignature(String requestBody, String signature)
+    + parseEvent(String requestBody)
+    + getProfile(String userId)
+    + [String:BinaryString] getFiles(Event event)
     + setText(String message)
     + setGeneric([String:String|Array])
     + setImage(String url)
@@ -63,6 +60,12 @@ namespace MessengerFramework {
   }
 
   class LineBot {
+    + replyMessage(String to)
+    + pushMessage(String to)
+    + testSignature(String requestBody, String signature)
+    + parseEvent(String requestBody)
+    + getProfile(String userId)
+    + [String:BinaryString] getFiles(Event event)
     + addText(String url)
     + addCarousel([String:String|Array])
     + addImage(String url, String previewUrl)
@@ -79,16 +82,13 @@ namespace MessengerFramework {
 
 ' MessengerFramework内の関連
 
-MessengerFramework.MessengerBot *.l.> MessengerFramework.IBot
 MessengerFramework.MessengerBot .d.> MessengerFramework.FacebookBot
 MessengerFramework.MessengerBot .d.> MessengerFramework.LineBot
 MessengerFramework.MessengerBot .l.> MessengerFramework.Curl
 MessengerFramework.MessengerBot .l.> MessengerFramework.Event
 
-MessengerFramework.FacebookBot .u.|> MessengerFramework.IBot
 MessengerFramework.FacebookBot *..> MessengerFramework.Curl
 
-MessengerFramework.LineBot .u.|> MessengerFramework.IBot
 MessengerFramework.LineBot *..> MessengerFramework.Curl
 
 @enduml
