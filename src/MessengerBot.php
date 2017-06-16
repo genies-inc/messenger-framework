@@ -48,7 +48,7 @@ class MessengerBot {
    */
   public function getEvents() {
     $requestBody = file_get_contents("php://input");
-    if (!$this->validateSignature($requestBody)) {
+    if (!$this->_validateSignature($requestBody)) {
       throw new \UnexpectedValueException("正しい送信元からのリクエストではありません。");
     }
     return $this->core->parseEvents($requestBody);
@@ -205,7 +205,7 @@ class MessengerBot {
 
   // MARK : Private
 
-  private function validateSignature($requestBody) {
+  private function _validateSignature($requestBody) {
     switch (true) {
       case $this->core instanceof FacebookBot :
       $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'] ?? 'invalid';

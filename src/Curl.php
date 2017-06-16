@@ -39,10 +39,10 @@ class Curl {
     $ch = curl_init($url);
 
     curl_setopt_array($ch, [
-      CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
+      CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_HTTPGET => true,
-      CURLOPT_TIMEOUT => self::$AWAIT_SECOND
+      CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
     ]);
 
     $response =  curl_exec($ch);
@@ -74,11 +74,11 @@ class Curl {
     }
 
     curl_setopt_array($ch, [
-      CURLOPT_HTTPHEADER => $this->toHeaderArray($headers ?? []),
+      CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
       CURLOPT_POST => true,
       CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray ?? []) : \http_build_query($bodyArray ?? []),
       CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_TIMEOUT => self::$AWAIT_SECOND
+      CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
     ]);
     $response = curl_exec($ch);
     $code = curl_errno($ch);
@@ -93,9 +93,9 @@ class Curl {
 
   // MARK : Private
 
-  private static $AWAIT_SECOND = 12;
+  private static $_AWAIT_SECOND = 12;
 
-  private function toHeaderArray(Array $from) {
+  private function _toHeaderArray(Array $from) {
     $header = [];
     foreach ($from as $key => $value) {
       array_push($header, join(': ', [$key, $value]));

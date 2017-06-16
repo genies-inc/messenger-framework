@@ -9,10 +9,10 @@ use PHPUnit\Framework\TestCase;
 
 class FacebookBotTest extends TestCase {
 
-  private $curlMock;
+  private $_curlMock;
 
   public function setUp() {
-    $this->curlMock = $this->getMockBuilder(Curl::class)
+    $this->_curlMock = $this->getMockBuilder(Curl::class)
       ->setMethods([ 'post', 'get' ])
       ->getMock();
       /*
@@ -27,7 +27,7 @@ class FacebookBotTest extends TestCase {
   }
 
   public function testReplyTextMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -38,14 +38,14 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addText('テスト');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushTextMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -56,7 +56,7 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addText('テスト');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -115,7 +115,7 @@ class FacebookBotTest extends TestCase {
    * @dataProvider genericMessageDataProvider
    */
   public function testReplyGenericMessage($expectedGenericArray, $genericSource) {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -127,7 +127,7 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
     );
 
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addGeneric($genericSource);
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -137,7 +137,7 @@ class FacebookBotTest extends TestCase {
    * @dataProvider genericMessageDataProvider
    */
   public function testPushGenericMessage($expectedGenericArray, $genericSource) {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -149,14 +149,14 @@ class FacebookBotTest extends TestCase {
         $this->equalTo(true)
     );
 
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addGeneric($genericSource);
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testReplyImageMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -172,14 +172,14 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushImageMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -195,14 +195,14 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testReplyVideoMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -218,14 +218,14 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addVideo('https://www.sampleimage.com/sample.mp4');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushVideoMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -241,14 +241,14 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addVideo('https://www.sampleimage.com/sample.mp4');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testReplyAudioMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -264,14 +264,14 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addAudio('https://www.sampleimage.com/sample.mp3');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushAudioMessage() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -287,14 +287,14 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addAudio('https://www.sampleimage.com/sample.mp3');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testReplyMultiMessage() {
-    $this->curlMock->expects($this->exactly(3))
+    $this->_curlMock->expects($this->exactly(3))
       ->method('post')
       ->withConsecutive(
         [
@@ -325,7 +325,7 @@ class FacebookBotTest extends TestCase {
         ]
       );
 
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -334,7 +334,7 @@ class FacebookBotTest extends TestCase {
   }
 
   public function testPushMultiMessage() {
-    $this->curlMock->expects($this->exactly(3))
+    $this->_curlMock->expects($this->exactly(3))
       ->method('post')
       ->withConsecutive(
         [
@@ -365,7 +365,7 @@ class FacebookBotTest extends TestCase {
         ]
       );
 
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -418,7 +418,7 @@ class FacebookBotTest extends TestCase {
    * @dataProvider buttonMessageProvider
    */
   public function testReplyButtonMessage($expectedButtonArray, $titleSource, $buttonSource) {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -429,7 +429,7 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addButton($titleSource, $buttonSource);
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -439,7 +439,7 @@ class FacebookBotTest extends TestCase {
    * @dataProvider buttonMessageProvider
    */
   public function testPushButtonMessage($expectedButtonArray, $titleSource, $buttonSource) {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
         $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
@@ -450,17 +450,17 @@ class FacebookBotTest extends TestCase {
         ]),
         $this->equalTo(true)
       );
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addButton($titleSource, $buttonSource);
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testExceptionOccurredWhenReply() {
-    $this->curlMock->expects($this->exactly(3))
+    $this->_curlMock->expects($this->exactly(3))
       ->method('post')
       ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -472,10 +472,10 @@ class FacebookBotTest extends TestCase {
   }
 
   public function testExceptionOccurredWhenPush() {
-    $this->curlMock->expects($this->exactly(3))
+    $this->_curlMock->expects($this->exactly(3))
       ->method('post')
       ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -491,7 +491,7 @@ class FacebookBotTest extends TestCase {
    * @dataProvider requestBodyProvider
    */
   public function testParseEvents($requestBody) {
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $events = $bot->parseEvents($requestBody);
     $this->assertContainsOnly(Event::class, $events);
   }
@@ -509,33 +509,33 @@ class FacebookBotTest extends TestCase {
   }
 
   public function testTestSignature() {
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $x_hub_signature = 'sha1=' . hash_hmac('sha1', $jsonString, 'develop');
     $this->assertTrue($bot->testSignature($jsonString, $x_hub_signature));
   }
 
   public function testTestSignatureInvalidAlgorithm() {
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $x_hub_signature = 'hoge=' . hash_hmac('sha1', $jsonString, 'develop');
     $this->assertFalse($bot->testSignature($jsonString, $x_hub_signature));
   }
 
   public function testTestSignatureInvalidSignature() {
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $x_hub_signature = 'sha1=' . 'invalidString';
     $this->assertFalse($bot->testSignature($jsonString, $x_hub_signature));
   }
 
   public function testGetProfile() {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('get')
       ->with(
         'https://graph.facebook.com/v2.6/1000000000000000?access_token=develop'
       )->willReturn('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}');
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $profile = new \StdClass();
     $profile->first_name = 'Taro';
     $profile->last_name = 'Test';
@@ -555,12 +555,12 @@ class FacebookBotTest extends TestCase {
    * @dataProvider fileDataProvider
    */
   public function testGetFiles($requestBody, $expectedFiles, $expectedUrl, $expectedBinary) {
-    $this->curlMock->expects($this->once())
+    $this->_curlMock->expects($this->once())
       ->method('get')
       ->with(
         $this->equalTo($expectedUrl)
       )->willReturn($expectedBinary);
-    $bot = new FacebookBot($this->curlMock);
+    $bot = new FacebookBot($this->_curlMock);
     $events = $bot->parseEvents($requestBody);
     foreach ($events as $event) {
       $this->assertEquals($expectedFiles, $bot->getFiles($event));

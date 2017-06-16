@@ -21,9 +21,9 @@ class FacebookBot implements Bot {
    * @param Curl $curl
    */
   public function __construct(Curl $curl) {
-    self::$FACEBOOK_APP_SECRET = getenv('FACEBOOK_APP_SECRET') ?: 'develop';
-    self::$FACEBOOK_ACCESS_TOKEN = getenv('FACEBOOK_ACCESS_TOKEN') ?: 'develop';
-    $this->httpClient = $curl;
+    self::$_FACEBOOK_APP_SECRET = getenv('FACEBOOK_APP_SECRET') ?: 'develop';
+    self::$_FACEBOOK_ACCESS_TOKEN = getenv('FACEBOOK_ACCESS_TOKEN') ?: 'develop';
+    $this->_httpClient = $curl;
   }
 
   // MARK : Bot Interface の実装
@@ -35,7 +35,7 @@ class FacebookBot implements Bot {
    * @param String $to
    */
   public function replyMessage(String $to) {
-    return $this->sendMessage($to);
+    return $this->_sendMessage($to);
   }
 
   /**
@@ -49,7 +49,7 @@ class FacebookBot implements Bot {
    * @param String $to
    */
   public function pushMessage(String $to) {
-    return $this->sendMessage($to);
+    return $this->_sendMessage($to);
   }
 
   /**
@@ -58,7 +58,7 @@ class FacebookBot implements Bot {
    * @param String $requestBody
    */
   public function parseEvents(String $requestBody) {
-    return self::convertFacebookEvents(\json_decode($requestBody));
+    return self::_convertFacebookEvents(\json_decode($requestBody));
   }
 
   /**
@@ -75,7 +75,7 @@ class FacebookBot implements Bot {
     if (!in_array($algo, hash_algos())) {
       return false;
     }
-    $sample = hash_hmac($algo, $requestBody, self::$FACEBOOK_APP_SECRET);
+    $sample = hash_hmac($algo, $requestBody, self::$_FACEBOOK_APP_SECRET);
 
     return $sample === $target;
   }
@@ -86,7 +86,7 @@ class FacebookBot implements Bot {
    * @param String $userId
    */
   public function getProfile(String $userId) {
-    $res = $this->httpClient->get($this->getProfileEndpoint($userId));
+    $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
     $profile = json_decode($res);
     if (!isset($profile->first_name)) {
       throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
@@ -111,7 +111,7 @@ class FacebookBot implements Bot {
     $files = [];
     foreach ($messaging->message->attachments as $attachment) {
       $url = $attachment->payload->url;
-      $files[$this->getKey($url)] = $this->httpClient->get($url);
+      $files[$this->_getKey($url)] = $this->_httpClient->get($url);
     }
     return $files;
   }
@@ -124,7 +124,7 @@ class FacebookBot implements Bot {
    * @param String $message
    */
   public function addText(String $message) {
-    array_push($this->templates, [
+    array_push($this->_templates, [
       'text' => $message
     ]);
   }
@@ -135,7 +135,7 @@ class FacebookBot implements Bot {
    * @param String $url
    */
   public function addImage(String $url) {
-    array_push($this->templates, $this->buildAttachment('image', [ 'url' => $url ]));
+    array_push($this->_templates, $this->_buildAttachment('image', [ 'url' => $url ]));
   }
 
   /**
@@ -144,7 +144,7 @@ class FacebookBot implements Bot {
    * @param String $url
    */
   public function addVideo(String $url) {
-    array_push($this->templates, $this->buildAttachment('video', [ 'url' => $url ]));
+    array_push($this->_templates, $this->_buildAttachment('video', [ 'url' => $url ]));
   }
 
   /**
@@ -153,7 +153,7 @@ class FacebookBot implements Bot {
    * @param String $url
    */
   public function addAudio(String $url) {
-    array_push($this->templates, $this->buildAttachment('audio', [ 'url' => $url ]));
+    array_push($this->_templates, $this->_buildAttachment('audio', [ 'url' => $url ]));
   }
 
   /**
@@ -164,7 +164,7 @@ class FacebookBot implements Bot {
    * @param Array $columns
    */
   public function addGeneric(Array $columns) {
-    array_push($this->templates, $this->buildAttachment('template', $this->buildCarouselTemplate($columns)));
+    array_push($this->_templates, $this->_buildAttachment('template', $this->_buildCarouselTemplate($columns)));
   }
 
   /**
@@ -174,29 +174,29 @@ class FacebookBot implements Bot {
    * @param Array $replies
    */
   public function addButton(String $text, Array $replies) {
-    array_push($this->templates, $this->buildAttachment('template', $this->buildButtonTemplate($text, $replies)));
+    array_push($this->_templates, $this->_buildAttachment('template', $this->_buildButtonTemplate($text, $replies)));
   }
 
   // MARK : Private
 
-  private static $FACEBOOK_APP_SECRET;
+  private static $_FACEBOOK_APP_SECRET;
 
-  private static $FACEBOOK_ACCESS_TOKEN;
+  private static $_FACEBOOK_ACCESS_TOKEN;
 
-  private $endPoint = 'https://graph.facebook.com/';
+  private $_endPoint = 'https://graph.facebook.com/';
 
-  private $httpClient;
+  private $_httpClient;
 
-  private $templates = [];
+  private $_templates = [];
 
-  private static function buildCurlErrorResponse(\Exception $e) {
+  private static function _buildCurlErrorResponse(\Exception $e) {
     $err = new \stdClass();
     $err->message = $e->getMessage();
     $err->code = $e->getCode();
     return $err;
   }
 
-  private static function convertFacebookEvents($rawEvents) {
+  private static function _convertFacebookEvents($rawEvents) {
     $events = [];
 
     // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
@@ -213,7 +213,7 @@ class FacebookBot implements Bot {
 
       foreach ($entry->messaging as $messaging) {
         try {
-          $event = self::parseMessaging($messaging);
+          $event = self::_parseMessaging($messaging);
           array_push($events, $event);
         } catch (\InvalidArgumentException $e) {
           array_push($events, null);
@@ -224,7 +224,7 @@ class FacebookBot implements Bot {
     return $events;
   }
 
-  private static function parseMessaging($messaging) {
+  private static function _parseMessaging($messaging) {
     $text = null;
     $postbackData = null;
     $location = null;
@@ -232,7 +232,7 @@ class FacebookBot implements Bot {
       if (isset($messaging->message->attachments)) {
         $attachments = $messaging->message->attachments;
         // FIXME : 汚すぎる
-        if (self::isLocationMessage($attachments)) {
+        if (self::_isLocationMessage($attachments)) {
           $type = 'Message.Location';
           foreach ($attachments as $attachment) {
             if ($attachment->type !== 'location') {
@@ -264,9 +264,9 @@ class FacebookBot implements Bot {
     return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
   }
 
-  private function sendMessage(String $to) {
+  private function _sendMessage(String $to) {
     $responses = [];
-    foreach ($this->templates as $template) {
+    foreach ($this->_templates as $template) {
       $body = [
         'recipient' => [
           'id' => $to
@@ -274,17 +274,17 @@ class FacebookBot implements Bot {
         'message' => $template
       ];
       try {
-        $res = $this->httpClient->post($this->getMessageEndpoint(), null, $body, true);
+        $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
       } catch (\RuntimeException $e) {
-        $res = self::buildCurlErrorResponse($e);
+        $res = self::_buildCurlErrorResponse($e);
       }
       array_push($responses, $res);
     }
-    $this->templates = [];
+    $this->_templates = [];
     return json_encode($responses);
   }
 
-  private static function isLocationMessage($attachments) {
+  private static function _isLocationMessage($attachments) {
     foreach ($attachments as $attachment) {
       if ($attachment->type === 'location') {
         return true;
@@ -293,7 +293,7 @@ class FacebookBot implements Bot {
     return false;
   }
 
-  private function buildAttachment($type, $payload) {
+  private function _buildAttachment($type, $payload) {
     return [
       'attachment' => [
         'type' => $type,
@@ -302,10 +302,10 @@ class FacebookBot implements Bot {
     ];
   }
 
-  private function buildCarouselTemplate(Array $columns) {
+  private function _buildCarouselTemplate(Array $columns) {
     $elements = [];
     foreach ($columns as $column) {
-      array_push($elements, $this->buildColumn($column));
+      array_push($elements, $this->_buildColumn($column));
     }
     return [
       'template_type' => 'generic',
@@ -313,10 +313,10 @@ class FacebookBot implements Bot {
     ];
   }
 
-  private function buildButtonTemplate(String $text, Array $replies) {
+  private function _buildButtonTemplate(String $text, Array $replies) {
     $buttons = [];
     foreach ($replies as $reply) {
-      array_push($buttons, $this->buildButton($reply));
+      array_push($buttons, $this->_buildButton($reply));
     }
     return [
       'template_type' => 'button',
@@ -325,10 +325,10 @@ class FacebookBot implements Bot {
     ];
   }
 
-  private function buildColumn($source) {
+  private function _buildColumn($source) {
     $buttons = [];
     foreach ($source[3] as $button) {
-      array_push($buttons, $this->buildButton($button));
+      array_push($buttons, $this->_buildButton($button));
     }
 
     $column = [
@@ -344,7 +344,7 @@ class FacebookBot implements Bot {
     return $column;
   }
 
-  private function buildButton($source) {
+  private function _buildButton($source) {
     $button = [
       'type' => $source['action'],
       'title' => $source['title']
@@ -362,15 +362,15 @@ class FacebookBot implements Bot {
     return $button;
   }
 
-  private function getMessageEndpoint() {
-    return $this->endPoint . 'v2.6/me/messages' . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
+  private function _getMessageEndpoint() {
+    return $this->_endPoint . 'v2.6/me/messages' . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
   }
 
-  private function getProfileEndpoint($userId) {
-    return $this->endPoint .'v2.6/' . $userId . '?access_token=' . self::$FACEBOOK_ACCESS_TOKEN;
+  private function _getProfileEndpoint($userId) {
+    return $this->_endPoint .'v2.6/' . $userId . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
   }
 
-  private function getKey($url) {
+  private function _getKey($url) {
     preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
     return $result[2];
   }
