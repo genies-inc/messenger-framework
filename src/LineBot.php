@@ -55,6 +55,16 @@ class LineBot {
   }
 
   /**
+   * LineのEvent(メッセージ)中に含まれるファイルを取得する
+   *
+   * @param String $requestBody
+   * @return Event|null[] Eventクラスの配列
+   */
+  public function parseEvents(String $requestBody) {
+    return self::_convertLineEvents(\json_decode($requestBody));
+  }
+
+  /**
    * LineからのWebhookリクエストかどうかを確認する
    *
    * @param String $requestBody
@@ -64,16 +74,6 @@ class LineBot {
   public function testSignature(String $requestBody, String $signature) {
     $sample = hash_hmac('sha256', $requestBody, self::$_LINE_CHANNEL_SECRET, true);
     return hash_equals(base64_encode($sample), $signature);
-  }
-
-  /**
-   * LineのEvent(メッセージ)中に含まれるファイルを取得する
-   *
-   * @param String $requestBody
-   * @return Event|null[] Eventクラスの配列
-   */
-  public function parseEvents(String $requestBody) {
-    return self::_convertLineEvents(\json_decode($requestBody));
   }
 
   /**
