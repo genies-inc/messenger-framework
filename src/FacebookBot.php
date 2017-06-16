@@ -234,32 +234,38 @@ class FacebookBot {
   }
 
   private static function _parseMessaging($messaging) {
-    $data = null;
-    if (isset($messaging->message)) {
-      if (isset($messaging->message->attachments)) {
-        $attachments = $messaging->message->attachments;
-        if (self::_isLocationMessage($attachments)) {
-          $type = 'Message.Location';
-          $data = [ 'location' => self::_buildLocation($attachments) ];
-        } else {
-          // attachmentsが含まれていて位置情報が含まれていないものはMessage.Fileとして扱う
-          $type = 'Message.File';
-        }
-      } elseif (isset($messaging->message->text)) {
-        $type = 'Message.Text';
-        $data = [ 'text' => $messaging->message->text ];
-      } else {
-        throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
-      }
-    } elseif (isset($messaging->postback)) {
-      $type = 'Postback';
-      $data = [ 'postback' => $messaging->postback->payload ];
-    } else {
-      throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
+    // messaging#senderが存在するかどうかを振り分ける意味もある
+    if (!isset($messaging->message) && !isset($messaging->postback)) {
+      return null;
     }
+
     $userId = $messaging->sender->id;
     $replyToken = $messaging->sender->id;
     $rawData = $messaging;
+    $data = null;
+
+    if (isset($messaging->postback)) {
+      // Postbackの時
+      $type = 'Postback';
+      $data = [ 'postback' => $messaging->postback->payload ];
+    } elseif (isset($messaging->message->attachments)) {
+      // messageの時、かつ付属する情報があった時
+      if (self::_isLocationMessage($messaging->message->attachments)) {
+        $type = 'Message.Location';
+        $data = [ 'location' => self::_buildLocation($messaging->message->attachments) ];
+      } else {
+        // attachmentsが含まれていて位置情報が含まれていないものはMessage.Fileとして扱う
+        $type = 'Message.File';
+      }
+    } elseif (isset($messaging->message->text)) {
+      // messageの時、かつ付属する文字列があった時
+      $type = 'Message.Text';
+      $data = [ 'text' => $messaging->message->text ];
+    } else {
+      // messaging#message形式としては満たしていたが、未対応のイベント
+      return null;
+    }
+
     return new Event($replyToken, $userId, $type, $rawData, $data);
   }
 
