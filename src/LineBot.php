@@ -251,45 +251,43 @@ class LineBot {
   }
 
   private static function _parseEvent($event) {
-    $text = null;
-    $postbackData = null;
-    $location = null;
     if (!isset($event->type)) {
-      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
+      return null;
     }
 
-    switch ($event->type) {
-      case 'message' :
-      if ($event->message->type === 'text') {
-        $type = 'Message.Text';
-        $text = $event->message->text;
-        break;
-      }
-      if ($event->message->type === 'location') {
-        $type = 'Message.Location';
-        $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
-        break;
-      }
-      if (self::_isFileEvent($event->message->type)) {
-        $type = 'Message.File';
-        break;
-      }
-      break;
-      case 'location' :
-      $type = 'Message.Location';
-      $location = [ 'lat' => $event->message->latitude, 'long' => $event->message->longitude ];
-      break;
-      case 'postback' :
-      $type = 'Postback';
-      $postbackData = $event->postback->data;
-      break;
-      default :
-      throw new \InvalidArgumentException('このタイプのイベントには対応していません。');
-    }
     $userId = $event->source->userId;
     $replyToken = $event->replyToken;
     $rawData = $event;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+    $text = null;
+    $postbackData = null;
+    $location = null;
+
+    switch ($event->type) {
+      case 'postback' :
+      $type = 'Postback';
+      $postbackData = $event->postback->data;
+      return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+      case 'message' :
+      switch ($event->message->type) {
+        case 'text' :
+        $type = 'Message.Text';
+        $text = $event->message->text;
+        return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+        case 'location' :
+        $type = 'Message.Location';
+        $location = [
+          'lat' => $event->message->latitude,
+          'long' => $event->message->longitude
+        ];
+        return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+        case 'image' :
+        case 'video' :
+        case 'audio' :
+        $type = 'Message.File';
+        return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+      }
+    }
+    return null;
   }
 
   private function _sendMessage(String $endpoint, Array $options) {
