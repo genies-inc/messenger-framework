@@ -314,7 +314,7 @@ class MessengerBotTest extends TestCase {
     $bot->core = $this->facebookBotMock;
 
     foreach ($bot->getEvents() as $event) {
-      $bot->addText($event->text . ' reply test');
+      $bot->addText($event->data['text'] . ' reply test');
       $bot->reply($event->replyToken);
       $this->addToAssertionCount(1);
     }
@@ -471,7 +471,7 @@ class MessengerBotTest extends TestCase {
     $bot->core = $this->lineBotMock;
 
     foreach ($bot->getEvents() as $event) {
-      $bot->addText($event->text . ' reply test');
+      $bot->addText($event->data['text'] . ' reply test');
       $bot->reply($event->replyToken);
       $this->addToAssertionCount(1);
     }
