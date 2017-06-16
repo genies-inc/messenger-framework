@@ -106,6 +106,8 @@ class LineBot {
    */
   public function getFiles(Event $event) {
     $rawEvent = $event->rawData;
+    // Lineのメッセージについてきたファイルのファイル名はわからない
+    // なのでメッセージID.拡張子の形で取り扱う(Lineはメッセージとファイルが1:1なのでこれでok)
     switch ($rawEvent->message->type) {
       case 'image' :
       $ext = '.jpg';
