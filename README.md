@@ -16,7 +16,7 @@ composer require genies/messengerframework
 
 # 使い方
 
-詳細は`doc/usage-example.php`を参照。
+詳細は`docs/usage-example.php`を参照。
 
 ## 読み込みと初期化
 
@@ -59,8 +59,11 @@ $bot->reply($event->replyToken);
 
 # 仕様
 
-概要は`doc/class-spec.puml`内。  
-ドキュメント(PHPDoc)は`composer gendoc`とコマンドで`doc/phpdoc/`に作成できる。
+概要は`docs/class-spec.puml`内。
+
+[ドキュメント(PHPDoc)](https://genies-inc.github.io/messenger-framework/)
+
+ドキュメント(PHPDoc)は`composer gendoc`とコマンドで`docs`に作成できる。
 
 フレームワーク全体でプラットフォームの差異を吸収するという考えで作られている。  
 Facebook、LineのMessengerBotを扱うためのフレームワークを用意し、それを更にラップするクラスを提供している。  
@@ -229,5 +232,7 @@ LICENSE.txtを見て下さい。
 
 httpのレスポンスボディをそのまま返している。  
 Curlがタイムアウトなどの例外を出した時はそのmessageとcodeをプロパティーに持つstdClassのインスタンスをJSON化して返している。
+
+## Composer非対応の環境用のまとめたスクリプトを生成するツールを用意する
 
 ## ドキュメントをまともな日本語で書く
