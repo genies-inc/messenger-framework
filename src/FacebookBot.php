@@ -78,6 +78,8 @@ class FacebookBot {
    * @return Bool 正しい送信元からのリクエストかどうか
    */
   public function testSignature(String $requestBody, String $signature) {
+    // Facebook公式のAPIドキュメントに=で区切られる左側の文字列をアルゴリズムにするとある
+    // つまりsha1が来ないかもしれないのでここでアルゴリズムを取得して決定する
     $array = explode('=', $signature, 2);
     // FIXME: 汚い
     $algo = $array[0] ?? 'sha1';
