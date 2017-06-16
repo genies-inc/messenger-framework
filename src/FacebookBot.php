@@ -133,9 +133,7 @@ class FacebookBot {
    * @param String $message
    */
   public function addText(String $message) {
-    array_push($this->_templates, [
-      'text' => $message
-    ]);
+    array_push($this->_templates, [ 'text' => $message ]);
   }
 
   /**
