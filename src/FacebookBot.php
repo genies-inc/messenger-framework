@@ -234,35 +234,33 @@ class FacebookBot {
   }
 
   private static function _parseMessaging($messaging) {
-    $text = null;
-    $postbackData = null;
-    $location = null;
+    $data = null;
     if (isset($messaging->message)) {
       if (isset($messaging->message->attachments)) {
         $attachments = $messaging->message->attachments;
         if (self::_isLocationMessage($attachments)) {
           $type = 'Message.Location';
-          $location = self::_buildLocation($attachments);
+          $data = [ 'location' => self::_buildLocation($attachments) ];
         } else {
           // attachmentsが含まれていて位置情報が含まれていないものはMessage.Fileとして扱う
           $type = 'Message.File';
         }
       } elseif (isset($messaging->message->text)) {
         $type = 'Message.Text';
-        $text = $messaging->message->text;
+        $data = [ 'text' => $messaging->message->text ];
       } else {
         throw new \InvalidArgumentException('サポートされていない形式のMessaging#Messageです。');
       }
     } elseif (isset($messaging->postback)) {
       $type = 'Postback';
-      $postbackData = $messaging->postback->payload;
+      $data = [ 'postback' => $messaging->postback->payload ];
     } else {
       throw new \InvalidArgumentException('サポートされていない形式のMessagingです。');
     }
     $userId = $messaging->sender->id;
     $replyToken = $messaging->sender->id;
     $rawData = $messaging;
-    return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+    return new Event($replyToken, $userId, $type, $rawData, $data);
   }
 
   private function _sendMessage(String $to) {

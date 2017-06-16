@@ -40,19 +40,12 @@ class Event {
   public $rawData;
 
   /**
-   * @var String|null イベント(メッセージ)についてきたテキスト
-   */
-  public $text;
-
-  /**
-   * @var String|null Postbackイベントで返ってきた文字列データ
-   */
-  public $postbackData;
-
-  /**
-   * @var Array|null lat => 緯度, long => 経度
-  */
-  public $location;
+   * @var Array|null
+   * 'text' => イベント(メッセージ)についてきたテキスト
+   * 'postback' => Postbackイベントで返ってきた文字列データ
+   * 'location' => lat => 緯度, long => 経度
+   **/
+  public $data;
 
   /**
    * Event constructor
@@ -61,18 +54,14 @@ class Event {
    * @param String $userId
    * @param String $type
    * @param stdClass $rawData
-   * @param String|null $text
-   * @param String|null $postbackData
-   * @param Array|null $location lat => 緯度, long => 経度
+   * @param Array|null $data
    */
-  public function __construct(String $replyToken, String $userId, String $type, $rawData, String $text = null, String $postbackData = null, $location = null) {
+  public function __construct(String $replyToken, String $userId, String $type, $rawData, Array $data = null) {
     $this->replyToken = $replyToken;
     $this->userId = $userId;
     $this->type = $type;
     $this->rawData = $rawData;
-    $this->text = $text;
-    $this->postbackData = $postbackData;
-    $this->location = $location;
+    $this->data = $data;
   }
 
 }

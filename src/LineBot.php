@@ -266,25 +266,25 @@ class LineBot {
       case 'postback' :
       $type = 'Postback';
       $postbackData = $event->postback->data;
-      return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+      return new Event($replyToken, $userId, $type, $rawData, [ 'postback' => $postbackData ]);
       case 'message' :
       switch ($event->message->type) {
         case 'text' :
         $type = 'Message.Text';
         $text = $event->message->text;
-        return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+        return new Event($replyToken, $userId, $type, $rawData, [ 'text' => $text ]);
         case 'location' :
         $type = 'Message.Location';
         $location = [
           'lat' => $event->message->latitude,
           'long' => $event->message->longitude
         ];
-        return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+        return new Event($replyToken, $userId, $type, $rawData, [ 'location' => $location ]);
         case 'image' :
         case 'video' :
         case 'audio' :
         $type = 'Message.File';
-        return new Event($replyToken, $userId, $type, $rawData, $text, $postbackData, $location);
+        return new Event($replyToken, $userId, $type, $rawData);
       }
     }
     return null;
