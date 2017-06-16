@@ -16,7 +16,7 @@ composer require genies/messengerframework
 
 # 使い方
 
-詳細は`doc/usage-example.php`を参照。
+詳細は`docs/usage-example.php`を参照。
 
 ## 読み込みと初期化
 
@@ -59,8 +59,11 @@ $bot->reply($event->replyToken);
 
 # 仕様
 
-概要は`doc/class-spec.puml`内。  
-ドキュメント(PHPDoc)は`composer gendoc`とコマンドで`doc/phpdoc/`に作成できる。
+概要は`docs/class-spec.puml`内。
+
+[ドキュメント(PHPDoc)](https://genies-inc.github.io/messenger-framework/)
+
+ドキュメント(PHPDoc)は`composer gendoc`とコマンドで`docs`に作成できる。
 
 フレームワーク全体でプラットフォームの差異を吸収するという考えで作られている。  
 Facebook、LineのMessengerBotを扱うためのフレームワークを用意し、それを更にラップするクラスを提供している。  
@@ -156,13 +159,13 @@ FacebookだとGeneric、LineだとCarouselに当たるもの。
 
 #### ファイル系(Image、Video、Audio)
 
-ファイルのURLは必要(https強制)
+ファイルのURLが必要(https強制)
 
 重い動画などを送るとFacebookのメッセージ送信APIのレスポンスに待たされてしまうため、Webhookリクエストに対するレスポンスを制限時間以内に返せない。  
 FacebookがリトライしたWebhookリクエストを続けざまに受けるということが起きていた。
 これによって同じ動画を次々と送り続けるという不具合があった。
 
-Curlにタイムアウトを付けた
+とりあえずの策としてCurlにタイムアウトを付けた
 
 一定時間経ったらメッセージ送信の結果を待たずにFacebookのWebhookリクエストのレスポンスを返してしまう。  
 そのときCurlはタイムアウトの例外が起きたことを伝える。  
@@ -204,8 +207,6 @@ PHPDebugを導入しXDebugをPHPに導入しておく。
 名前空間を別々の場所で使用してテストコードから上書き用ファイルを読み込む、上書きした関数や変数が返したい値をグローバル変数で設定する。  
 読み込まれたファイルは上書きする関数内でモックの動作をするか`call_user_func()`を使って本来の動作をするかを振り分ける。
 
-テストをするために毎回Herokuに上げたりしないでもリクエストボディを作ることができる。
-
 ## HTTPリクエストをそのままレスポンスボディにして返すサーバーを用意した
 
 APIを正しく使えているか、HTTPリクエストを送り出す時点で期待通りの組み立てが出来ているのかをテストするためのサーバープログラムを用意した。
@@ -231,3 +232,7 @@ LICENSE.txtを見て下さい。
 
 httpのレスポンスボディをそのまま返している。  
 Curlがタイムアウトなどの例外を出した時はそのmessageとcodeをプロパティーに持つstdClassのインスタンスをJSON化して返している。
+
+## Composer非対応の環境用のまとめたスクリプトを生成するツールを用意する
+
+## ドキュメントをまともな日本語で書く
