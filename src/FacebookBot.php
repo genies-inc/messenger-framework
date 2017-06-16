@@ -109,9 +109,6 @@ class FacebookBot implements Bot {
    */
   public function getFiles(Event $event) {
     $messaging = $event->rawData;
-    if (!isset($messaging->message->attachments)) {
-      return null;
-    }
     $files = [];
     foreach ($messaging->message->attachments as $attachment) {
       $url = $attachment->payload->url;
