@@ -48,6 +48,11 @@ class Event {
   public $data;
 
   /**
+   * @var Array|null プラットフォーム独自のイベントのデータ
+   */
+  public $origin;
+
+  /**
    * Event constructor
    *
    * @param String $replyToken
@@ -56,12 +61,13 @@ class Event {
    * @param stdClass $rawData
    * @param Array|null $data
    */
-  public function __construct(String $replyToken, String $userId, String $type, $rawData, Array $data = null) {
+  public function __construct(String $replyToken, String $userId, String $type, $rawData, Array $data = null, Array $origin = null) {
     $this->replyToken = $replyToken;
     $this->userId = $userId;
     $this->type = $type;
     $this->rawData = $rawData;
     $this->data = $data;
+    $this->origin = $origin;
   }
 
 }
