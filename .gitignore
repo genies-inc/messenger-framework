@@ -19,6 +19,3 @@ composer.phar
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-# PHPDocumentor
-/doc/phpdoc/
