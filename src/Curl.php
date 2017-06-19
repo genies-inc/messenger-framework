@@ -50,6 +50,8 @@ class Curl {
       CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
     ]);
 
+    $this->_setProxyCurl($ch);
+
     $response =  curl_exec($ch);
     $code = curl_errno($ch);
     if ($code !== CURLE_OK) {
@@ -77,6 +79,8 @@ class Curl {
       $headers = $headers ?? [];
       $headers['Content-Type'] = 'application/json';
     }
+
+    $this->_setProxyCurl($ch);
 
     curl_setopt_array($ch, [
       CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
@@ -106,6 +110,19 @@ class Curl {
       array_push($header, join(': ', [$key, $value]));
     }
     return $header;
+  }
+
+  private function _setProxyCurl($ch) {
+    $fixieUrl = getenv('PROXY_URL');
+    if ($fixieUrl === false) {
+      return;
+    }
+    $parsedFixieUrl = parse_url($fixieUrl);
+    $proxy = $parsedFixieUrl['host'].":".$parsedFixieUrl['port'];
+    $proxyAuth = $parsedFixieUrl['user'].":".$parsedFixieUrl['pass'];
+    curl_setopt($ch, CURLOPT_PROXY, $proxy);
+    curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyAuth);
+    return $ch;
   }
 
 }
