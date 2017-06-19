@@ -40,7 +40,7 @@ class Event {
   public $rawData;
 
   /**
-   * @var Array|null
+   * @var Array
    * 'text' => イベント(メッセージ)についてきたテキスト
    * 'postback' => Postbackイベントで返ってきた文字列データ
    * 'location' => lat => 緯度, long => 経度
@@ -67,7 +67,7 @@ class Event {
     $this->userId = $userId;
     $this->type = $type;
     $this->rawData = $rawData;
-    $this->data = $data;
+    $this->data = $data ?? [];
     $this->origin = $origin;
   }
 
