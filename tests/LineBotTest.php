@@ -501,25 +501,60 @@ class LineTest extends TestCase {
     $this->assertFalse($bot->testSignature($requestBody, $x_line_signature));
   }
 
-  // TODO : テストが甘い、プロパティをチェックする
   /**
    * @dataProvider requestBodyProvider
    */
-  public function testParseEvents() {
+  public function testParseEvents($requestBody, $expectedTypes, $expectedData) {
     $bot = new LineBot($this->_curlMock);
-    $requestBody = '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}';
-    $this->assertContainsOnly(Event::class, $bot->parseEvents($requestBody));
+    $events = $bot->parseEvents($requestBody);
+    $this->assertContainsOnly(Event::class, $events);
+    foreach ($events as $index => $event) {
+      $this->assertEquals($expectedTypes[$index], $event->type);
+      $this->assertEquals($expectedData[$index], $event->data);
+    }
   }
 
   public function requestBodyProvider() {
     /*
-      data case => [ requestBody ]
+      data case => [
+        requestBody
+        expectedTypes
+        expectedData
+      ]
     */
     return [
-      'line text message' => [ '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}' ],
-      'line image message' => [ '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}' ],
-      'line postback' => [ '{"events":[{"type":"postback","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"postback":{"data":"key1=value1&key2=value2&key3=value3"}}]}' ],
-      'line image message' => [ '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"location","id":"2222222222222","title":"location title","address":"どこかの住所","latitude":0,"longitude":0}}]}' ]
+      'line text message' =>
+      [
+        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}',
+        [ 'Message.Text' ],
+        [
+          [ 'text' => 'てすと' ]
+        ]
+      ],
+      'line image message' =>
+      [
+        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}',
+        [ 'Message.File' ],
+        [
+          []
+        ]
+      ],
+      'line postback' =>
+      [
+        '{"events":[{"type":"postback","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"postback":{"data":"key1=value1&key2=value2&key3=value3"}}]}',
+        [ 'Postback' ],
+        [
+          [ 'postback' => 'key1=value1&key2=value2&key3=value3' ]
+        ]
+      ],
+      'line image message' =>
+      [
+        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"location","id":"2222222222222","title":"location title","address":"どこかの住所","latitude":0,"longitude":0}}]}',
+        [ 'Message.Location' ],
+        [
+          [ 'location' => [ 'lat' => 0, 'long' => 0 ] ]
+        ]
+      ]
     ];
   }
 
