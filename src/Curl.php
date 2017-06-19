@@ -30,6 +30,8 @@ class Curl {
   /**
    * getリクエストを送る
    *
+   * 環境変数PROXY_URLがセットされていたらそれをプロキシとして使う
+   *
    * @param String $url
    * @param Array|null $headers
    * @param Array|null $queryArray
@@ -65,6 +67,8 @@ class Curl {
 
   /**
    * postリクエストを送る
+   *
+   * 環境変数PROXY_URLがセットされていたらそれをプロキシとして使う
    *
    * @param String $url
    * @param Array|null $headers
