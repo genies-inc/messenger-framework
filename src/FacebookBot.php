@@ -11,6 +11,7 @@ namespace MessengerFramework;
 
 require_once realpath(dirname(__FILE__)) . '/Curl.php';
 require_once realpath(dirname(__FILE__)) . '/Event.php';
+require_once realpath(dirname(__FILE__)) . '/Config.php';
 
 /**
  * [API] FacebookのMessengerのAPIを扱うためのクラス
@@ -28,10 +29,11 @@ class FacebookBot {
    * FacebookBot constructor
    *
    * @param Curl $curl
+   * @param Config $config
    */
-  public function __construct(Curl $curl) {
-    self::$_FACEBOOK_APP_SECRET = getenv('FACEBOOK_APP_SECRET') ?: 'develop';
-    self::$_FACEBOOK_ACCESS_TOKEN = getenv('FACEBOOK_ACCESS_TOKEN') ?: 'develop';
+  public function __construct(Curl $curl, Config $config) {
+    self::$_FACEBOOK_APP_SECRET = $config->FACEBOOK_APP_SECRET;
+    self::$_FACEBOOK_ACCESS_TOKEN = $config->FACEBOOK_ACCESS_TOKEN;
     $this->_httpClient = $curl;
   }
 

@@ -7,6 +7,7 @@ use MessengerFramework\MessengerBot;
 use MessengerFramework\FacebookBot;
 use MessengerFramework\LineBot;
 use MessengerFramework\Curl;
+use MessengerFramework\Config;
 use MessengerFramework\Event;
 
 require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
@@ -19,18 +20,25 @@ class MessengerBotTest extends TestCase {
 
   private $_curlMock;
 
+  private $_configMock;
+
   public function setUp() {
     $this->curlMock = $this->getMockBuilder(Curl::class)
       ->setMethods([ 'post', 'get' ])
       ->getMock();
     $this->curlMock->method('post')->willReturn('{"status":"success"}');
     $this->curlMock->method('get')->willReturn('{"status":"success"}');
+    $this->_configMock = $this->getMockBuilder(Config::class)->getMock();
+    $this->_configMock->FACEBOOK_APP_SECRET = 'develop';
+    $this->_configMock->FACEBOOK_ACCESS_TOKEN = 'develop';
+    $this->_configMock->LINE_CHANNEL_SECRET = 'develop';
+    $this->_configMock->LINE_ACCESS_TOKEN = 'develop';
     $this->facebookBotMock = $this->getMockBuilder(FacebookBot::class)
-      ->setConstructorArgs([$this->curlMock])
+      ->setConstructorArgs([ $this->curlMock, $this->_configMock ])
       ->setMethods([ 'testSignature', 'getProfile' ])
       ->getMock();
     $this->lineBotMock = $this->getMockBuilder(LineBot::class)
-      ->setConstructorArgs([$this->curlMock])
+      ->setConstructorArgs([ $this->curlMock, $this->_configMock ])
       ->setMethods(['testSignature', 'getProfile' ])
       ->getMock();
   }
