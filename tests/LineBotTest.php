@@ -27,22 +27,16 @@ class LineTest extends TestCase {
   }
 
   public function testReplyTextMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [
-            [
-              'type' => 'text',
-              'text' => 'テスト'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [
+        [
+          'type' => 'text',
+          'text' => 'テスト'
+        ]
+      ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addText('テスト');
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
@@ -50,22 +44,16 @@ class LineTest extends TestCase {
   }
 
   public function testPushTextMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'text',
-              'text' => 'テスト'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [
+        [
+          'type' => 'text',
+          'text' => 'テスト'
+        ]
+      ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addText('テスト');
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
@@ -125,17 +113,11 @@ class LineTest extends TestCase {
    * @dataProvider carouselMessageProvider
    */
   public function testReplyCarouselMessage($expectedCarouselArray, $carouselSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [ $expectedCarouselArray ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [ $expectedCarouselArray ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
 
     $bot = new LineBot($this->_curlMock);
     $bot->addCarousel($carouselSource);
@@ -147,17 +129,11 @@ class LineTest extends TestCase {
    * @dataProvider carouselMessageProvider
    */
   public function testPushCarouselMessage($expectedCarouselArray, $carouselSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [ $expectedCarouselArray ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [ $expectedCarouselArray ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
 
     $bot = new LineBot($this->_curlMock);
     $bot->addCarousel($carouselSource);
@@ -166,23 +142,17 @@ class LineTest extends TestCase {
   }
 
   public function testReplyImageMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [
-            [
-              'type' => 'image',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [
+        [
+          'type' => 'image',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
+          'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+        ]
+      ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
@@ -190,23 +160,17 @@ class LineTest extends TestCase {
   }
 
   public function testPushImageMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'image',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [
+        [
+          'type' => 'image',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
+          'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+        ]
+      ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
@@ -214,23 +178,17 @@ class LineTest extends TestCase {
   }
 
   public function testReplyVideoMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [
-            [
-              'type' => 'video',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [
+        [
+          'type' => 'video',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
+          'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+        ]
+      ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
@@ -238,23 +196,17 @@ class LineTest extends TestCase {
   }
 
   public function testPushVideoMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'video',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
-              'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [
+        [
+          'type' => 'video',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
+          'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+        ]
+      ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
@@ -262,23 +214,17 @@ class LineTest extends TestCase {
   }
 
   public function testReplyAudioMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [
-            [
-              'type' => 'audio',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
-              'duration' => 10000
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [
+        [
+          'type' => 'audio',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
+          'duration' => 10000
+        ]
+      ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
@@ -286,23 +232,17 @@ class LineTest extends TestCase {
   }
 
   public function testPushAudioMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'audio',
-              'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
-              'duration' => 10000
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [
+        [
+          'type' => 'audio',
+          'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
+          'duration' => 10000
+        ]
+      ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
@@ -310,30 +250,24 @@ class LineTest extends TestCase {
   }
 
   public function testReplyMultiMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [
-            [
-              'type' => 'text',
-              'text' => 'テスト1'
-            ],
-            [
-              'type' => 'text',
-              'text' => 'テスト2'
-            ],
-            [
-              'type' => 'text',
-              'text' => 'テスト3'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [
+        [
+          'type' => 'text',
+          'text' => 'テスト1'
+        ],
+        [
+          'type' => 'text',
+          'text' => 'テスト2'
+        ],
+        [
+          'type' => 'text',
+          'text' => 'テスト3'
+        ]
+      ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
@@ -343,30 +277,24 @@ class LineTest extends TestCase {
   }
 
   public function testPushMultiMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [
-            [
-              'type' => 'text',
-              'text' => 'テスト1'
-            ],
-            [
-              'type' => 'text',
-              'text' => 'テスト2'
-            ],
-            [
-              'type' => 'text',
-              'text' => 'テスト3'
-            ]
-          ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [
+        [
+          'type' => 'text',
+          'text' => 'テスト1'
+        ],
+        [
+          'type' => 'text',
+          'text' => 'テスト2'
+        ],
+        [
+          'type' => 'text',
+          'text' => 'テスト3'
+        ]
+      ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
@@ -419,17 +347,11 @@ class LineTest extends TestCase {
    * @dataProvider confirmMessageProvider
    */
   public function testReplyConfirmMessage($expectedConfirmArray, $title, $confirmSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-          'messages' => [ $expectedConfirmArray ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [ $expectedConfirmArray ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addConfirm($title, $confirmSource);
     $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
@@ -440,17 +362,11 @@ class LineTest extends TestCase {
    * @dataProvider confirmMessageProvider
    */
   public function testPushConfirmMessage($expectedConfirmArray, $title, $confirmSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://api.line.me/v2/bot/message/push'),
-        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
-        $this->equalTo([
-          'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-          'messages' => [ $expectedConfirmArray ]
-        ]),
-        $this->equalTo(true)
-      );
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [ $expectedConfirmArray ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
     $bot = new LineBot($this->_curlMock);
     $bot->addConfirm($title, $confirmSource);
     $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
@@ -604,6 +520,34 @@ class LineTest extends TestCase {
         'imageBinary'
       ]
     ];
+  }
+
+  private function _setCurlMockForReply($messages, $replyToken) {
+    $this->_curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/reply'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'replyToken' => $replyToken,
+          'messages' => $messages
+        ]),
+        $this->equalTo(true)
+      );
+  }
+
+  private function _setCurlMockForPush($messages, $recipientId) {
+    $this->_curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://api.line.me/v2/bot/message/push'),
+        $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
+        $this->equalTo([
+          'to' => $recipientId,
+          'messages' => $messages
+        ]),
+        $this->equalTo(true)
+      );
   }
 
 }
