@@ -1,0 +1,43 @@
+<?php
+/**
+ * Configを定義、設定ファイルです
+ *
+ * @copyright Genies, Inc. All Rights Reserved
+ * @license https://opensource.org/licenses/mit-license.html MIT License
+ * @author Rintaro Ishikawa
+ */
+
+namespace MessengerFramework;
+
+/**
+ * [Config] 各プラットフォームのMessengerのAPIを使うための設定を置いておくクラス
+ *
+ * 必要な設定項目のプロパティを追加してクラスを作って下さい。
+ *
+ * @access public
+ * @package MessengerFramework
+ */
+class Config {
+
+  /**
+   * @var String FacebookのAppシークレット、リクエストの検証などに使われる
+   */
+  public $FACEBOOK_APP_SECRET = 'd9632de9e44fbd6e76b91550d615b5ee';
+
+  /**
+   * @var String Faebookのアクセストークン、メッセージの送信などに使われる
+   */
+  public $FACEBOOK_ACCESS_TOKEN = 'EAAEciywX28ABAMDmSx62oe9eWq5ntIxdogfLW1qZBBBlIF29TGLNthN2DxKrW2mQIpeBCIAzLKfZBZCh4HBACA05UCoVq550BdaLPKxdvvnsn3eiW6yLPKaM9I83O6LmUO7PZBhE6N13NWGFrV8YjPSJAjEoO0WZB199tcWlPQgZDZD';
+
+  /**
+   * @var String Lineのチャンネルシークレット、リクエストの検証などに使われる
+   */
+  public $LINE_CHANNEL_SECRET = '7ca2492a5c2c618436b7e11ee2f57f41';
+
+  /**
+   * @var String Lineのアクセストークン、メッセージの送信などに使われる
+   */
+  public $LINE_ACCESS_TOKEN = 'v86K590Knm5vJO8nziGcQGDl5LPy6ZHo77qZOn1BhkgE6SS3UlvhjVZFPTKdNWMVo5nqwtjYkRGYjKBWyI1rue6Fda5BceG3Exp0dE36WLzSWagXDNoeNfKIR/htmnHQg1hxaR4Y0LZkhYyr1fr74gdB04t89/1O/w1cDnyilFU=';
+
+}
+

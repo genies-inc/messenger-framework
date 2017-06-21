@@ -5,11 +5,14 @@ namespace MessengerFramework\Test;
 use MessengerFramework\FacebookBot;
 use MessengerFramework\Curl;
 use MessengerFramework\Event;
+use MessengerFramework\Config;
 use PHPUnit\Framework\TestCase;
 
 class FacebookBotTest extends TestCase {
 
   private $_curlMock;
+
+  private $_configMock;
 
   public function setUp() {
     $this->_curlMock = $this->getMockBuilder(Curl::class)
@@ -24,39 +27,34 @@ class FacebookBotTest extends TestCase {
           $isJSON
         )
       */
+    $this->_configMock = $this->getMockBuilder(Config::class)->getMock();
+    $this->_configMock->FACEBOOK_APP_SECRET = 'develop';
+    $this->_configMock->FACEBOOK_ACCESS_TOKEN = 'develop';
   }
 
   public function testReplyTextMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [ 'text' => 'テスト' ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [ 'text' => 'テスト' ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushTextMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [ 'text' => 'テスト' ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [ 'text' => 'テスト' ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -115,19 +113,15 @@ class FacebookBotTest extends TestCase {
    * @dataProvider genericMessageDataProvider
    */
   public function testReplyGenericMessage($expectedGenericArray, $genericSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => $expectedGenericArray
-        ]),
-        $this->equalTo(true)
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => $expectedGenericArray
+      ]
     );
 
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addGeneric($genericSource);
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -137,157 +131,129 @@ class FacebookBotTest extends TestCase {
    * @dataProvider genericMessageDataProvider
    */
   public function testPushGenericMessage($expectedGenericArray, $genericSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => $expectedGenericArray
-        ]),
-        $this->equalTo(true)
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => $expectedGenericArray
+      ]
     );
 
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addGeneric($genericSource);
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testReplyImageMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [
-            'attachment' => [
-              'type' => 'image',
-              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
-            ]
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [
+          'attachment' => [
+            'type' => 'image',
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
           ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+        ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushImageMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [
-            'attachment' => [
-              'type' => 'image',
-              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
-            ]
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [
+          'attachment' => [
+            'type' => 'image',
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
           ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+        ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addImage('https://www.sampleimage.com/sample.jpg');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testReplyVideoMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [
-            'attachment' => [
-              'type' => 'video',
-              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
-            ]
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [
+          'attachment' => [
+            'type' => 'video',
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
           ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+        ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addVideo('https://www.sampleimage.com/sample.mp4');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushVideoMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [
-            'attachment' => [
-              'type' => 'video',
-              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
-            ]
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [
+          'attachment' => [
+            'type' => 'video',
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
           ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+        ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addVideo('https://www.sampleimage.com/sample.mp4');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testReplyAudioMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [
-            'attachment' => [
-              'type' => 'audio',
-              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
-            ]
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [
+          'attachment' => [
+            'type' => 'audio',
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
           ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+        ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addAudio('https://www.sampleimage.com/sample.mp3');
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
   }
 
   public function testPushAudioMessage() {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => [
-            'attachment' => [
-              'type' => 'audio',
-              'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
-            ]
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [
+          'attachment' => [
+            'type' => 'audio',
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
           ]
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+        ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addAudio('https://www.sampleimage.com/sample.mp3');
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -325,7 +291,7 @@ class FacebookBotTest extends TestCase {
         ]
       );
 
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -365,7 +331,7 @@ class FacebookBotTest extends TestCase {
         ]
       );
 
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -418,18 +384,14 @@ class FacebookBotTest extends TestCase {
    * @dataProvider buttonMessageProvider
    */
   public function testReplyButtonMessage($expectedButtonArray, $titleSource, $buttonSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => $expectedButtonArray
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => $expectedButtonArray
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addButton($titleSource, $buttonSource);
     $bot->replyMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -439,18 +401,14 @@ class FacebookBotTest extends TestCase {
    * @dataProvider buttonMessageProvider
    */
   public function testPushButtonMessage($expectedButtonArray, $titleSource, $buttonSource) {
-    $this->_curlMock->expects($this->once())
-      ->method('post')
-      ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
-        $this->equalTo(null),
-        $this->equalTo([
-          'recipient' => [ 'id' => '1000000000000000' ],
-          'message' => $expectedButtonArray
-        ]),
-        $this->equalTo(true)
-      );
-    $bot = new FacebookBot($this->_curlMock);
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => $expectedButtonArray
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addButton($titleSource, $buttonSource);
     $bot->pushMessage('1000000000000000');
     $this->addToAssertionCount(1);
@@ -460,7 +418,7 @@ class FacebookBotTest extends TestCase {
     $this->_curlMock->expects($this->exactly(3))
       ->method('post')
       ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -475,7 +433,7 @@ class FacebookBotTest extends TestCase {
     $this->_curlMock->expects($this->exactly(3))
       ->method('post')
       ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
@@ -486,44 +444,79 @@ class FacebookBotTest extends TestCase {
     $this->assertEquals([$expected, $expected, $expected], json_decode($res));
   }
 
-  // TODO : テストが甘い、プロパティをチェックする
   /**
    * @dataProvider requestBodyProvider
    */
-  public function testParseEvents($requestBody) {
-    $bot = new FacebookBot($this->_curlMock);
+  public function testParseEvents($requestBody, $expectedTypes, $expectedData) {
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $events = $bot->parseEvents($requestBody);
     $this->assertContainsOnly(Event::class, $events);
+    foreach ($events as $index => $event) {
+      $this->assertEquals($expectedTypes[$index], $event->type);
+      $this->assertEquals($expectedData[$index], $event->data);
+    }
   }
 
   public function requestBodyProvider() {
     /*
-      data case => [ requestBody ]
+      data case => [
+        requestBody
+        expectedTypes
+        expectedData
+      ]
     */
     return [
-      'facebook text message' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}' ],
-      'facebook image message' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}' ],
-      'facebook postback' => [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"sender":{"id":"1000000000000000"},"postback":{"payload":"text=Postback1\u0025E3\u002582\u002592\u0025E6\u00258A\u0025BC\u0025E3\u002581\u002597\u0025E3\u002581\u0025BE\u0025E3\u002581\u002597\u0025E3\u002581\u00259F"}}]}]}' ],
-      'facebook location message'=> [ '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"location","payload":{"coordinates":{"lat":0,"long":0}}}]}}]}]}' ]
+      'facebook text message' =>
+      [
+        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}',
+        [ 'Message.Text' ],
+        [
+          [ 'text' => 'てすとてすと' ]
+        ]
+      ],
+      'facebook image message' =>
+      [
+        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}',
+        [ 'Message.File' ],
+        [
+          []
+        ]
+      ],
+      'facebook postback' =>
+      [
+        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"sender":{"id":"1000000000000000"},"postback":{"payload":"text=Postback1\u0025E3\u002582\u002592\u0025E6\u00258A\u0025BC\u0025E3\u002581\u002597\u0025E3\u002581\u0025BE\u0025E3\u002581\u002597\u0025E3\u002581\u00259F"}}]}]}',
+        [ 'Postback' ],
+        [
+          [ 'postback' =>\http_build_query([ 'text' => 'Postback1を押しました' ]) ]
+        ]
+      ],
+      'facebook location message'=>
+      [
+         '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"location","payload":{"coordinates":{"lat":0,"long":0}}}]}}]}]}',
+         [ 'Message.Location' ],
+         [
+           [ 'location' => [ 'lat' => 0, 'long' => 0] ]
+         ]
+      ]
     ];
   }
 
   public function testTestSignature() {
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $x_hub_signature = 'sha1=' . hash_hmac('sha1', $jsonString, 'develop');
     $this->assertTrue($bot->testSignature($jsonString, $x_hub_signature));
   }
 
   public function testTestSignatureInvalidAlgorithm() {
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $x_hub_signature = 'hoge=' . hash_hmac('sha1', $jsonString, 'develop');
     $this->assertFalse($bot->testSignature($jsonString, $x_hub_signature));
   }
 
   public function testTestSignatureInvalidSignature() {
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $jsonString = '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}';
     $x_hub_signature = 'sha1=' . 'invalidString';
     $this->assertFalse($bot->testSignature($jsonString, $x_hub_signature));
@@ -535,7 +528,7 @@ class FacebookBotTest extends TestCase {
       ->with(
         'https://graph.facebook.com/v2.6/1000000000000000?access_token=develop'
       )->willReturn('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}');
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $profile = new \StdClass();
     $profile->first_name = 'Taro';
     $profile->last_name = 'Test';
@@ -560,7 +553,7 @@ class FacebookBotTest extends TestCase {
       ->with(
         $this->equalTo($expectedUrl)
       )->willReturn($expectedBinary);
-    $bot = new FacebookBot($this->_curlMock);
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $events = $bot->parseEvents($requestBody);
     foreach ($events as $event) {
       $this->assertEquals($expectedFiles, $bot->getFiles($event));
@@ -576,6 +569,18 @@ class FacebookBotTest extends TestCase {
         'imageBinary'
       ]
     ];
+  }
+
+  private function _setCurlMockForSingleMessage($payload) {
+    $this->_curlMock->expects($this->once())
+      ->method('post')
+      ->with(
+        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo(null),
+        $this->equalTo($payload),
+        $this->equalTo(true)
+      );
+    return;
   }
 
 }
