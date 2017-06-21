@@ -289,6 +289,10 @@ class LineBot {
         case 'audio' :
         $type = 'Message.File';
         return new Event($replyToken, $userId, $type, $rawData);
+        case 'sticker' :
+        $type = 'Message.Sticker';
+        $stickerId = $event->message->packageId . ',' .$event->message->stickerId;
+        return new Event($replyToken, $userId, $type, $rawData, [ 'sticker' => $stickerId ]);
       }
     }
     return null;

@@ -238,7 +238,6 @@ class FacebookBot {
     return $events;
   }
 
-  // TODO : ステッカーがファイルメッセージとして認識されてしまうのを修正
   private static function _parseMessaging($messaging) {
     // messaging#senderが存在するかどうかを振り分ける意味もある
     if (!isset($messaging->message) && !isset($messaging->postback)) {
@@ -261,7 +260,8 @@ class FacebookBot {
         $data = [ 'location' => self::_buildLocation($messaging->message->attachments) ];
       } elseif (self::_isStickerMessage($messaging->message->attachments)) {
         // sticker_idがあるものはステッカー
-        return null;
+        $type = 'Message.Sticker';
+        $data = ['sticker' => self::_buildSticker($messaging->message->attachments)];
       } else {
         // attachmentsが含まれていて位置情報が含まれていなくて、ステッカーでもないものはMessage.Fileとして扱う
         $type = 'Message.File';
@@ -326,6 +326,14 @@ class FacebookBot {
       }
     }
     return false;
+  }
+
+  private static function _buildSticker($attachments) {
+    foreach ($attachments as $attachment) {
+      if (isset($attachment->payload->sticker_id)) {
+        return $attachment->payload->sticker_id;
+      }
+    }
   }
 
   private function _buildAttachment($type, $payload) {
