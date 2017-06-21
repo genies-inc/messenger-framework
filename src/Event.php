@@ -44,6 +44,7 @@ class Event {
    * 'text' => イベント(メッセージ)についてきたテキスト
    * 'postback' => Postbackイベントで返ってきた文字列データ
    * 'location' => lat => 緯度, long => 経度
+   * 'sticker' => ステッカーId(Lineの場合はPackageIdとカンマ区切り)
    **/
   public $data;
 
