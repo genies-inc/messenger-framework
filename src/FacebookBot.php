@@ -259,8 +259,11 @@ class FacebookBot {
       if (self::_isLocationMessage($messaging->message->attachments)) {
         $type = 'Message.Location';
         $data = [ 'location' => self::_buildLocation($messaging->message->attachments) ];
+      } elseif (self::_isStickerMessage($messaging->message->attachments)) {
+        // sticker_idがあるものはステッカー
+        return null;
       } else {
-        // attachmentsが含まれていて位置情報が含まれていないものはMessage.Fileとして扱う
+        // attachmentsが含まれていて位置情報が含まれていなくて、ステッカーでもないものはMessage.Fileとして扱う
         $type = 'Message.File';
       }
     } elseif (isset($messaging->message->text)) {
@@ -314,6 +317,15 @@ class FacebookBot {
         'long' => $attachment->payload->coordinates->long
       ];
     }
+  }
+
+  private static function _isStickerMessage($attachments) {
+    foreach ($attachments as $attachment) {
+      if (isset($attachment->payload->sticker_id)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private function _buildAttachment($type, $payload) {
