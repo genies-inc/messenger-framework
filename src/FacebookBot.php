@@ -9,6 +9,9 @@
 
 namespace MessengerFramework;
 
+require_once realpath(dirname(__FILE__)) . '/Curl.php';
+require_once realpath(dirname(__FILE__)) . '/Event.php';
+
 /**
  * [API] FacebookのMessengerのAPIを扱うためのクラス
  *
