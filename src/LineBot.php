@@ -271,6 +271,10 @@ class LineBot {
       $type = 'Postback';
       $postbackData = $event->postback->data;
       return new Event($replyToken, $userId, $type, $rawData, [ 'postback' => $postbackData ]);
+      case 'beacon' :
+      $type = 'Beacon';
+      $beaconData = [];
+      return new Event($replyToken, $userId, $type, $rawData, null, [ 'hwid' => $event->beacon->hwid, 'type' => $event->beacon->type ]);
       case 'message' :
       switch ($event->message->type) {
         case 'text' :
