@@ -13,6 +13,7 @@ require_once realpath(dirname(__FILE__)) . '/FacebookBot.php';
 require_once realpath(dirname(__FILE__)) . '/LineBot.php';
 require_once realpath(dirname(__FILE__)) . '/Curl.php';
 require_once realpath(dirname(__FILE__)) . '/Event.php';
+require_once realpath(dirname(__FILE__)) . '/Config.php';
 
 /**
  * [API] 各プラットフォームのMessengerBotのAPIを統一的なインタフェースで扱うラッパー
@@ -33,10 +34,10 @@ class MessengerBot {
   public function __construct($botType) {
     switch (strtolower($botType)) {
       case 'facebook' :
-      $this->core = new FacebookBot(new Curl());
+      $this->core = new FacebookBot(new Curl(), new Config());
       break;
       case 'line' :
-      $this->core = new LineBot(new Curl());
+      $this->core = new LineBot(new Curl(), new Config());
       break;
       default :
       throw new \InvalidArgumentException("指定されたプラットフォームはサポートされていません。", 1);

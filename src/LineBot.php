@@ -11,6 +11,7 @@ namespace MessengerFramework;
 
 require_once realpath(dirname(__FILE__)) . '/Curl.php';
 require_once realpath(dirname(__FILE__)) . '/Event.php';
+require_once realpath(dirname(__FILE__)) . '/Config.php';
 
 /**
  * [API] LineのMessengerのAPIを扱うためのクラス
@@ -28,10 +29,11 @@ class LineBot {
    * LineBot constructor
    *
    * @param Curl $httpClient
+   * @param Config $config
    */
-  public function __construct(Curl $httpClient) {
-    self::$_LINE_CHANNEL_SECRET = getenv('LINE_CHANNEL_SECRET') ?: 'develop';
-    self::$_LINE_ACCESS_TOKEN = getenv('LINE_ACCESS_TOKEN') ?: 'develop';
+  public function __construct(Curl $httpClient, Config $config) {
+    self::$_LINE_CHANNEL_SECRET = $config->LINE_CHANNEL_SECRET;
+    self::$_LINE_ACCESS_TOKEN = $config->LINE_ACCESS_TOKEN;
     $this->_httpClient = $httpClient;
   }
 
