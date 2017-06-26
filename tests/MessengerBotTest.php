@@ -52,6 +52,13 @@ class MessengerBotTest extends TestCase {
     }
   }
 
+  public function testGetPlatform() {
+    foreach ([ 'facebook', 'line' ] as $platform) {
+      $bot = new MessengerBot($platform);
+      $this->assertEquals($platform, $bot->getPlatform());
+    }
+  }
+
   /**
    * @backupGlobals enabled
    */
