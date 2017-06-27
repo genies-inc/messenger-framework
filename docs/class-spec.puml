@@ -28,7 +28,7 @@ namespace MessengerFramework {
     + addAudio(String fileUrl, Int duration)
     + [String|Exception] push(String recipient)
     + [String|Exception] reply(String replyToken)
-    + [String:String] getProfile(String userId)
+    + stdClass getProfile(String userId)
     + [String:BinaryString] getFilesIn(Event message)
     + String getPlatform()
   }

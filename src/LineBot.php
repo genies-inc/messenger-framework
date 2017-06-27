@@ -86,7 +86,7 @@ class LineBot {
    * Lineのユーザーのプロフィールを差異を吸収したものへ変換する
    *
    * @param String $userId
-   * @return Array プラットフォームの差異が吸収されたプロフィールを表す連想配列
+   * @return stdClass プラットフォームの差異が吸収されたプロフィールを表す連想配列
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get(
