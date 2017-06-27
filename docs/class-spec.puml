@@ -13,13 +13,12 @@ namespace MessengerFramework {
 
   note top of Event
     Event#typeについて
-    Message.TextとMessage.File、Message.Location、Postbackの3種類
+    Message.TextとMessage.File、Message.Location、Postback、Unsupportedの5種類
     Event#dataについて
     text、postback、locationのキーがイベントに合わせて作られる
   end note
 
   class MessengerBot {
-    - [MessageBuilder] messagesWillSent
     + FacebookBot|LineBot core
     + [Event:stdObject|null] getEvents()
     + addText(String message)
@@ -29,11 +28,9 @@ namespace MessengerFramework {
     + addAudio(String fileUrl, Int duration)
     + [String|Exception] push(String recipient)
     + [String|Exception] reply(String replyToken)
-    + [String:String] getProfile(String userId)
+    + stdClass getProfile(String userId)
     + [String:BinaryString] getFilesIn(Event message)
     + String getPlatform()
-    - notifyAlive()
-    - validateRequest()
   }
 
   note top of MessengerBot
@@ -45,7 +42,7 @@ namespace MessengerFramework {
     + pushMessage(String to)
     + testSignature(String requestBody, String signature)
     + parseEvent(String requestBody)
-    + getProfile(String userId)
+    + stdClass getProfile(String userId)
     + [String:BinaryString] getFiles(Event event)
     + setText(String message)
     + setGeneric([String:String|Array])
@@ -59,7 +56,7 @@ namespace MessengerFramework {
     + pushMessage(String to)
     + testSignature(String requestBody, String signature)
     + parseEvent(String requestBody)
-    + getProfile(String userId)
+    + stdClass getProfile(String userId)
     + [String:BinaryString] getFiles(Event event)
     + addText(String url)
     + addCarousel([String:String|Array])

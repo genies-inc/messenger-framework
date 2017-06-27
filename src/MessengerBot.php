@@ -5,6 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
+ * @version 1.2.1
  */
 
 namespace  MessengerFramework;
@@ -207,7 +208,7 @@ class MessengerBot {
    * userIdをどのプラットフォームのものとして扱うのかはMessengerBotの状態に依存
    *
    * @param String $userId
-   * @return Array name => ユーザー名, profilePic => プロフィール画像のURL, rawProfile => 元データ
+   * @return stdClass name -> ユーザー名, profilePic -> プロフィール画像のURL, rawProfile -> 元データ
    */
   public function getProfile($userId) {
     return $this->core->getProfile($userId);

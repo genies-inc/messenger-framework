@@ -1,6 +1,6 @@
 # messenger-framework
 
-各サービスのMessengerBotのラッパー。
+各サービスのMessengerBotのラッパー。バージョン1.2.1
 
 # 利用時の注意
 
@@ -60,6 +60,8 @@ $bot->reply($event->replyToken);
 # 仕様
 
 概要は`docs/class-spec.puml`内。
+
+![クラスの仕様](docs/class-spec.png "クラスの仕様")
 
 [ドキュメント(PHPDoc)](https://genies-inc.github.io/messenger-framework/)
 

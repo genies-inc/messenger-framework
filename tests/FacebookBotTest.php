@@ -536,11 +536,10 @@ class FacebookBotTest extends TestCase {
     $profile->locale = 'ja_JP';
     $profile->timezone = 9;
     $profile->gender = 'male';
-    $wrapper = [
-      'name' => $profile->first_name . ' ' . $profile->last_name,
-      'profilePic' => $profile->profile_pic,
-      'rawProfile' => $profile
-    ];
+    $wrapper = new \stdClass();
+    $wrapper->name = $profile->first_name . ' ' . $profile->last_name;
+    $wrapper->profilePic = $profile->profile_pic;
+    $wrapper->rawProfile = $profile;
     $this->assertEquals($wrapper, $bot->getProfile('1000000000000000'));
   }
 

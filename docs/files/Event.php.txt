@@ -5,6 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
+ * @version 1.2.0
  */
 
 namespace  MessengerFramework;
@@ -31,6 +32,8 @@ class Event {
 
   /**
    * @var String イベント(メッセージ)の種類
+   *
+   * Message.Text、Message.File、Message.Location、Postback、Unsupportedを取り得る
    */
   public $type;
 
