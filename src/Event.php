@@ -20,12 +20,12 @@ class Event {
   // MARK : Public Eventのメソッド
 
   /**
-   * @var String プラットフォームで共通して返信に使う文字列
+   * @var String|null プラットフォームで共通して返信に使う文字列
    */
   public $replyToken;
 
   /**
-   * @var String プラットフォームで共通して一意にユーザーを識別する文字列
+   * @var String|null プラットフォームで共通して一意にユーザーを識別する文字列
    */
   public $userId;
 
