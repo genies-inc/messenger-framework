@@ -4,11 +4,11 @@ namespace MessengerFramework {
 
   class Event {
     + [Key => Value] rawData
-    + String replyToken
-    + String userId
+    + String|null replyToken
+    + String|null userId
     + String type
-    + Array data
-    + Array origin
+    + Array|null data
+    + Array|null origin
   }
 
   note top of Event
@@ -31,6 +31,7 @@ namespace MessengerFramework {
     + [String|Exception] reply(String replyToken)
     + [String:String] getProfile(String userId)
     + [String:BinaryString] getFilesIn(Event message)
+    + String getPlatform()
     - notifyAlive()
     - validateRequest()
   }

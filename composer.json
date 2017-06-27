@@ -17,7 +17,7 @@
       "phpunit --colors=always --configuration=phpunit.xml"
     ],
     "gendoc": [
-      "phpdoc run -d src -t doc --visibility public --ansi"
+      "phpdoc run -d src -t docs --visibility public --ansi"
     ]
   },
   "require": {

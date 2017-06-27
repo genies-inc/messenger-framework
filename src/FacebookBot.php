@@ -241,7 +241,7 @@ class FacebookBot {
   private static function _parseMessaging($messaging) {
     // messaging#senderが存在するかどうかを振り分ける意味もある
     if (!isset($messaging->message) && !isset($messaging->postback)) {
-      return null;
+      return new Event(null, null, 'Unsupported', $messaging);
     }
 
     $userId = $messaging->sender->id;
@@ -272,7 +272,7 @@ class FacebookBot {
       $data = [ 'text' => $messaging->message->text ];
     } else {
       // messaging#message形式としては満たしていたが、未対応のイベント
-      return null;
+      return new Event(null, null, 'Unsupported', $event);
     }
 
     return new Event($replyToken, $userId, $type, $rawData, $data);
