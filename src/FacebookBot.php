@@ -106,15 +106,15 @@ class FacebookBot {
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
-    $profile = json_decode($res);
-    if (!isset($profile->first_name)) {
+    $rawProfile = json_decode($res);
+    if (!isset($rawProfile->first_name)) {
       throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
     }
-    return [
-      'name' => $profile->first_name . ' ' . $profile->last_name,
-      'profilePic' => $profile->profile_pic,
-      'rawProfile' => $profile
-    ];
+    $profile = new \stdClass();
+    $profile->name = $rawProfile->first_name . ' ' . $rawProfile->last_name;
+    $profile->profilePic = $rawProfile->profile_pic;
+    $profile->rawProfile = $rawProfile;
+    return $profile;
   }
 
   /**
