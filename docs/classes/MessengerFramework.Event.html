@@ -114,12 +114,12 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="../reports/errors.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">0</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">0</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="../reports/markers.html">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">5</span>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">4</span>
                                 </a>
                             </li>
                             <li>
@@ -144,24 +144,25 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-855204501"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-557847786"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-855204501" class="accordion-body collapse in">
+            <div id="namespace-557847786" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-206315704"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1353709200"></a>
                                 <a href="../namespaces/MessengerFramework.html" style="margin-left: 30px; padding-left: 0">MessengerFramework</a>
             </div>
-            <div id="namespace-206315704" class="accordion-body collapse ">
+            <div id="namespace-1353709200" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
                     <ul>
-                                                                                                    <li class="class"><a href="../classes/MessengerFramework.Curl.html">Curl</a></li>
+                                                                                                    <li class="class"><a href="../classes/MessengerFramework.Config.html">Config</a></li>
+                                                    <li class="class"><a href="../classes/MessengerFramework.Curl.html">Curl</a></li>
                                                     <li class="class"><a href="../classes/MessengerFramework.Event.html">Event</a></li>
                                                     <li class="class"><a href="../classes/MessengerFramework.FacebookBot.html">FacebookBot</a></li>
                                                     <li class="class"><a href="../classes/MessengerFramework.LineBot.html">LineBot</a></li>
@@ -295,12 +296,12 @@
             <a id="property_replyToken" name="property_replyToken" class="anchor"></a>
             <article class="property">
                 <h3 class="public ">$replyToken</h3>
-                <pre class="signature">$replyToken : String</pre>
+                <pre class="signature">$replyToken : String|null</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                String
+                String|null
                 &mdash; プラットフォームで共通して返信に使う文字列                            </article>
         </div>
         <aside class="span4 detailsbar">
@@ -319,12 +320,12 @@
             <a id="property_userId" name="property_userId" class="anchor"></a>
             <article class="property">
                 <h3 class="public ">$userId</h3>
-                <pre class="signature">$userId : String</pre>
+                <pre class="signature">$userId : String|null</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                String
+                String|null
                 &mdash; プラットフォームで共通して一意にユーザーを識別する文字列                            </article>
         </div>
         <aside class="span4 detailsbar">
@@ -367,12 +368,12 @@
             <a id="property_rawData" name="property_rawData" class="anchor"></a>
             <article class="property">
                 <h3 class="public ">$rawData</h3>
-                <pre class="signature">$rawData : \MessengerFramework\stdClass</pre>
+                <pre class="signature">$rawData : \MessengerFramework\stdClass|null</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                \MessengerFramework\stdClass
+                \MessengerFramework\stdClass|null
                 &mdash; 各プラットフォームのイベントをstdClass化したもの                            </article>
         </div>
         <aside class="span4 detailsbar">
@@ -391,15 +392,16 @@
             <a id="property_data" name="property_data" class="anchor"></a>
             <article class="property">
                 <h3 class="public ">$data</h3>
-                <pre class="signature">$data : Array|null</pre>
+                <pre class="signature">$data : Array</pre>
                 <p><em></em></p>
                 
 
                                 <h4>Type</h4>
-                Array|null
+                Array
                 &mdash; &#039;text&#039; =&gt; イベント(メッセージ)についてきたテキスト
 &#039;postback&#039; =&gt; Postbackイベントで返ってきた文字列データ
-&#039;location&#039; =&gt; lat =&gt; 緯度, long =&gt; 経度                            </article>
+&#039;location&#039; =&gt; lat =&gt; 緯度, long =&gt; 経度
+&#039;sticker&#039; =&gt; ステッカーId(Lineの場合はPackageIdとカンマ区切り)                            </article>
         </div>
         <aside class="span4 detailsbar">
             <h1><i class="icon-arrow-down"></i></h1>
@@ -449,19 +451,19 @@
             <article class="method">
                 <h3 class="public ">__construct()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
-                <pre class="signature" style="margin-right: 54px;">__construct(String  <span class="argument">$replyToken</span>, String  <span class="argument">$userId</span>, String  <span class="argument">$type</span>, \MessengerFramework\stdClass  <span class="argument">$rawData</span>, Array|null  <span class="argument">$data = null</span>, Array|null  <span class="argument">$origin = null</span>) </pre>
+                <pre class="signature" style="margin-right: 54px;">__construct(String|null  <span class="argument">$replyToken = null</span>, String|null  <span class="argument">$userId = null</span>, String  <span class="argument">$type</span>, \MessengerFramework\stdClass  <span class="argument">$rawData</span>, Array|null  <span class="argument">$data = null</span>, Array|null  <span class="argument">$origin = null</span>) </pre>
                 <p><em>Event constructor</em></p>
                 
 
                                     <h4>Parameters</h4>
                     <table class="table table-condensed table-hover">
                                                     <tr>
-                                <td>String</td>
+                                <td>String|null</td>
                                 <td>$replyToken </td>
                                 <td></td>
                             </tr>
                                                     <tr>
-                                <td>String</td>
+                                <td>String|null</td>
                                 <td>$userId </td>
                                 <td></td>
                             </tr>
@@ -552,7 +554,7 @@
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on June 16th, 2017 at 14:51.
+                    on June 27th, 2017 at 04:57.
                 </section>
             </section>
         </section>
