@@ -19,7 +19,6 @@ namespace MessengerFramework {
   end note
 
   class MessengerBot {
-    - [MessageBuilder] messagesWillSent
     + FacebookBot|LineBot core
     + [Event:stdObject|null] getEvents()
     + addText(String message)
@@ -32,8 +31,6 @@ namespace MessengerFramework {
     + [String:String] getProfile(String userId)
     + [String:BinaryString] getFilesIn(Event message)
     + String getPlatform()
-    - notifyAlive()
-    - validateRequest()
   }
 
   note top of MessengerBot
