@@ -86,22 +86,22 @@ class LineBot {
    * Lineのユーザーのプロフィールを差異を吸収したものへ変換する
    *
    * @param String $userId
-   * @return Array プラットフォームの差異が吸収されたプロフィールを表す連想配列
+   * @return stdClass プラットフォームの差異が吸収されたプロフィールを表す連想配列
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get(
       $this->_getProfileEndpoint($userId),
       ['Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN]
     );
-    $profile = json_decode($res);
-    if (!isset($profile->displayName)) {
+    $rawProfile = json_decode($res);
+    if (!isset($rawProfile->displayName)) {
       throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
     }
-    return [
-      'name' => $profile->displayName,
-      'profilePic' => $profile->pictureUrl,
-      'rawProfile' => $profile
-    ];
+    $profile = new \stdClass();
+    $profile->name = $rawProfile->displayName;
+    $profile->profilePic = $rawProfile->pictureUrl;
+    $profile->rawProfile = $rawProfile;
+    return $profile;
   }
 
   /**

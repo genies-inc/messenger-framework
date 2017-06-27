@@ -208,7 +208,7 @@ class MessengerBot {
    * userIdをどのプラットフォームのものとして扱うのかはMessengerBotの状態に依存
    *
    * @param String $userId
-   * @return Array name => ユーザー名, profilePic => プロフィール画像のURL, rawProfile => 元データ
+   * @return stdClass name -> ユーザー名, profilePic -> プロフィール画像のURL, rawProfile -> 元データ
    */
   public function getProfile($userId) {
     return $this->core->getProfile($userId);
