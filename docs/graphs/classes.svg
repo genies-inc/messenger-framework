@@ -43,17 +43,17 @@
 <polygon fill="none" stroke="#000000" points="115.7191,-168 27.4938,-168 27.4938,-132 115.7191,-132 115.7191,-168"/>
 <text text-anchor="middle" x="71.6064" y="-146.7" font-family="Courier,monospace" font-size="11.00" fill="#000000">FacebookBot</text>
 </g>
-<!-- \\MessengerFramework\\MessengerBot -->
-<g id="node5" class="node">
-<title>\\MessengerFramework\\MessengerBot</title>
-<polygon fill="none" stroke="#000000" points="119.3196,-114 23.8933,-114 23.8933,-78 119.3196,-78 119.3196,-114"/>
-<text text-anchor="middle" x="71.6064" y="-92.7" font-family="Courier,monospace" font-size="11.00" fill="#000000">MessengerBot</text>
-</g>
 <!-- \\MessengerFramework\\Config -->
-<g id="node6" class="node">
+<g id="node5" class="node">
 <title>\\MessengerFramework\\Config</title>
-<polygon fill="none" stroke="#000000" points="99.2143,-60 43.9986,-60 43.9986,-24 99.2143,-24 99.2143,-60"/>
-<text text-anchor="middle" x="71.6064" y="-38.7" font-family="Courier,monospace" font-size="11.00" fill="#000000">Config</text>
+<polygon fill="none" stroke="#000000" points="99.2143,-114 43.9986,-114 43.9986,-78 99.2143,-78 99.2143,-114"/>
+<text text-anchor="middle" x="71.6064" y="-92.7" font-family="Courier,monospace" font-size="11.00" fill="#000000">Config</text>
+</g>
+<!-- \\MessengerFramework\\MessengerBot -->
+<g id="node6" class="node">
+<title>\\MessengerFramework\\MessengerBot</title>
+<polygon fill="none" stroke="#000000" points="119.3196,-60 23.8933,-60 23.8933,-24 119.3196,-24 119.3196,-60"/>
+<text text-anchor="middle" x="71.6064" y="-38.7" font-family="Courier,monospace" font-size="11.00" fill="#000000">MessengerBot</text>
 </g>
 </g>
 </svg>
