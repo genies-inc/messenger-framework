@@ -213,6 +213,21 @@ class MessengerBot {
     return $this->core->getProfile($userId);
   }
 
+  /**
+   * MessengerBotがどのプラットフォームのラッパーとして動作しているかを取得
+   *
+   * @return String プラットフォーム名(小文字)
+   */
+  public function getPlatform() {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      return 'facebook';
+      case $this->core instanceof LineBot :
+      return 'line';
+    }
+    throw new \LogicException('仕様からここが実行されることはありえません。');
+  }
+
   // MARK : Private
 
   private function _validateSignature($requestBody) {
