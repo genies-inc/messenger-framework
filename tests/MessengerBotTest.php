@@ -229,7 +229,10 @@ class MessengerBotTest extends TestCase {
     $bot->core = $this->facebookBotMock;
 
     $events = $bot->getEvents();
-    $this->assertEquals([null], $events);
+    $this->assertContainsOnly(Event::class, $events);
+    foreach($events as $event) {
+      $this->assertEquals('Unsupported', $event->type);
+    }
   }
 
   public function facebookNotSupportedEventRequestProvider() {
@@ -307,7 +310,11 @@ class MessengerBotTest extends TestCase {
     $bot->core = $this->lineBotMock;
 
     $events = $bot->getEvents();
-    $this->assertEquals([null], $events);
+    $this->assertContainsOnly(Event::class, $events);
+    foreach($events as $event) {
+      $this->assertEquals('Unsupported', $event->type);
+    }
+
   }
 
   public function lineNotSupportedEventRequestProvider() {

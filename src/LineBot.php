@@ -259,7 +259,7 @@ class LineBot {
 
   private static function _parseEvent($event) {
     if (!isset($event->type)) {
-      return null;
+      return new Event(null, null, 'Unsupported', $event);
     }
 
     $userId = $event->source->userId;
@@ -299,7 +299,7 @@ class LineBot {
         return new Event($replyToken, $userId, $type, $rawData, [ 'sticker' => $stickerId ]);
       }
     }
-    return null;
+    return new Event(null, null, 'Unsupported', $event);
   }
 
   private function _sendMessage(String $endpoint, Array $options) {
