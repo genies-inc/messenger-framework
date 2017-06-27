@@ -7,7 +7,7 @@ namespace MessengerFramework {
     + String|null replyToken
     + String|null userId
     + String type
-    + Array data
+    + Array|null data
     + Array|null origin
   }
 
