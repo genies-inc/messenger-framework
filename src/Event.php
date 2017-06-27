@@ -35,7 +35,7 @@ class Event {
   public $type;
 
   /**
-   * @var stdClass 各プラットフォームのイベントをstdClass化したもの
+   * @var stdClass|null 各プラットフォームのイベントをstdClass化したもの
    */
   public $rawData;
 
@@ -68,7 +68,7 @@ class Event {
     $this->userId = $userId;
     $this->type = $type;
     $this->rawData = $rawData;
-    $this->data = $data ?? [];
+    $this->data = $data;
     $this->origin = $origin;
   }
 
