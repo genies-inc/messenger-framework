@@ -32,6 +32,8 @@ class Event {
 
   /**
    * @var String イベント(メッセージ)の種類
+   *
+   * Message.Text、Message.File、Message.Location、Postback、Unsupportedを取り得る
    */
   public $type;
 

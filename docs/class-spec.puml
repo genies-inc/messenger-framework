@@ -13,7 +13,7 @@ namespace MessengerFramework {
 
   note top of Event
     Event#typeについて
-    Message.TextとMessage.File、Message.Location、Postbackの3種類
+    Message.TextとMessage.File、Message.Location、Postback、Unsupportedの5種類
     Event#dataについて
     text、postback、locationのキーがイベントに合わせて作られる
   end note
