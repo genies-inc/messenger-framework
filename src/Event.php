@@ -20,12 +20,12 @@ class Event {
   // MARK : Public Eventのメソッド
 
   /**
-   * @var String プラットフォームで共通して返信に使う文字列
+   * @var String|null プラットフォームで共通して返信に使う文字列
    */
   public $replyToken;
 
   /**
-   * @var String プラットフォームで共通して一意にユーザーを識別する文字列
+   * @var String|null プラットフォームで共通して一意にユーザーを識別する文字列
    */
   public $userId;
 
@@ -35,7 +35,7 @@ class Event {
   public $type;
 
   /**
-   * @var stdClass 各プラットフォームのイベントをstdClass化したもの
+   * @var stdClass|null 各プラットフォームのイベントをstdClass化したもの
    */
   public $rawData;
 
@@ -56,19 +56,19 @@ class Event {
   /**
    * Event constructor
    *
-   * @param String $replyToken
-   * @param String $userId
+   * @param String|null $replyToken
+   * @param String|null $userId
    * @param String $type
    * @param stdClass $rawData
    * @param Array|null $data
    * @param Array|null $origin
    */
-  public function __construct(String $replyToken, String $userId, String $type, $rawData, Array $data = null, Array $origin = null) {
+  public function __construct(String $replyToken = null, String $userId = null, String $type, $rawData, Array $data = null, Array $origin = null) {
     $this->replyToken = $replyToken;
     $this->userId = $userId;
     $this->type = $type;
     $this->rawData = $rawData;
-    $this->data = $data ?? [];
+    $this->data = $data;
     $this->origin = $origin;
   }
 

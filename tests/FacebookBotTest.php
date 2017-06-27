@@ -479,7 +479,7 @@ class FacebookBotTest extends TestCase {
         '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}',
         [ 'Message.File' ],
         [
-          []
+          null
         ]
       ],
       'facebook postback' =>

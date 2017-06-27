@@ -458,7 +458,7 @@ class LineTest extends TestCase {
         '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}',
         [ 'Message.File' ],
         [
-          []
+          null
         ]
       ],
       'line postback' =>
