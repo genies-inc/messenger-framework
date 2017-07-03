@@ -49,6 +49,7 @@ namespace MessengerFramework {
     + setImage(String url)
     + setVideo(String url)
     + setAudio(String url)
+    + addRawMessage(Array message)
   }
 
   class LineBot {
