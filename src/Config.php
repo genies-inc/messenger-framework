@@ -20,24 +20,85 @@ namespace MessengerFramework;
  */
 class Config {
 
-  /**
-   * @var String FacebookのAppシークレット、リクエストの検証などに使われる
-   */
-  public $FACEBOOK_APP_SECRET = '';
+  // MARK : Constructor
 
   /**
-   * @var String Faebookのアクセストークン、メッセージの送信などに使われる
+   * Config constructor
+   *
+   * @param String $platform
+   * @param String[] $keys シークレット、トークンの順
    */
-  public $FACEBOOK_ACCESS_TOKEN = '';
+  public function __construct(String $platform, ...$keys) {
+    $this->_platform = $platform;
+    switch ($platform) {
+      case 'facebook' :
+      $this->_FACEBOOK_APP_SECRET = $keys[0];
+      $this->_FACEBOOK_ACCESS_TOKEN = $keys[1];
+      break;
+      case 'line' :
+      $this->_LINE_CHANNEL_SECRET = $keys[0];
+      $this->_LINE_ACCESS_TOKEN = $keys[1];
+      break;
+    }
+  }
+
+  // MARK : Public Configクラスのメソッド
 
   /**
-   * @var String Lineのチャンネルシークレット、リクエストの検証などに使われる
+   * どのプラットフォームのConfigかを取得する
+   *
+   * @return String プラットフォームの名前
    */
-  public $LINE_CHANNEL_SECRET = '';
+  public function getPlatform() {
+    return $this->_platform;
+  }
 
   /**
-   * @var String Lineのアクセストークン、メッセージの送信などに使われる
+   * Facebookのアプリシークレットを取得する
+   *
+   * @return String Facebookのアプリシークレット
    */
-  public $LINE_ACCESS_TOKEN = '';
+  public function getFacebookAppSecret() {
+    return $this->_FACEBOOK_APP_SECRET;
+  }
+
+  /**
+   * Facebookのアクセストークンを取得する
+   *
+   * @return String Facebookのアクセストークン
+   */
+  public function getFacebookAccessToken() {
+    return $this->_FACEBOOK_ACCESS_TOKEN;
+  }
+
+  /**
+   * Lineのチャンネルシークレットを取得する
+   *
+   * @return String Lineのチャンネルシークレット
+   */
+  public function getLineChannelSecret() {
+    return $this->_LINE_CHANNEL_SECRET;
+  }
+
+  /**
+   * Lineのアクセストークンを取得する
+   *
+   * @return String Lineのアクセストークン
+   */
+  public function getLineAccessToken() {
+    return $this->_LINE_ACCESS_TOKEN;
+  }
+
+  // Private
+
+  private $_platform;
+
+  private $_FACEBOOK_APP_SECRET;
+
+  private $_FACEBOOK_ACCESS_TOKEN;
+
+  private $_LINE_CHANNEL_SECRET;
+
+  private $_LINE_ACCESS_TOKEN;
 
 }

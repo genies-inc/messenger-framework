@@ -33,8 +33,8 @@ class LineBot {
    * @param Config $config
    */
   public function __construct(Curl $httpClient, Config $config) {
-    self::$_LINE_CHANNEL_SECRET = $config->LINE_CHANNEL_SECRET;
-    self::$_LINE_ACCESS_TOKEN = $config->LINE_ACCESS_TOKEN;
+    self::$_LINE_CHANNEL_SECRET = $config->getLineChannelSecret();
+    self::$_LINE_ACCESS_TOKEN = $config->getLineAccessToken();
     $this->_httpClient = $httpClient;
   }
 

@@ -27,9 +27,7 @@ class FacebookBotTest extends TestCase {
           $isJSON
         )
       */
-    $this->_configMock = $this->getMockBuilder(Config::class)->getMock();
-    $this->_configMock->FACEBOOK_APP_SECRET = 'develop';
-    $this->_configMock->FACEBOOK_ACCESS_TOKEN = 'develop';
+    $this->_configMock = new Config('facebook', 'develop', 'develop');
   }
 
   public function testReplyTextMessage() {

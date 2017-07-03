@@ -27,9 +27,7 @@ class LineTest extends TestCase {
         $isJSON
       )
     */
-    $this->_configMock = $this->getMockBuilder(Config::class)->getMock();
-    $this->_configMock->LINE_CHANNEL_SECRET = 'develop';
-    $this->_configMock->LINE_ACCESS_TOKEN = 'develop';
+    $this->_configMock = new Config('line', 'develop', 'develop');
   }
 
   public function testReplyTextMessage() {
