@@ -193,7 +193,7 @@ class FacebookBot {
   }
 
   /**
-   * MessagingAPIの送信APIのmessageオブジェクトと同じキーを持った連想配列を送信予定に追加する
+   * MessengerPlatformの送信APIのmessageオブジェクトと同じキーを持った連想配列を送信予定に追加する
    *
    * @param Array $message
    */
