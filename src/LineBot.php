@@ -197,7 +197,7 @@ class LineBot {
    */
   public function addCarousel(Array $columns) {
     array_push($this->_templates, $this->_buildTemplate(
-      'alt text for carousel',
+      'メニューが届いています(閲覧可能端末から見て下さい)',
       $this->_buildCarousel($columns)
     ));
   }
@@ -210,7 +210,7 @@ class LineBot {
    */
   public function addConfirm(String $text, Array $buttons) {
     array_push($this->_templates, $this->_buildTemplate(
-      'alt text for confirm',
+      '確認メッセージが届いています(閲覧可能端末から見て下さい)',
       $this->_buildConfirm($text, $buttons)
     ));
   }

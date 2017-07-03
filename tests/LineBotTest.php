@@ -71,7 +71,7 @@ class LineTest extends TestCase {
       'valid carousel message' => [
         [
           'type' => 'template',
-          'altText' => 'alt text for carousel',
+          'altText' => 'メニューが届いています(閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'carousel',
             'columns' => [
@@ -314,7 +314,7 @@ class LineTest extends TestCase {
       'valid confirm message' => [
         [
           'type' => 'template',
-          'altText' => 'alt text for confirm',
+          'altText' => '確認メッセージが届いています(閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'confirm',
             'text' => 'タイトル',
@@ -390,7 +390,7 @@ class LineTest extends TestCase {
       'carousel message' => [
         [
           'type' => 'template',
-          'altText' => 'alt text for carousel',
+          'altText' => 'メニューが届いています(閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'carousel',
             'columns' => [
