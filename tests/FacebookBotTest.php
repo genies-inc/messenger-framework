@@ -414,6 +414,78 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function rawMessageDataProvider() {
+    return [
+      'text message' => [
+        [
+          'text' => 'テスト1'
+        ]
+      ],
+      'generic message' => [
+        [
+          'attachment' => [
+            'type' => 'template',
+            'payload' => [
+              'template_type' => 'generic',
+              'elements' => [
+                [
+                  'title' => 'タイトル1',
+                  'subtitle' => 'サブタイトル1',
+                  'buttons' => [
+                    [
+                      'type' => 'web_url',
+                      'url' => 'https://www.sampleimage.com/sample.jpg',
+                      'title' => 'URLボタン'
+                    ],
+                    [
+                      'type' => 'postback',
+                      'title' => 'Postbackボタン',
+                      'payload' => 'key1=value1&key2=value2'
+                    ]
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ];
+  }
+
+  /**
+   * @dataProvider rawMessageDataProvider
+   */
+  public function testReplyRawMessage($rawSource) {
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => $rawSource
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
+    $bot->addrawMessage($rawSource);
+    $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
+  /**
+   * @dataProvider rawMessageDataProvider
+   */
+  public function testPushRawMessage($rawSource) {
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => $rawSource
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
+    $bot->addrawMessage($rawSource);
+    $bot->pushMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
   public function testExceptionOccurredWhenReply() {
     $this->_curlMock->expects($this->exactly(3))
       ->method('post')

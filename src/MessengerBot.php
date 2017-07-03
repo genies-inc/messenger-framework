@@ -191,6 +191,22 @@ class MessengerBot {
   }
 
   /**
+   * 各プラットフォームの書式通りのメッセージを連想配列で送信予定に追加する
+   *
+   * @param Array $message
+   */
+  public function addRawMessage(Array $message) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      case $this->core instanceof LineBot :
+      $this->core->addRawMessage($message);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
    * 発生したEvent(メッセージ)中のファイルを取得する
    *
    * どのプラットフォームのEventとして解釈するかはこのMessengerBotクラスの状態に依存

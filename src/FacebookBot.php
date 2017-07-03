@@ -192,6 +192,15 @@ class FacebookBot {
     array_push($this->_templates, $this->_buildAttachment('template', $this->_buildButtonTemplate($text, $replies)));
   }
 
+  /**
+   * MessengerPlatformの送信APIのmessageオブジェクトと同じキーを持った連想配列を送信予定に追加する
+   *
+   * @param Array $message
+   */
+  public function addRawMessage(Array $message) {
+    array_push($this->_templates, $message);
+  }
+
   // MARK : Private
 
   private static $_FACEBOOK_APP_SECRET;

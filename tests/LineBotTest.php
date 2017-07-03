@@ -379,6 +379,75 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function rawMessageDataProvider() {
+    return [
+      'text message' => [
+        [
+          'type' => 'text',
+          'text' => 'テスト1'
+        ]
+      ],
+      'carousel message' => [
+        [
+          'type' => 'template',
+          'altText' => 'alt text for carousel',
+          'template' => [
+            'type' => 'carousel',
+            'columns' => [
+              [
+                'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
+                'title' => 'タイトル1',
+                'text' => 'サブタイトル1',
+                'actions' => [
+                  [
+                    'type' => 'uri',
+                    'label' => 'URLボタン',
+                    'uri' => 'https://www.sampleimage.com/sample.jpg'
+                  ],
+                  [
+                    'type' => 'postback',
+                    'label' => 'Postbackボタン',
+                    'data' => 'key1=value1&key2=value2'
+                  ]
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ];
+  }
+
+  /**
+   * @dataProvider rawMessageDataProvider
+   */
+  public function testReplyRawMessage($rawSource) {
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [ $rawSource ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addRawMessage($rawSource);
+    $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
+  /**
+   * @dataProvider rawMessageDataProvider
+   */
+  public function testPushRawMessage($rawSource) {
+    $this->_setCurlMockForPush(
+      /* expected messages */
+      [ $rawSource ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addRawMessage($rawSource);
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
+  }
+
   public function testExceptionOccurredWhenReply() {
     $this->_curlMock->expects($this->once())
       ->method('post')
