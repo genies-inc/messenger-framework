@@ -32,12 +32,12 @@ class Config {
     $this->_platform = $platform;
     switch ($platform) {
       case 'facebook' :
-      $this->FACEBOOK_APP_SECRET = $keys[0];
-      $this->FACEBOOK_ACCESS_TOKEN = $keys[1];
+      $this->_FACEBOOK_APP_SECRET = $keys[0];
+      $this->_FACEBOOK_ACCESS_TOKEN = $keys[1];
       break;
       case 'line' :
-      $this->LINE_CHANNEL_SECRET = $keys[0];
-      $this->LINE_ACCESS_TOKEN = $keys[1];
+      $this->_LINE_CHANNEL_SECRET = $keys[0];
+      $this->_LINE_ACCESS_TOKEN = $keys[1];
       break;
     }
   }
@@ -54,27 +54,51 @@ class Config {
   }
 
   /**
-   * @var String FacebookのAppシークレット、リクエストの検証などに使われる
+   * Facebookのアプリシークレットを取得する
+   *
+   * @return String Facebookのアプリシークレット
    */
-  public $FACEBOOK_APP_SECRET = '';
+  public function getFacebookAppSecret() {
+    return $this->_FACEBOOK_APP_SECRET;
+  }
 
   /**
-   * @var String Faebookのアクセストークン、メッセージの送信などに使われる
+   * Facebookのアクセストークンを取得する
+   *
+   * @return String Facebookのアクセストークン
    */
-  public $FACEBOOK_ACCESS_TOKEN = '';
+  public function getFacebookAccessToken() {
+    return $this->_FACEBOOK_ACCESS_TOKEN;
+  }
 
   /**
-   * @var String Lineのチャンネルシークレット、リクエストの検証などに使われる
+   * Lineのチャンネルシークレットを取得する
+   *
+   * @return String Lineのチャンネルシークレット
    */
-  public $LINE_CHANNEL_SECRET = '';
+  public function getLineChannelSecret() {
+    return $this->_LINE_CHANNEL_SECRET;
+  }
 
   /**
-   * @var String Lineのアクセストークン、メッセージの送信などに使われる
+   * Lineのアクセストークンを取得する
+   *
+   * @return String Lineのアクセストークン
    */
-  public $LINE_ACCESS_TOKEN = '';
+  public function getLineAccessToken() {
+    return $this->_LINE_ACCESS_TOKEN;
+  }
 
   // Private
 
   private $_platform;
+
+  private $_FACEBOOK_APP_SECRET;
+
+  private $_FACEBOOK_ACCESS_TOKEN;
+
+  private $_LINE_CHANNEL_SECRET;
+
+  private $_LINE_ACCESS_TOKEN;
 
 }

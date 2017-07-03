@@ -33,8 +33,8 @@ class FacebookBot {
    * @param Config $config
    */
   public function __construct(Curl $curl, Config $config) {
-    self::$_FACEBOOK_APP_SECRET = $config->FACEBOOK_APP_SECRET;
-    self::$_FACEBOOK_ACCESS_TOKEN = $config->FACEBOOK_ACCESS_TOKEN;
+    self::$_FACEBOOK_APP_SECRET = $config->getFacebookAppSecret();
+    self::$_FACEBOOK_ACCESS_TOKEN = $config->getFacebookAccessToken();
     $this->_httpClient = $curl;
   }
 
