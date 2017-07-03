@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.2.1
+ * @version 1.2.2
  */
 
 namespace MessengerFramework;
@@ -190,6 +190,15 @@ class FacebookBot {
    */
   public function addButton(String $text, Array $replies) {
     array_push($this->_templates, $this->_buildAttachment('template', $this->_buildButtonTemplate($text, $replies)));
+  }
+
+  /**
+   * MessengerPlatformの送信APIのmessageオブジェクトと同じキーを持った連想配列を送信予定に追加する
+   *
+   * @param Array $message
+   */
+  public function addRawMessage(Array $message) {
+    array_push($this->_templates, $message);
   }
 
   // MARK : Private

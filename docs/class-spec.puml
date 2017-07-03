@@ -26,6 +26,7 @@ namespace MessengerFramework {
     + addImage(String fileUrl, String previewUrl)
     + addVideo(String fileUrl, String previewUrl)
     + addAudio(String fileUrl, Int duration)
+    + addRawMessage(Array message)
     + [String|Exception] push(String recipient)
     + [String|Exception] reply(String replyToken)
     + stdClass getProfile(String userId)
@@ -44,11 +45,12 @@ namespace MessengerFramework {
     + parseEvent(String requestBody)
     + stdClass getProfile(String userId)
     + [String:BinaryString] getFiles(Event event)
-    + setText(String message)
-    + setGeneric([String:String|Array])
-    + setImage(String url)
-    + setVideo(String url)
-    + setAudio(String url)
+    + addText(String message)
+    + addGeneric([String:String|Array])
+    + addImage(String url)
+    + addVideo(String url)
+    + addAudio(String url)
+    + addRawMessage(Array message)
   }
 
   class LineBot {
@@ -63,6 +65,7 @@ namespace MessengerFramework {
     + addImage(String url, String previewUrl)
     + addVideo(String url, String previewUrl)
     + addAudio(String url, Int duration)
+    + addRawMessage(Array message)
   }
 
   class Curl {
