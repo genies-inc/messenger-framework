@@ -44,11 +44,11 @@ namespace MessengerFramework {
     + parseEvent(String requestBody)
     + stdClass getProfile(String userId)
     + [String:BinaryString] getFiles(Event event)
-    + setText(String message)
-    + setGeneric([String:String|Array])
-    + setImage(String url)
-    + setVideo(String url)
-    + setAudio(String url)
+    + addText(String message)
+    + addGeneric([String:String|Array])
+    + addImage(String url)
+    + addVideo(String url)
+    + addAudio(String url)
     + addRawMessage(Array message)
   }
 
