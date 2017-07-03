@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.2.0
+ * @version 1.2.2
  */
 
 namespace MessengerFramework;
@@ -197,7 +197,7 @@ class LineBot {
    */
   public function addCarousel(Array $columns) {
     array_push($this->_templates, $this->_buildTemplate(
-      'alt text for carousel',
+      'メニューが届いています(閲覧可能端末から見て下さい)',
       $this->_buildCarousel($columns)
     ));
   }
@@ -210,9 +210,18 @@ class LineBot {
    */
   public function addConfirm(String $text, Array $buttons) {
     array_push($this->_templates, $this->_buildTemplate(
-      'alt text for confirm',
+      '確認メッセージが届いています(閲覧可能端末から見て下さい)',
       $this->_buildConfirm($text, $buttons)
     ));
+  }
+
+  /**
+   * MessagingAPIのsend message objectと同じキーを持った連想配列を送信予定に追加する
+   *
+   * @param Array $message
+   */
+  public function addRawMessage(Array $message) {
+    array_push($this->_templates, $message);
   }
 
   // MARK : Private
