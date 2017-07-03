@@ -20,6 +20,39 @@ namespace MessengerFramework;
  */
 class Config {
 
+  // MARK : Constructor
+
+  /**
+   * Config constructor
+   *
+   * @param String $platform
+   * @param String[] $keys シークレット、トークンの順
+   */
+  public function __construct(String $platform, ...$keys) {
+    $this->_platform = $platform;
+    switch ($platform) {
+      case 'facebook' :
+      $this->FACEBOOK_APP_SECRET = $keys[0];
+      $this->FACEBOOK_ACCESS_TOKEN = $keys[1];
+      break;
+      case 'line' :
+      $this->LINE_CHANNEL_SECRET = $keys[0];
+      $this->LINE_ACCESS_TOKEN = $keys[1];
+      break;
+    }
+  }
+
+  // MARK : Public Configクラスのメソッド
+
+  /**
+   * どのプラットフォームのConfigかを取得する
+   *
+   * @return String プラットフォームの名前
+   */
+  public function getPlatform() {
+    return $this->_platform;
+  }
+
   /**
    * @var String FacebookのAppシークレット、リクエストの検証などに使われる
    */
@@ -39,5 +72,9 @@ class Config {
    * @var String Lineのアクセストークン、メッセージの送信などに使われる
    */
   public $LINE_ACCESS_TOKEN = '';
+
+  // Private
+
+  private $_platform;
 
 }

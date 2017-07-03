@@ -32,13 +32,13 @@ class MessengerBot {
    * @param String $botType
    * @package MessengerFramework
    */
-  public function __construct($botType) {
-    switch (strtolower($botType)) {
+  public function __construct(Config $config) {
+    switch (strtolower($config->getPlatform())) {
       case 'facebook' :
-      $this->core = new FacebookBot(new Curl(), new Config());
+      $this->core = new FacebookBot(new Curl(), $config);
       break;
       case 'line' :
-      $this->core = new LineBot(new Curl(), new Config());
+      $this->core = new LineBot(new Curl(), $config);
       break;
       default :
       throw new \InvalidArgumentException("指定されたプラットフォームはサポートされていません。", 1);
