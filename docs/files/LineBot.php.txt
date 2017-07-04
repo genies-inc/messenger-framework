@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.2.2
+ * @version 1.2.3
  */
 
 namespace MessengerFramework;
@@ -33,8 +33,8 @@ class LineBot {
    * @param Config $config
    */
   public function __construct(Curl $httpClient, Config $config) {
-    self::$_LINE_CHANNEL_SECRET = $config->LINE_CHANNEL_SECRET;
-    self::$_LINE_ACCESS_TOKEN = $config->LINE_ACCESS_TOKEN;
+    self::$_LINE_CHANNEL_SECRET = $config->getLineChannelSecret();
+    self::$_LINE_ACCESS_TOKEN = $config->getLineAccessToken();
     $this->_httpClient = $httpClient;
   }
 

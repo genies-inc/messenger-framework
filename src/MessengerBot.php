@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.2.2
+ * @version 1.2.3
  */
 
 namespace  MessengerFramework;
@@ -29,16 +29,16 @@ class MessengerBot {
   /**
    * MessengerBot constructor
    *
-   * @param String $botType
+   * @param Config $config
    * @package MessengerFramework
    */
-  public function __construct($botType) {
-    switch (strtolower($botType)) {
+  public function __construct(Config $config) {
+    switch (strtolower($config->getPlatform())) {
       case 'facebook' :
-      $this->core = new FacebookBot(new Curl(), new Config());
+      $this->core = new FacebookBot(new Curl(), $config);
       break;
       case 'line' :
-      $this->core = new LineBot(new Curl(), new Config());
+      $this->core = new LineBot(new Curl(), $config);
       break;
       default :
       throw new \InvalidArgumentException("指定されたプラットフォームはサポートされていません。", 1);
