@@ -32,12 +32,12 @@ class Config {
     $this->_platform = $platform;
     switch ($platform) {
       case 'facebook' :
-      $this->_FACEBOOK_APP_SECRET = $keys[0];
-      $this->_FACEBOOK_ACCESS_TOKEN = $keys[1];
+      $this->_FACEBOOK_APP_SECRET = $keys[0] ?? \getenv('FACEBOOK_APP_SECRET');
+      $this->_FACEBOOK_ACCESS_TOKEN = $keys[1] ?? \getenv('FACEBOOK_ACCESS_TOKEN');
       break;
       case 'line' :
-      $this->_LINE_CHANNEL_SECRET = $keys[0];
-      $this->_LINE_ACCESS_TOKEN = $keys[1];
+      $this->_LINE_CHANNEL_SECRET = $keys[0] ?? \getenv('LINE_CHANNEL_SECRET');
+      $this->_LINE_ACCESS_TOKEN = $keys[1] ?? \getenv('LINE_ACCESS_TOKEN');
       break;
     }
   }
