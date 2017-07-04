@@ -29,7 +29,7 @@ class MessengerBot {
   /**
    * MessengerBot constructor
    *
-   * @param String $botType
+   * @param Config $config
    * @package MessengerFramework
    */
   public function __construct(Config $config) {
