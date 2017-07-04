@@ -73,6 +73,14 @@ namespace MessengerFramework {
     + String get(String url, Array headers, Array aueryArray)
   }
 
+  class Config {
+    + String getPlatform()
+    + String getFacebookAppSecret()
+    + String getFacebookAccessToken()
+    + String getLineChannelSecret()
+    + String getLineAccessToken()
+  }
+
 }
 
 ' MessengerFramework内の関連

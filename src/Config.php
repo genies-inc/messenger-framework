@@ -24,6 +24,7 @@ class Config {
 
   /**
    * Config constructor
+   * 二番目以降の引数を指定しなかったら環境変数から設定が読み込まれる
    *
    * @param String $platform
    * @param String[] $keys シークレット、トークンの順
