@@ -26,6 +26,7 @@ namespace MessengerFramework {
     + addImage(String fileUrl, String previewUrl)
     + addVideo(String fileUrl, String previewUrl)
     + addAudio(String fileUrl, Int duration)
+    + addButtons(String description, Array buttons)
     + addRawMessage(Array message)
     + [String|Exception] push(String recipient)
     + [String|Exception] reply(String replyToken)
