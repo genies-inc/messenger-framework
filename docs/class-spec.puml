@@ -62,6 +62,7 @@ namespace MessengerFramework {
     + [String:BinaryString] getFiles(Event event)
     + addText(String url)
     + addCarousel([String:String|Array])
+    + addButtons(String description, Array buttons, String|null title, Strin|null thumbnailUrl)
     + addImage(String url, String previewUrl)
     + addVideo(String url, String previewUrl)
     + addAudio(String url, Int duration)

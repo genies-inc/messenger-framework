@@ -377,6 +377,155 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function buttonsMessageDataProvider () {
+    return [
+      'thumbnail and title not empty' => [
+        [
+          'type' => 'template',
+          'altText' => 'メニューボタンが届いています(閲覧可能端末から見て下さい)',
+          'template' => [
+            'type' => 'buttons',
+            'title' => 'タイトル',
+            'text' => '説明',
+            'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
+            'actions' => [
+              [
+                'type' => 'uri',
+                'label' => 'URLボタン',
+                'uri' => 'https://www.sampleimage.com/sample.jpg'
+              ],
+              [
+                'type' => 'postback',
+                'label' => 'Postbackボタン',
+                'data' => 'key1=value1&key2=value2'
+              ]
+            ]
+          ]
+        ],
+        '説明',
+        [
+          [
+            'title' => 'URLボタン',
+            'action' => 'url',
+            'url' => 'https://www.sampleimage.com/sample.jpg'
+          ],
+          [
+            'title' => 'Postbackボタン',
+            'action' => 'postback',
+            'data' => 'key1=value1&key2=value2'
+          ]
+        ],
+        'タイトル',
+        'https://www.sampleimage.com/thumbnail.jpg'
+      ],
+      'title not empty' => [
+        [
+          'type' => 'template',
+          'altText' => 'メニューボタンが届いています(閲覧可能端末から見て下さい)',
+          'template' => [
+            'type' => 'buttons',
+            'title' => 'タイトル',
+            'text' => '説明',
+            'actions' => [
+              [
+                'type' => 'uri',
+                'label' => 'URLボタン',
+                'uri' => 'https://www.sampleimage.com/sample.jpg'
+              ],
+              [
+                'type' => 'postback',
+                'label' => 'Postbackボタン',
+                'data' => 'key1=value1&key2=value2'
+              ]
+            ]
+          ]
+        ],
+        '説明',
+        [
+          [
+            'title' => 'URLボタン',
+            'action' => 'url',
+            'url' => 'https://www.sampleimage.com/sample.jpg'
+          ],
+          [
+            'title' => 'Postbackボタン',
+            'action' => 'postback',
+            'data' => 'key1=value1&key2=value2'
+          ]
+        ],
+        'タイトル',
+        null
+      ],
+      'title empty' => [
+        [
+          'type' => 'template',
+          'altText' => 'メニューボタンが届いています(閲覧可能端末から見て下さい)',
+          'template' => [
+            'type' => 'buttons',
+            'text' => '説明',
+            'actions' => [
+              [
+                'type' => 'uri',
+                'label' => 'URLボタン',
+                'uri' => 'https://www.sampleimage.com/sample.jpg'
+              ],
+              [
+                'type' => 'postback',
+                'label' => 'Postbackボタン',
+                'data' => 'key1=value1&key2=value2'
+              ]
+            ]
+          ]
+        ],
+        '説明',
+        [
+          [
+            'title' => 'URLボタン',
+            'action' => 'url',
+            'url' => 'https://www.sampleimage.com/sample.jpg'
+          ],
+          [
+            'title' => 'Postbackボタン',
+            'action' => 'postback',
+            'data' => 'key1=value1&key2=value2'
+          ]
+        ],
+        null,
+        null
+      ]
+    ];
+  }
+
+  /**
+   * @dataProvider buttonsMessageDataProvider
+   */
+  public function testReplyButtonsMessage($expectedButtonsArray, $description, $buttons, $title, $thumbnailUrl) {
+    $this->_setCurlMockForReply(
+      /* expected message */
+      [ $expectedButtonsArray ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addButtons($description, $buttons, $title, $thumbnailUrl);
+    $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
+  /**
+   * @dataProvider buttonsMessageDataProvider
+   */
+  public function testPushButtonsMessage($expectedButtonsArray, $description, $buttons, $title, $thumbnailUrl) {
+    $this->_setCurlMockForPush(
+      /* expected message */
+      [ $expectedButtonsArray ],
+      '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+    );
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addButtons($description, $buttons, $title, $thumbnailUrl);
+    $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+    $this->addToAssertionCount(1);
+  }
+
   public function rawMessageDataProvider() {
     return [
       'text message' => [
