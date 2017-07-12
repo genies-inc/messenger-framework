@@ -38,7 +38,7 @@ class Event {
   public $type;
 
   /**
-   * @var stdClass|null 各プラットフォームのイベントをstdClass化したもの
+   * @var stdClass 各プラットフォームのイベントをstdClass化したもの
    */
   public $rawData;
 
@@ -66,7 +66,7 @@ class Event {
    * @param Array|null $data
    * @param Array|null $origin
    */
-  public function __construct(String $replyToken = null, String $userId = null, String $type, $rawData, Array $data = null, Array $origin = null) {
+  public function __construct(String $replyToken = null, String $userId = null, String $type, \stdClass $rawData, Array $data = null, Array $origin = null) {
     $this->replyToken = $replyToken;
     $this->userId = $userId;
     $this->type = $type;

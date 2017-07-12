@@ -3,7 +3,7 @@
 namespace MessengerFramework {
 
   class Event {
-    + [Key => Value] rawData
+    + stdClass rawData
     + String|null replyToken
     + String|null userId
     + String type
