@@ -191,6 +191,23 @@ class MessengerBot {
   }
 
   /**
+   * ボタンメッセージを送信予定に追加する
+   *
+   * @param String $description ボタンメッセージの説明
+   * @param Array $buttons ボタンメッセージについてくるボタン
+   */
+  public function addButtons(String $description, Array $buttons) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      return $this->core->addButton($description, $buttons);
+      case $this->core instanceof LineBot :
+      return $this->core->addButtons($description, $buttons);
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
    * 各プラットフォームの書式通りのメッセージを連想配列で送信予定に追加する
    *
    * @param Array $message
