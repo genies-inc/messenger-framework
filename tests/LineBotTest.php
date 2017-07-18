@@ -69,7 +69,7 @@ class LineTest extends TestCase {
       'valid carousel message' => [
         [
           'type' => 'template',
-          'altText' => 'メニューが届いています(閲覧可能端末から見て下さい)',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'carousel',
             'columns' => [
@@ -312,7 +312,7 @@ class LineTest extends TestCase {
       'valid confirm message' => [
         [
           'type' => 'template',
-          'altText' => '確認メッセージが届いています(閲覧可能端末から見て下さい)',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'confirm',
             'text' => 'タイトル',
@@ -382,7 +382,7 @@ class LineTest extends TestCase {
       'thumbnail and title not empty' => [
         [
           'type' => 'template',
-          'altText' => 'メニューボタンが届いています(閲覧可能端末から見て下さい)',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'buttons',
             'title' => 'タイトル',
@@ -421,7 +421,7 @@ class LineTest extends TestCase {
       'title not empty' => [
         [
           'type' => 'template',
-          'altText' => 'メニューボタンが届いています(閲覧可能端末から見て下さい)',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'buttons',
             'title' => 'タイトル',
@@ -459,7 +459,7 @@ class LineTest extends TestCase {
       'title empty' => [
         [
           'type' => 'template',
-          'altText' => 'メニューボタンが届いています(閲覧可能端末から見て下さい)',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'buttons',
             'text' => '説明',
@@ -537,7 +537,7 @@ class LineTest extends TestCase {
       'carousel message' => [
         [
           'type' => 'template',
-          'altText' => 'メニューが届いています(閲覧可能端末から見て下さい)',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
           'template' => [
             'type' => 'carousel',
             'columns' => [

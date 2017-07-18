@@ -197,7 +197,7 @@ class LineBot {
    */
   public function addCarousel(Array $columns) {
     array_push($this->_templates, $this->_buildTemplate(
-      'メニューが届いています(閲覧可能端末から見て下さい)',
+      'メッセージが届いています        (閲覧可能端末から見て下さい)',
       $this->_buildCarousel($columns)
     ));
   }
@@ -210,7 +210,7 @@ class LineBot {
    */
   public function addConfirm(String $text, Array $buttons) {
     array_push($this->_templates, $this->_buildTemplate(
-      '確認メッセージが届いています(閲覧可能端末から見て下さい)',
+      'メッセージが届いています        (閲覧可能端末から見て下さい)',
       $this->_buildConfirm($text, $buttons)
     ));
   }
@@ -225,7 +225,7 @@ class LineBot {
    */
   public function addButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null) {
     array_push($this->_templates, $this->_buildTemplate(
-      'メニューボタンが届いています(閲覧可能端末から見て下さい)',
+      'メッセージが届いています        (閲覧可能端末から見て下さい)',
       $this->_buildButtons($description, $buttons, $title, $thumbnailUrl)
     ));
   }
