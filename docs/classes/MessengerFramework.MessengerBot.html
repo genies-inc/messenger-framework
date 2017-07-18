@@ -144,19 +144,19 @@
                                 <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-1003435939"></a>
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-978102407"></a>
                                 <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
             </div>
-            <div id="namespace-1003435939" class="accordion-body collapse in">
+            <div id="namespace-978102407" class="accordion-body collapse in">
                 <div class="accordion-inner">
 
                                                     <div class="accordion" style="margin-bottom: 0">
         <div class="accordion-group">
             <div class="accordion-heading">
-                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-13074944"></a>
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-231577711"></a>
                                 <a href="../namespaces/MessengerFramework.html" style="margin-left: 30px; padding-left: 0">MessengerFramework</a>
             </div>
-            <div id="namespace-13074944" class="accordion-body collapse ">
+            <div id="namespace-231577711" class="accordion-body collapse ">
                 <div class="accordion-inner">
 
                     
@@ -222,6 +222,7 @@
                                                                     <a href="../classes/MessengerFramework.MessengerBot.html#method_addAudio" class="">addAudio()</a><br />
                                                                     <a href="../classes/MessengerFramework.MessengerBot.html#method_addConfirm" class="">addConfirm()</a><br />
                                                                     <a href="../classes/MessengerFramework.MessengerBot.html#method_addTemplate" class="">addTemplate()</a><br />
+                                                                    <a href="../classes/MessengerFramework.MessengerBot.html#method_addButtons" class="">addButtons()</a><br />
                                                                     <a href="../classes/MessengerFramework.MessengerBot.html#method_addRawMessage" class="">addRawMessage()</a><br />
                                                                     <a href="../classes/MessengerFramework.MessengerBot.html#method_getFilesIn" class="">getFilesIn()</a><br />
                                                                     <a href="../classes/MessengerFramework.MessengerBot.html#method_getProfile" class="">getProfile()</a><br />
@@ -672,7 +673,8 @@ Lineではボタンを押してもユーザーの発言として表示されな�
                 <h3 class="public ">addTemplate()</h3>
                 <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
                 <pre class="signature" style="margin-right: 54px;">addTemplate(Array  <span class="argument">$columns</span>) </pre>
-                <p><em>テンプレートメッセージを送信予定に追加する</em></p>
+                <p><em>テンプレートメッセージを送信予定に追加する
+LineBotを操作している時、1カラムであったら内部でCarouselではなくButtonsが使われる</em></p>
                 
 
                                     <h4>Parameters</h4>
@@ -681,6 +683,45 @@ Lineではボタンを押してもユーザーの発言として表示されな�
                                 <td>Array</td>
                                 <td>$columns </td>
                                 <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_addButtons" name="method_addButtons" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">addButtons()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">addButtons(String  <span class="argument">$description</span>, Array  <span class="argument">$buttons</span>) </pre>
+                <p><em>ボタンメッセージを送信予定に追加する</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>String</td>
+                                <td>$description </td>
+                                <td><p>ボタンメッセージの説明</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>Array</td>
+                                <td>$buttons </td>
+                                <td><p>ボタンメッセージについてくるボタン</p></td>
                             </tr>
                                             </table>
                 
@@ -886,7 +927,7 @@ Lineではボタンを押してもユーザーの発言として表示されな�
                 <section class="span10 offset1">
                     <hr />
                     Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
-                    on July 4th, 2017 at 03:00.
+                    on July 18th, 2017 at 14:31.
                 </section>
             </section>
         </section>
