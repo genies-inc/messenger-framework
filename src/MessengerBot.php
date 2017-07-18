@@ -186,10 +186,10 @@ class MessengerBot {
       case $this->core instanceof LineBot :
       if (count($columns) === 1) {
         $this->core->addButtons(
-          $columns[1],
-          $columns[3],
-          $columns[0],
-          $columns[2]
+          $columns[0][1],
+          $columns[0][3],
+          $columns[0][0],
+          $columns[0][2]
         );
         return;
       }
