@@ -174,6 +174,7 @@ class MessengerBot {
 
   /**
    * テンプレートメッセージを送信予定に追加する
+   * LineBotを操作している時、1カラムであったら内部でCarouselではなくButtonsが使われる
    *
    * @param Array $columns
    */
