@@ -183,6 +183,15 @@ class MessengerBot {
       $this->core->addGeneric($columns);
       break;
       case $this->core instanceof LineBot :
+      if (count($columns) === 1) {
+        $this->core->addButtons(
+          $columns[1],
+          $columns[3],
+          $columns[0],
+          $columns[2]
+        );
+        return;
+      }
       $this->core->addCarousel($columns);
       break;
       default :
