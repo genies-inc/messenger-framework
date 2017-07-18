@@ -132,6 +132,7 @@ Profileの連想配列
 #### TemplateMessage
 
 FacebookだとGeneric、LineだとCarouselに当たるもの。  
+MessengerBot#addTemplateを使っていてカラムが1つのときはLineはCarouselではなくButtonsを使うようにしてある。
 
 書式
 
