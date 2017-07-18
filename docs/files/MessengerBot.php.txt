@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.2.3
+ * @version 1.3.0
  */
 
 namespace  MessengerFramework;
@@ -174,6 +174,7 @@ class MessengerBot {
 
   /**
    * テンプレートメッセージを送信予定に追加する
+   * LineBotを操作している時、1カラムであったら内部でCarouselではなくButtonsが使われる
    *
    * @param Array $columns
    */
@@ -183,8 +184,34 @@ class MessengerBot {
       $this->core->addGeneric($columns);
       break;
       case $this->core instanceof LineBot :
+      if (count($columns) === 1) {
+        $this->core->addButtons(
+          $columns[0][1],
+          $columns[0][3],
+          $columns[0][0],
+          $columns[0][2]
+        );
+        return;
+      }
       $this->core->addCarousel($columns);
       break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
+   * ボタンメッセージを送信予定に追加する
+   *
+   * @param String $description ボタンメッセージの説明
+   * @param Array $buttons ボタンメッセージについてくるボタン
+   */
+  public function addButtons(String $description, Array $buttons) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      return $this->core->addButton($description, $buttons);
+      case $this->core instanceof LineBot :
+      return $this->core->addButtons($description, $buttons);
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
     }

@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.2.3
+ * @version 1.3.0
  */
 
 namespace MessengerFramework;
@@ -197,7 +197,7 @@ class LineBot {
    */
   public function addCarousel(Array $columns) {
     array_push($this->_templates, $this->_buildTemplate(
-      'メニューが届いています(閲覧可能端末から見て下さい)',
+      'メッセージが届いています        (閲覧可能端末から見て下さい)',
       $this->_buildCarousel($columns)
     ));
   }
@@ -210,8 +210,23 @@ class LineBot {
    */
   public function addConfirm(String $text, Array $buttons) {
     array_push($this->_templates, $this->_buildTemplate(
-      '確認メッセージが届いています(閲覧可能端末から見て下さい)',
+      'メッセージが届いています        (閲覧可能端末から見て下さい)',
       $this->_buildConfirm($text, $buttons)
+    ));
+  }
+
+  /**
+   * Buttonsメッセージを送信予定に追加する
+   *
+   * @param String $description ボタンの説明欄
+   * @param Array $buttons
+   * @param String|null $title ボタン全体のタイトル(任意)
+   * @param String|null $thumbnailUrl サムネイル画像のURL(任意)
+   */
+  public function addButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null) {
+    array_push($this->_templates, $this->_buildTemplate(
+      'メッセージが届いています        (閲覧可能端末から見て下さい)',
+      $this->_buildButtons($description, $buttons, $title, $thumbnailUrl)
     ));
   }
 
@@ -353,6 +368,26 @@ class LineBot {
       'text' => $text,
       'actions' => $actions
     ];
+  }
+
+  private function _buildButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null) {
+    $actions = [];
+    foreach ($buttons as $button) {
+      array_push($actions, $this->_buildAction($button));
+    }
+
+    $buttons = [
+      'type' => 'buttons',
+      'text' => $description,
+      'actions' => $actions
+    ];
+    if (!is_null($title)) {
+      $buttons['title'] = $title;
+    }
+    if (!is_null($thumbnailUrl)) {
+      $buttons['thumbnailImageUrl'] = $thumbnailUrl;
+    }
+    return $buttons;
   }
 
   private function _buildColumn($source) {

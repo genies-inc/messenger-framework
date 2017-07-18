@@ -1,6 +1,6 @@
 # messenger-framework
 
-各サービスのMessengerBotのラッパー。バージョン1.2.3
+各サービスのMessengerBotのラッパー。バージョン1.3.0
 
 # 利用時の注意
 
@@ -132,6 +132,7 @@ Profileの連想配列
 #### TemplateMessage
 
 FacebookだとGeneric、LineだとCarouselに当たるもの。  
+MessengerBot#addTemplateを使っていてカラムが1つのときはLineはCarouselではなくButtonsを使うようにしてある。
 
 書式
 
