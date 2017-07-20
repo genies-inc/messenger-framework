@@ -8,6 +8,7 @@ use MessengerFramework\Event;
 use MessengerFramework\Config;
 use PHPUnit\Framework\TestCase;
 
+// TODO : 画像や動画、音声を送信するときのattachment_idの再利用をテストする
 class FacebookBotTest extends TestCase {
 
   private $_curlMock;

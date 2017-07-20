@@ -303,6 +303,7 @@ class FacebookBot {
         $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
         $resObj = json_decode($res);
         if (isset($resObj->attachment_id)) {
+          // attachment_idを再利用したいファイルのURLを取り出す
           $url = array_shift($this->_reuseUrls);
           $this->_reuseCaches[$url] = $resObj->attachment_id;
         }
@@ -362,6 +363,7 @@ class FacebookBot {
     ];
   }
 
+  // attachment_idを使うかどうかをこのインスタンスがURLに対応するattachment_idを持っているかどうかで判断
   private function _buildFilePayload($url) {
     if (\array_key_exists($url, $this->_reuseCaches)) {
       $payload = [
