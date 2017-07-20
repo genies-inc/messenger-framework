@@ -151,7 +151,7 @@ class FacebookBotTest extends TestCase {
         'message' => [
           'attachment' => [
             'type' => 'image',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
           ]
         ]
       ]
@@ -170,7 +170,7 @@ class FacebookBotTest extends TestCase {
         'message' => [
           'attachment' => [
             'type' => 'image',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg' ]
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
           ]
         ]
       ]
@@ -189,7 +189,7 @@ class FacebookBotTest extends TestCase {
         'message' => [
           'attachment' => [
             'type' => 'video',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
           ]
         ]
       ]
@@ -208,7 +208,7 @@ class FacebookBotTest extends TestCase {
         'message' => [
           'attachment' => [
             'type' => 'video',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4' ]
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
           ]
         ]
       ]
@@ -227,7 +227,7 @@ class FacebookBotTest extends TestCase {
         'message' => [
           'attachment' => [
             'type' => 'audio',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
           ]
         ]
       ]
@@ -246,7 +246,7 @@ class FacebookBotTest extends TestCase {
         'message' => [
           'attachment' => [
             'type' => 'audio',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3' ]
+            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
           ]
         ]
       ]
