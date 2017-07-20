@@ -8,7 +8,7 @@
  * @version 1.3.0
  */
 
-namespace  MessengerFramework;
+namespace MessengerFramework;
 
 /**
  * 各プラットフォームの差異を吸収したイベント(メッセージ)を表すクラス

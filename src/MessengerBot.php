@@ -10,12 +10,6 @@
 
 namespace  MessengerFramework;
 
-require_once realpath(dirname(__FILE__)) . '/FacebookBot.php';
-require_once realpath(dirname(__FILE__)) . '/LineBot.php';
-require_once realpath(dirname(__FILE__)) . '/Curl.php';
-require_once realpath(dirname(__FILE__)) . '/Event.php';
-require_once realpath(dirname(__FILE__)) . '/Config.php';
-
 /**
  * [API] 各プラットフォームのMessengerBotのAPIを統一的なインタフェースで扱うラッパー
  *
