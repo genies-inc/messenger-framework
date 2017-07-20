@@ -5,10 +5,10 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.3.0
+ * @version 1.3.1
  */
 
-namespace  MessengerFramework;
+namespace MessengerFramework;
 
 /**
  * 各プラットフォームの差異を吸収したイベント(メッセージ)を表すクラス

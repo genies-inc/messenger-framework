@@ -5,14 +5,10 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.3.0
+ * @version 1.3.1
  */
 
 namespace MessengerFramework;
-
-require_once realpath(dirname(__FILE__)) . '/Curl.php';
-require_once realpath(dirname(__FILE__)) . '/Event.php';
-require_once realpath(dirname(__FILE__)) . '/Config.php';
 
 /**
  * [API] FacebookのMessengerのAPIを扱うためのクラス
@@ -150,7 +146,7 @@ class FacebookBot {
    * @param String $url
    */
   public function addImage(String $url) {
-    array_push($this->_templates, $this->_buildAttachment('image', [ 'url' => $url ]));
+    array_push($this->_templates, $this->_buildAttachment('image', $this->_buildFilePayload($url)));
   }
 
   /**
@@ -159,7 +155,7 @@ class FacebookBot {
    * @param String $url
    */
   public function addVideo(String $url) {
-    array_push($this->_templates, $this->_buildAttachment('video', [ 'url' => $url ]));
+    array_push($this->_templates, $this->_buildAttachment('video', $this->_buildFilePayload($url)));
   }
 
   /**
@@ -168,7 +164,7 @@ class FacebookBot {
    * @param String $url
    */
   public function addAudio(String $url) {
-    array_push($this->_templates, $this->_buildAttachment('audio', [ 'url' => $url ]));
+    array_push($this->_templates, $this->_buildAttachment('audio', $this->_buildFilePayload($url)));
   }
 
   /**
@@ -212,6 +208,12 @@ class FacebookBot {
   private $_httpClient;
 
   private $_templates = [];
+
+  // 画像や動画、音楽などのファイルのUrlとキャッシュIDの連想配列
+  private $_reuseCaches = [];
+
+  // addImageなどしてからreplyやpushするまでreuse指定した順にURLをキャッシュする
+  private $_reuseUrls = [];
 
   private static function _buildCurlErrorResponse(\Exception $e) {
     $err = new \stdClass();
@@ -299,6 +301,12 @@ class FacebookBot {
       ];
       try {
         $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
+        $resObj = json_decode($res);
+        if (isset($resObj->attachment_id)) {
+          // attachment_idを再利用したいファイルのURLを取り出す
+          $url = array_shift($this->_reuseUrls);
+          $this->_reuseCaches[$url] = $resObj->attachment_id;
+        }
       } catch (\RuntimeException $e) {
         $res = self::_buildCurlErrorResponse($e);
       }
@@ -353,6 +361,22 @@ class FacebookBot {
         'payload' => $payload
       ]
     ];
+  }
+
+  // attachment_idを使うかどうかをこのインスタンスがURLに対応するattachment_idを持っているかどうかで判断
+  private function _buildFilePayload($url) {
+    if (\array_key_exists($url, $this->_reuseCaches)) {
+      $payload = [
+        'attachment_id' => $this->_reuseCaches[$url]
+      ];
+    } else {
+      array_push($this->_reuseUrls, $url);
+      $payload = [
+        'url' => $url,
+        'is_reusable' => true
+      ];
+    }
+    return $payload;
   }
 
   private function _buildCarouselTemplate(Array $columns) {
