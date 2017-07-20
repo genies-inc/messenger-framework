@@ -303,7 +303,7 @@ class FacebookBot {
         $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
         $resObj = json_decode($res);
         if (isset($resObj->attachment_id)) {
-          $url = aray_shift($this->_reuseUrls);
+          $url = array_shift($this->_reuseUrls);
           $this->_reuseCaches[$url] = $resObj->attachment_id;
         }
       } catch (\RuntimeException $e) {
