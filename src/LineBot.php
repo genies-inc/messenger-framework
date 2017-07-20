@@ -10,10 +10,6 @@
 
 namespace MessengerFramework;
 
-require_once realpath(dirname(__FILE__)) . '/Curl.php';
-require_once realpath(dirname(__FILE__)) . '/Event.php';
-require_once realpath(dirname(__FILE__)) . '/Config.php';
-
 /**
  * [API] LineのMessengerのAPIを扱うためのクラス
  *
