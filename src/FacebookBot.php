@@ -440,11 +440,11 @@ class FacebookBot {
   }
 
   private function _getMessageEndpoint() {
-    return $this->_endPoint . 'v2.6/me/messages' . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
+    return $this->_endPoint . 'v2.10/me/messages' . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
   }
 
   private function _getProfileEndpoint($userId) {
-    return $this->_endPoint .'v2.6/' . $userId . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
+    return $this->_endPoint .'v2.10/' . $userId . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
   }
 
   private function _getKey($url) {
