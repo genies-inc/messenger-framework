@@ -263,7 +263,7 @@ class FacebookBotTest extends TestCase {
       ->method('post')
       ->withConsecutive(
         [
-          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
           $this->equalTo(null),
           $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
@@ -272,7 +272,7 @@ class FacebookBotTest extends TestCase {
           $this->equalTo(true)
         ],
         [
-          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
           $this->equalTo(null),
           $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
@@ -280,7 +280,7 @@ class FacebookBotTest extends TestCase {
           ]),
           $this->equalTo(true)
         ], [
-          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
           $this->equalTo(null),
           $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
@@ -303,7 +303,7 @@ class FacebookBotTest extends TestCase {
       ->method('post')
       ->withConsecutive(
         [
-          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
           $this->equalTo(null),
           $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
@@ -312,7 +312,7 @@ class FacebookBotTest extends TestCase {
           $this->equalTo(true)
         ],
         [
-          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
           $this->equalTo(null),
           $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
@@ -320,7 +320,7 @@ class FacebookBotTest extends TestCase {
           ]),
           $this->equalTo(true)
         ], [
-          $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+          $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
           $this->equalTo(null),
           $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
@@ -597,7 +597,7 @@ class FacebookBotTest extends TestCase {
     $this->_curlMock->expects($this->once())
       ->method('get')
       ->with(
-        'https://graph.facebook.com/v2.6/1000000000000000?access_token=develop'
+        'https://graph.facebook.com/v2.10/1000000000000000?access_token=develop'
       )->willReturn('{"first_name": "Taro","last_name": "Test","profile_pic": "test.jpg","locale": "ja_JP","timezone": 9,"gender": "male"}');
     $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $profile = new \StdClass();
@@ -645,7 +645,7 @@ class FacebookBotTest extends TestCase {
     $this->_curlMock->expects($this->once())
       ->method('post')
       ->with(
-        $this->equalTo('https://graph.facebook.com/v2.6/me/messages?access_token=develop'),
+        $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
         $this->equalTo(null),
         $this->equalTo($payload),
         $this->equalTo(true)
