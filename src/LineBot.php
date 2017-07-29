@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.3.1
+ * @version 1.3.2
  */
 
 namespace MessengerFramework;
@@ -279,13 +279,16 @@ class LineBot {
   }
 
   private static function _parseEvent($event) {
-    if (!isset($event->type)) {
-      return new Event(null, null, 'Unsupported', $event);
+    $rawData = $event;
+
+    // unfollowイベントはreplyTokenが無い、unfollowをUnsupportedイベントとして扱う
+    // type、userIdやreplyTokenが無いイベントをUnsupportedとして扱う
+    if ( !( isset($event->type) && isset($event->source->userId) && isset($event->replyToken)) ) {
+      return new Event(null, null, 'Unsupported', $rawData);
     }
 
     $userId = $event->source->userId;
     $replyToken = $event->replyToken;
-    $rawData = $event;
 
     switch ($event->type) {
       case 'postback' :
@@ -320,6 +323,7 @@ class LineBot {
         return new Event($replyToken, $userId, $type, $rawData, [ 'sticker' => $stickerId ]);
       }
     }
+    // type、userIdやreplyTokenはあるがどのパターンにも合致しないものはUnsupportedとして扱う
     return new Event(null, null, 'Unsupported', $event);
   }
 

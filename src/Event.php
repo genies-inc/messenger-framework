@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.3.1
+ * @version 1.3.2
  */
 
 namespace MessengerFramework;
@@ -43,7 +43,7 @@ class Event {
   public $rawData;
 
   /**
-   * @var Array
+   * @var Array|null
    * 'text' => イベント(メッセージ)についてきたテキスト
    * 'postback' => Postbackイベントで返ってきた文字列データ
    * 'location' => lat => 緯度, long => 経度
