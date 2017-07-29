@@ -692,7 +692,23 @@ class LineTest extends TestCase {
         [
           [ 'location' => [ 'lat' => 0, 'long' => 0 ] ]
         ]
-      ]
+      ],
+      'line follow event' =>
+      [
+        '{"events":[{"type":"follow","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000}]}',
+        [ 'Unsupported' ],
+        [
+          null
+        ]
+      ],
+      'line unfollow event' =>
+      [
+        '{"events":[{"type":"unfollow","source":{"userId":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","type":"user"},"timestamp":1495206000000}]}',
+        [ 'Unsupported' ],
+        [
+          null
+        ]
+      ],
     ];
   }
 
