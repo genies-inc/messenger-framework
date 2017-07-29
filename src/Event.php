@@ -43,7 +43,7 @@ class Event {
   public $rawData;
 
   /**
-   * @var Array
+   * @var Array|null
    * 'text' => イベント(メッセージ)についてきたテキスト
    * 'postback' => Postbackイベントで返ってきた文字列データ
    * 'location' => lat => 緯度, long => 経度
