@@ -190,10 +190,11 @@ class LineBot {
    * Carouselメッセージを送信予定に追加する
    *
    * @param Array $columns
+   * @param String $altText 未対応端末での代替テキスト
    */
-  public function addCarousel(Array $columns) {
+  public function addCarousel(Array $columns, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)') {
     array_push($this->_templates, $this->_buildTemplate(
-      'メッセージが届いています        (閲覧可能端末から見て下さい)',
+      $altText,
       $this->_buildCarousel($columns)
     ));
   }
@@ -203,10 +204,11 @@ class LineBot {
    *
    * @param String $text
    * @param Array $buttons
+   * @param String $altText 未対応端末での代替テキスト
    */
-  public function addConfirm(String $text, Array $buttons) {
+  public function addConfirm(String $text, Array $buttons, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)') {
     array_push($this->_templates, $this->_buildTemplate(
-      'メッセージが届いています        (閲覧可能端末から見て下さい)',
+      $altText,
       $this->_buildConfirm($text, $buttons)
     ));
   }
@@ -218,10 +220,11 @@ class LineBot {
    * @param Array $buttons
    * @param String|null $title ボタン全体のタイトル(任意)
    * @param String|null $thumbnailUrl サムネイル画像のURL(任意)
+   * @param String $altText 未対応端末での代替テキスト
    */
-  public function addButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null) {
+  public function addButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)') {
     array_push($this->_templates, $this->_buildTemplate(
-      'メッセージが届いています        (閲覧可能端末から見て下さい)',
+      $altText,
       $this->_buildButtons($description, $buttons, $title, $thumbnailUrl)
     ));
   }
