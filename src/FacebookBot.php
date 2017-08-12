@@ -436,6 +436,13 @@ class FacebookBot {
       break;
       default :
     }
+    foreach ($source as $key => $value) {
+      if ($key !== 'url' && $key !== 'action' && $key !== 'title' && $key !== 'data') {
+        // 変換用のキーに属さないものはそのまま追加する
+        // つまり変換後のキーがあった場合そっちが優先される
+        $button[$key] = $value;
+      }
+    }
     return $button;
   }
 
