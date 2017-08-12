@@ -8,6 +8,7 @@ use MessengerFramework\Event;
 use MessengerFramework\Config;
 use PHPUnit\Framework\TestCase;
 
+// TODO : テンプレート系メッセージ(CarouselやConfirm)で代替テキストを設定した場合もテストする
 class LineTest extends TestCase {
 
   private $_curlMock;
