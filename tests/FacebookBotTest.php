@@ -413,6 +413,53 @@ class FacebookBotTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testReplyButtonMessageWithButtonOption() {
+    $this->_setCurlMockForSingleMessage(
+      /* expected payload */
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [
+          'attachment' => [
+            'type' => 'template',
+            'payload' => [
+              'template_type' => 'button',
+              'text' => 'タイトル',
+              'buttons' => [
+                [
+                  'type' => 'web_url',
+                  'url' => 'https://www.sampleimage.com/sample.jpg',
+                  'title' => 'URLボタン',
+                  'webview_height_ratio' => 'compact'
+                ],
+                [
+                  'type' => 'postback',
+                  'title' => 'Postbackボタン',
+                  'payload' => 'key1=value1&key2=value2'
+                ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    );
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
+    $bot->addButton('タイトル', [
+      [
+        'title' => 'URLボタン',
+        'action' => 'url',
+        'url' => 'https://www.sampleimage.com/sample.jpg',
+        'webview_height_ratio' => 'compact'
+      ],
+      [
+        'title' => 'Postbackボタン',
+        'action' => 'postback',
+        'data' => 'key1=value1&key2=value2'
+      ]
+    ]);
+    $bot->replyMessage('1000000000000000');
+    $this->addToAssertionCount(1);
+  }
+
   public function rawMessageDataProvider() {
     return [
       'text message' => [

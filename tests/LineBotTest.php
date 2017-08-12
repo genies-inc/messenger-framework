@@ -378,6 +378,52 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testReplyConfirmMessageWithButtonOptionPass() {
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [
+        [
+          'type' => 'template',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+          'template' => [
+            'type' => 'confirm',
+            'text' => 'タイトル',
+            'actions' => [
+              [
+                'type' => 'uri',
+                'label' => 'URLボタン',
+                'uri' => 'https://www.sampleimage.com/sample.jpg'
+              ],
+              [
+                'type' => 'postback',
+                'label' => 'Postbackボタン',
+                'data' => 'key1=value1&key2=value2',
+                'text' => 'Postbackボタン'
+              ]
+            ]
+          ]
+        ]
+      ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addConfirm('タイトル', [
+      [
+        'title' => 'URLボタン',
+        'action' => 'url',
+        'url' => 'https://www.sampleimage.com/sample.jpg'
+      ],
+      [
+        'title' => 'Postbackボタン',
+        'action' => 'postback',
+        'data' => 'key1=value1&key2=value2',
+        'text' => 'Postbackボタン'
+      ]
+    ]);
+    $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
   public function buttonsMessageDataProvider () {
     return [
       'thumbnail and title not empty' => [
