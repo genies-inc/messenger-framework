@@ -14,14 +14,14 @@ Facebookの初回認証は対応していない。
 
 ```
 "require": {
-        "genies/messengerframework": "*"
-    },
-    "repositories": [
-       {
-           "type": "vcs",
-           "url": "https://github.com/genies-inc/messenger-framework.git"
-       }
-    ]
+    "genies/messengerframework": "*"
+},
+"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/genies-inc/messenger-framework.git"
+    }
+]
 ```
 
 ```
