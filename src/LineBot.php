@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.3.2
+ * @version 1.4.0
  */
 
 namespace MessengerFramework;
@@ -95,7 +95,7 @@ class LineBot {
     }
     $profile = new \stdClass();
     $profile->name = $rawProfile->displayName;
-    $profile->profilePic = $rawProfile->pictureUrl;
+    $profile->profilePic = $rawProfile->pictureUrl ?? null;
     $profile->rawProfile = $rawProfile;
     return $profile;
   }
@@ -190,10 +190,11 @@ class LineBot {
    * Carouselメッセージを送信予定に追加する
    *
    * @param Array $columns
+   * @param String $altText 未対応端末での代替テキスト
    */
-  public function addCarousel(Array $columns) {
+  public function addCarousel(Array $columns, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)') {
     array_push($this->_templates, $this->_buildTemplate(
-      'メッセージが届いています        (閲覧可能端末から見て下さい)',
+      $altText,
       $this->_buildCarousel($columns)
     ));
   }
@@ -203,10 +204,11 @@ class LineBot {
    *
    * @param String $text
    * @param Array $buttons
+   * @param String $altText 未対応端末での代替テキスト
    */
-  public function addConfirm(String $text, Array $buttons) {
+  public function addConfirm(String $text, Array $buttons, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)') {
     array_push($this->_templates, $this->_buildTemplate(
-      'メッセージが届いています        (閲覧可能端末から見て下さい)',
+      $altText,
       $this->_buildConfirm($text, $buttons)
     ));
   }
@@ -218,10 +220,11 @@ class LineBot {
    * @param Array $buttons
    * @param String|null $title ボタン全体のタイトル(任意)
    * @param String|null $thumbnailUrl サムネイル画像のURL(任意)
+   * @param String $altText 未対応端末での代替テキスト
    */
-  public function addButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null) {
+  public function addButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)') {
     array_push($this->_templates, $this->_buildTemplate(
-      'メッセージが届いています        (閲覧可能端末から見て下さい)',
+      $altText,
       $this->_buildButtons($description, $buttons, $title, $thumbnailUrl)
     ));
   }
@@ -417,6 +420,13 @@ class LineBot {
       $action['type'] = 'uri';
       break;
       default :
+    }
+    foreach ($source as $key => $value) {
+      if ($key !== 'url' && $key !== 'action' && $key !== 'title' && $key !== 'data') {
+        // 変換用のキーに属さないものはそのまま追加する
+        // つまり変換後のキーがあった場合そっちが優先される
+        $action[$key] = $value;
+      }
     }
     return $action;
   }

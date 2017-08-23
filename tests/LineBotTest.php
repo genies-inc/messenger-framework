@@ -8,6 +8,7 @@ use MessengerFramework\Event;
 use MessengerFramework\Config;
 use PHPUnit\Framework\TestCase;
 
+// TODO : テンプレート系メッセージ(CarouselやConfirm)で代替テキストを設定した場合もテストする
 class LineTest extends TestCase {
 
   private $_curlMock;
@@ -377,6 +378,52 @@ class LineTest extends TestCase {
     $this->addToAssertionCount(1);
   }
 
+  public function testReplyConfirmMessageWithButtonOptionPass() {
+    $this->_setCurlMockForReply(
+      /* expected messages */
+      [
+        [
+          'type' => 'template',
+          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+          'template' => [
+            'type' => 'confirm',
+            'text' => 'タイトル',
+            'actions' => [
+              [
+                'type' => 'uri',
+                'label' => 'URLボタン',
+                'uri' => 'https://www.sampleimage.com/sample.jpg'
+              ],
+              [
+                'type' => 'postback',
+                'label' => 'Postbackボタン',
+                'data' => 'key1=value1&key2=value2',
+                'text' => 'Postbackボタン'
+              ]
+            ]
+          ]
+        ]
+      ],
+      '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+    );
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addConfirm('タイトル', [
+      [
+        'title' => 'URLボタン',
+        'action' => 'url',
+        'url' => 'https://www.sampleimage.com/sample.jpg'
+      ],
+      [
+        'title' => 'Postbackボタン',
+        'action' => 'postback',
+        'data' => 'key1=value1&key2=value2',
+        'text' => 'Postbackボタン'
+      ]
+    ]);
+    $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+    $this->addToAssertionCount(1);
+  }
+
   public function buttonsMessageDataProvider () {
     return [
       'thumbnail and title not empty' => [
@@ -729,6 +776,26 @@ class LineTest extends TestCase {
     $wrapper = new \stdClass();
     $wrapper->name = $profile->displayName;
     $wrapper->profilePic = $profile->pictureUrl;
+    $wrapper->rawProfile = $profile;
+    $this->assertEquals($wrapper, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
+  }
+
+  public function testGetProfileNoPictureUrl() {
+    $this->_curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        'https://api.line.me/v2/bot/profile/0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+        ['Authorization' => 'Bearer develop']
+      )->willReturn('{"displayName":"Taro Test","userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","statusMessage":"ステータスメッセージ"}');
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $profile = new \stdClass();
+    $profile->displayName = 'Taro Test';
+    $profile->userId = '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0';
+    $profile->statusMessage = 'ステータスメッセージ';
+
+    $wrapper = new \stdClass();
+    $wrapper->name = $profile->displayName;
+    $wrapper->profilePic = null;
     $wrapper->rawProfile = $profile;
     $this->assertEquals($wrapper, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
   }

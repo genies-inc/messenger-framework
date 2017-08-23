@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.3.2
+ * @version 1.4.0
  */
 
 namespace MessengerFramework;
@@ -435,6 +435,13 @@ class FacebookBot {
       $button['url'] = $source['url'];
       break;
       default :
+    }
+    foreach ($source as $key => $value) {
+      if ($key !== 'url' && $key !== 'action' && $key !== 'title' && $key !== 'data') {
+        // 変換用のキーに属さないものはそのまま追加する
+        // つまり変換後のキーがあった場合そっちが優先される
+        $button[$key] = $value;
+      }
     }
     return $button;
   }

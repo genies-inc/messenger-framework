@@ -1,6 +1,6 @@
 # messenger-framework
 
-各サービスのMessengerBotのラッパー。バージョン1.3.2
+各サービスのMessengerBotのラッパー。バージョン1.4.0
 
 # 利用時の注意
 
@@ -10,8 +10,22 @@ Facebookの初回認証は対応していない。
 
 ## Composer
 
+以下の記述を`composer.json`に付け加えて下さい
+
 ```
-composer require genies/messengerframework
+"require": {
+    "genies/messengerframework": "*"
+},
+"repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/genies-inc/messenger-framework.git"
+    }
+]
+```
+
+```
+composer install
 ```
 
 # 使い方
@@ -153,7 +167,9 @@ MessengerBot#addTemplateを使っていてカラムが1つのときはLineはCar
 ]
 ```
 
-このボタンの書式はMessengerBotだけではなくFacebookBotやLineBotなどプラットフォームのボットの層でもGenericやCarouselを生成するのに使う。
+このボタンの書式はMessengerBotだけではなくFacebookBotやLineBotなどプラットフォームのボットの層でもGenericやCarouselを生成するのに使う。  
+ボタンのオプションは上記の通りtitile、action、data、urlを指定するとFacebook、Lineにあったものに変換する。  
+それ以外のオプションを指定した場合は変換されずにそのまま追加される。
 
 ##### 使えるボタンの種類
 
