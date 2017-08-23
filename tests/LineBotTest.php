@@ -780,6 +780,26 @@ class LineTest extends TestCase {
     $this->assertEquals($wrapper, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
   }
 
+  public function testGetProfileNoPictureUrl() {
+    $this->_curlMock->expects($this->once())
+      ->method('get')
+      ->with(
+        'https://api.line.me/v2/bot/profile/0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+        ['Authorization' => 'Bearer develop']
+      )->willReturn('{"displayName":"Taro Test","userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","statusMessage":"ステータスメッセージ"}');
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $profile = new \stdClass();
+    $profile->displayName = 'Taro Test';
+    $profile->userId = '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0';
+    $profile->statusMessage = 'ステータスメッセージ';
+
+    $wrapper = new \stdClass();
+    $wrapper->name = $profile->displayName;
+    $wrapper->profilePic = null;
+    $wrapper->rawProfile = $profile;
+    $this->assertEquals($wrapper, $bot->getProfile('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
+  }
+
   /**
    * @dataProvider eventFileDataProvider
    */

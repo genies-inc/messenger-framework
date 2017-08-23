@@ -95,7 +95,7 @@ class LineBot {
     }
     $profile = new \stdClass();
     $profile->name = $rawProfile->displayName;
-    $profile->profilePic = $rawProfile->pictureUrl;
+    $profile->profilePic = $rawProfile->pictureUrl ?? null;
     $profile->rawProfile = $rawProfile;
     return $profile;
   }
