@@ -106,9 +106,6 @@ class FacebookBot {
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
     $rawProfile = json_decode($res);
-    if (!isset($rawProfile->first_name)) {
-      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-    }
     $profile = new \stdClass();
     $profile->name = $rawProfile->first_name . ' ' . $rawProfile->last_name;
     $profile->profilePic = $rawProfile->profile_pic;

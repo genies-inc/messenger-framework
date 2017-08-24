@@ -93,9 +93,6 @@ class LineBot {
       ['Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN]
     );
     $rawProfile = json_decode($res);
-    if (!isset($rawProfile->displayName)) {
-      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-    }
     $profile = new \stdClass();
     $profile->name = $rawProfile->displayName;
     $profile->profilePic = $rawProfile->pictureUrl ?? null;
