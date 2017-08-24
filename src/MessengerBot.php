@@ -64,6 +64,7 @@ class MessengerBot {
    *
    * @param String $replyToken
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function reply(String $replyToken) {
     return $this->core->replyMessage($replyToken);
@@ -74,6 +75,7 @@ class MessengerBot {
    *
    * @param String $recipientId
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function push(String $recipientId) {
     return $this->core->pushMessage($recipientId);
@@ -234,6 +236,7 @@ class MessengerBot {
    *
    * @param Event $message
    * @return Array ファイル名 => バイナリ文字列 な連想配列
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getFilesIn(Event $message) {
     return $this->core->getFiles($message);
@@ -246,6 +249,7 @@ class MessengerBot {
    *
    * @param String $userId
    * @return stdClass name -> ユーザー名, profilePic -> プロフィール画像のURL, rawProfile -> 元データ
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getProfile($userId) {
     return $this->core->getProfile($userId);

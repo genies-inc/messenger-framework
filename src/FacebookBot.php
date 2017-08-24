@@ -42,6 +42,7 @@ class FacebookBot {
    *
    * @param String $to
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function replyMessage(String $to) {
     return $this->_sendMessage($to);
@@ -57,6 +58,7 @@ class FacebookBot {
    *
    * @param String $to
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function pushMessage(String $to) {
     return $this->_sendMessage($to);
@@ -99,6 +101,7 @@ class FacebookBot {
    *
    * @param String $userId
    * @return stdClass プラットフォームの差異が吸収されたプロフィールを表す連想配列
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
@@ -118,6 +121,7 @@ class FacebookBot {
    *
    * @param Event $event
    * @return Array ファイル名 => バイナリ文字列 の連想配列
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getFiles(Event $event) {
     $messaging = $event->rawData;
