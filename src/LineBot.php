@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.4.0
+ * @version 1.4.1
  */
 
 namespace MessengerFramework;
@@ -41,6 +41,7 @@ class LineBot {
    *
    * @param String $to
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function replyMessage(String $to) {
     return $this->_sendMessage($this->_getReplyEndpoint(), [ 'replyToken' => $to ]);
@@ -51,6 +52,7 @@ class LineBot {
    *
    * @param String $to
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function pushMessage(String $to) {
     return $this->_sendMessage($this->_getPushEndpoint(), [ 'to' => $to ]);
@@ -83,6 +85,7 @@ class LineBot {
    *
    * @param String $userId
    * @return stdClass プラットフォームの差異が吸収されたプロフィールを表す連想配列
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get(
@@ -90,9 +93,6 @@ class LineBot {
       ['Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN]
     );
     $rawProfile = json_decode($res);
-    if (!isset($rawProfile->displayName)) {
-      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-    }
     $profile = new \stdClass();
     $profile->name = $rawProfile->displayName;
     $profile->profilePic = $rawProfile->pictureUrl ?? null;
@@ -105,6 +105,7 @@ class LineBot {
    *
    * @param Event $event
    * @return Array ファイル名 => バイナリ文字列 の連想配列
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getFiles(Event $event) {
     $rawEvent = $event->rawData;
@@ -331,13 +332,9 @@ class LineBot {
   }
 
   private function _sendMessage(String $endpoint, Array $options) {
-    try {
-      $res = $this->_httpClient->post($endpoint, [
-        'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
-      ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
-    } catch (\RuntimeException $e) {
-      $res = self::_buildCurlErrorResponse($e);
-    }
+    $res = $this->_httpClient->post($endpoint, [
+      'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
+    ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
     $this->_templates = [];
     return json_encode($res);
   }
