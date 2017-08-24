@@ -331,13 +331,9 @@ class LineBot {
   }
 
   private function _sendMessage(String $endpoint, Array $options) {
-    try {
-      $res = $this->_httpClient->post($endpoint, [
-        'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
-      ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
-    } catch (\RuntimeException $e) {
-      $res = self::_buildCurlErrorResponse($e);
-    }
+    $res = $this->_httpClient->post($endpoint, [
+      'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
+    ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
     $this->_templates = [];
     return json_encode($res);
   }

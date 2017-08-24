@@ -299,16 +299,12 @@ class FacebookBot {
         ],
         'message' => $template
       ];
-      try {
-        $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
-        $resObj = json_decode($res);
-        if (isset($resObj->attachment_id)) {
-          // attachment_idを再利用したいファイルのURLを取り出す
-          $url = array_shift($this->_reuseUrls);
-          $this->_reuseCaches[$url] = $resObj->attachment_id;
-        }
-      } catch (\RuntimeException $e) {
-        $res = self::_buildCurlErrorResponse($e);
+      $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
+      $resObj = json_decode($res);
+      if (isset($resObj->attachment_id)) {
+        // attachment_idを再利用したいファイルのURLを取り出す
+        $url = array_shift($this->_reuseUrls);
+        $this->_reuseCaches[$url] = $resObj->attachment_id;
       }
       array_push($responses, $res);
     }

@@ -650,11 +650,13 @@ class LineTest extends TestCase {
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
-    $res = $bot->replyMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-    $expected = new \stdClass();
-    $expected->code = 1;
-    $expected->message = 'Curlでエラーが起きました';
-    $this->assertEquals($expected, json_decode($res));
+    try {
+      $res = $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
+      $this->fail();
+    } catch (\RuntimeException $ex) {
+      $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
+      $this->addToAssertionCount(1);
+    }
   }
 
   public function testExceptionOccurredWhenPush() {
@@ -665,11 +667,13 @@ class LineTest extends TestCase {
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
-    $res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-    $expected = new \stdClass();
-    $expected->code = 1;
-    $expected->message = 'Curlでエラーが起きました';
-    $this->assertEquals($expected, json_decode($res));
+    try {
+      $res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
+      $this->fail();
+    } catch (\RuntimeException $ex) {
+      $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
+      $this->addToAssertionCount(1);
+    }
   }
 
   public function testTestSignature() {

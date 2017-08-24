@@ -533,33 +533,37 @@ class FacebookBotTest extends TestCase {
   }
 
   public function testExceptionOccurredWhenReply() {
-    $this->_curlMock->expects($this->exactly(3))
+    $this->_curlMock->expects($this->exactly(1))
       ->method('post')
       ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
     $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
-    $res = $bot->replyMessage('1000000000000000');
-    $expected = new \stdClass();
-    $expected->code = 1;
-    $expected->message = 'Curlでエラーが起きました';
-    $this->assertEquals([$expected, $expected, $expected], json_decode($res));
+    try {
+      $res = $bot->replyMessage('1000000000000000');
+      $this->fail();
+    } catch (\RuntimeException $ex) {
+      $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
+      $this->addToAssertionCount(1);
+    }
   }
 
   public function testExceptionOccurredWhenPush() {
-    $this->_curlMock->expects($this->exactly(3))
+    $this->_curlMock->expects($this->exactly(1))
       ->method('post')
       ->will($this->throwException(new \RuntimeException('Curlでエラーが起きました', 1)));
     $bot = new FacebookBot($this->_curlMock, $this->_configMock);
     $bot->addText('テスト1');
     $bot->addText('テスト2');
     $bot->addText('テスト3');
-    $res = $bot->pushMessage('1000000000000000');
-    $expected = new \stdClass();
-    $expected->code = 1;
-    $expected->message = 'Curlでエラーが起きました';
-    $this->assertEquals([$expected, $expected, $expected], json_decode($res));
+    try {
+      $res = $bot->pushMessage('1000000000000000');
+      $this->fail();
+    } catch (\RuntimeException $ex) {
+      $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
+      $this->addToAssertionCount(1);
+    }
   }
 
   /**
