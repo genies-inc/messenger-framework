@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.4.0
+ * @version 1.4.1
  */
 
 namespace MessengerFramework;
@@ -42,6 +42,7 @@ class FacebookBot {
    *
    * @param String $to
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function replyMessage(String $to) {
     return $this->_sendMessage($to);
@@ -57,6 +58,7 @@ class FacebookBot {
    *
    * @param String $to
    * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function pushMessage(String $to) {
     return $this->_sendMessage($to);
@@ -99,13 +101,11 @@ class FacebookBot {
    *
    * @param String $userId
    * @return stdClass プラットフォームの差異が吸収されたプロフィールを表す連想配列
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getProfile(String $userId) {
     $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
     $rawProfile = json_decode($res);
-    if (!isset($rawProfile->first_name)) {
-      throw new \UnexpectedValueException('プロフィールが取得できませんでした。');
-    }
     $profile = new \stdClass();
     $profile->name = $rawProfile->first_name . ' ' . $rawProfile->last_name;
     $profile->profilePic = $rawProfile->profile_pic;
@@ -118,6 +118,7 @@ class FacebookBot {
    *
    * @param Event $event
    * @return Array ファイル名 => バイナリ文字列 の連想配列
+   * @throws RuntimeException curlの実行時に起きるエラー
    */
   public function getFiles(Event $event) {
     $messaging = $event->rawData;
