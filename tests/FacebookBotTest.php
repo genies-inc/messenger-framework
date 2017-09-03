@@ -692,6 +692,23 @@ class FacebookBotTest extends TestCase {
     ];
   }
 
+  public function testGetPayloads() {
+    $bot = new FacebookBot($this->_curlMock, $this->_configMock);
+    $bot->addText('message1');
+    $bot->addText('message2');
+    $expected = [
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [ 'text' => 'message1' ]
+      ],
+      [
+        'recipient' => [ 'id' => '1000000000000000' ],
+        'message' => [ 'text' => 'message2' ]
+      ],
+    ];
+    $this->assertEquals($expected, $bot->getPayloads('1000000000000000'));
+  }
+
   private function _setCurlMockForSingleMessage($payload) {
     $this->_curlMock->expects($this->once())
       ->method('post')

@@ -54,6 +54,7 @@ namespace MessengerFramework {
     + addVideo(String url)
     + addAudio(String url)
     + addRawMessage(Array message)
+    + getPayloads(String to)
   }
 
   class LineBot {

@@ -65,6 +65,28 @@ class FacebookBot {
   }
 
   /**
+   * メッセージの送信APIに渡すPayloadをまとめて取得する
+   *
+   * 送信予定としてスタックしているメッセージを$toに送る場合のPayloadを取得する
+   *
+   * @param String $to
+   * @return Array メッセージを送信する際APIへ渡すPayloadの配列
+   */
+  public function getPayloads(string $to) {
+    $payload = [];
+    foreach ($this->_templates as $template) {
+      $body = [
+        'recipient' => [
+          'id' => $to
+        ],
+        'message' => $template
+      ];
+      \array_push($payload, $body);
+    }
+    return $payload;
+  }
+
+  /**
    * FacebookのWebhookリクエストを差異を吸収したEventの配列へ変換する
    *
    * @param String $requestBody
