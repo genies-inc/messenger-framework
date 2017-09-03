@@ -59,6 +59,26 @@ class LineBot {
   }
 
   /**
+   * メッセージを返信するAPIに渡すPayloadを取得する
+   *
+   * @param String $to
+   * @return Array メッセージを返信するAPIに渡すPayload
+   */
+  public function getReplyPayload(string $to) {
+    return \array_merge([ 'replyToken' => $to, 'messages' => $this->_templates ]);
+  }
+
+  /**
+   * メッセージをプッシュするAPIに渡すPayloadを取得する
+   *
+   * @param String $to
+   * @return Array APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+   */
+  public function getPushPayload(string $to) {
+    return \array_merge([ 'to' => $to, 'messages' => $this->_templates ]);
+  }
+
+  /**
    * LineのEvent(メッセージ)中に含まれるファイルを取得する
    *
    * @param String $requestBody

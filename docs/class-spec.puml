@@ -72,6 +72,8 @@ namespace MessengerFramework {
     + addVideo(String url, String previewUrl)
     + addAudio(String url, Int duration)
     + addRawMessage(Array message)
+    + getReplyPayload(String to)
+    + getPushPayload(String to)
   }
 
   class Curl {
