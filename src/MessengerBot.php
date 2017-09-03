@@ -82,6 +82,42 @@ class MessengerBot {
   }
 
   /**
+   * メッセージを返信するAPIに渡すPayloadを取得する
+   *
+   * @param String $recipientId
+   * @return Array メッセージを返信するAPIに渡すPayload
+   */
+  public function getReplyPayload(String $replyToken) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      return $this->core->getPayloads($replyToken);
+      case $this->core instanceof LineBot :
+      return $this->core->getReplyPayload($replyToken);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
+   * メッセージをプッシュするAPIに渡すPayloadを取得する
+   *
+   * @param String $recipientId
+   * @return Array メッセージを返信するAPIに渡すPayload
+   */
+  public function getPushPayload(String $recipientId) {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      return $this->core->getPayloads($recipientId);
+      case $this->core instanceof LineBot :
+      return $this->core->getPushPayload($recipientId);
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
    * テキストメッセージを送信予定に追加する
    *
    * @param String $message
