@@ -91,9 +91,9 @@ class MessengerBot {
   public function getMessagePayload() {
     switch (true) {
       case $this->core instanceof FacebookBot :
-      return $this->core->getPayloads();
+      return $this->core->getMessagePayloads();
       case $this->core instanceof LineBot :
-      return $this->core->getPayload();
+      return $this->core->getMessagePayload();
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
