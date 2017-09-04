@@ -34,6 +34,7 @@ namespace MessengerFramework {
     + stdClass getProfile(String userId)
     + [String:BinaryString] getFilesIn(Event message)
     + String getPlatform()
+    + array getMessagePayload()
   }
 
   note top of MessengerBot
@@ -54,7 +55,7 @@ namespace MessengerFramework {
     + addVideo(String url)
     + addAudio(String url)
     + addRawMessage(Array message)
-    + getPayloads(String to)
+    + array getMessagePayloads()
   }
 
   class LineBot {
@@ -72,8 +73,7 @@ namespace MessengerFramework {
     + addVideo(String url, String previewUrl)
     + addAudio(String url, Int duration)
     + addRawMessage(Array message)
-    + getReplyPayload(String to)
-    + getPushPayload(String to)
+    + array getMessagePayload()
   }
 
   class Curl {

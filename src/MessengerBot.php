@@ -82,35 +82,18 @@ class MessengerBot {
   }
 
   /**
-   * メッセージを返信するAPIに渡すPayloadを取得する
+   * 現在送信予定としてスタックされているメッセージを取得する
    *
-   * @param String $recipientId
-   * @return Array メッセージを返信するAPIに渡すPayload
+   * Facebookならmessage、Lineならmessagesの中身にあたるもの
+   *
+   * @return Array メッセージを送信するAPIに渡すPayloadのメッセージ部分
    */
-  public function getReplyPayload(String $replyToken) {
+  public function getMessagePayload() {
     switch (true) {
       case $this->core instanceof FacebookBot :
-      return $this->core->getPayloads($replyToken);
+      return $this->core->getPayloads();
       case $this->core instanceof LineBot :
-      return $this->core->getReplyPayload($replyToken);
-      break;
-      default :
-      throw new \LogicException('仕様からここが実行されることはありえません。');
-    }
-  }
-
-  /**
-   * メッセージをプッシュするAPIに渡すPayloadを取得する
-   *
-   * @param String $recipientId
-   * @return Array メッセージを返信するAPIに渡すPayload
-   */
-  public function getPushPayload(String $recipientId) {
-    switch (true) {
-      case $this->core instanceof FacebookBot :
-      return $this->core->getPayloads($recipientId);
-      case $this->core instanceof LineBot :
-      return $this->core->getPushPayload($recipientId);
+      return $this->core->getPayload();
       break;
       default :
       throw new \LogicException('仕様からここが実行されることはありえません。');
