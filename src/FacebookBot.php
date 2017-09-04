@@ -65,25 +65,12 @@ class FacebookBot {
   }
 
   /**
-   * メッセージの送信APIに渡すPayloadをまとめて取得する
+   * 現在送信予定としてスタックされているメッセージを取得する(JSON内のmessageプロパティにあたるもの)
    *
-   * 送信予定としてスタックしているメッセージを$toに送る場合のPayloadを取得する
-   *
-   * @param String $to
-   * @return Array メッセージを送信する際APIへ渡すPayloadの配列
+   * @return Array メッセージを送信する際APIへ渡すPayload内のmessage
    */
-  public function getPayloads(string $to) {
-    $payload = [];
-    foreach ($this->_templates as $template) {
-      $body = [
-        'recipient' => [
-          'id' => $to
-        ],
-        'message' => $template
-      ];
-      \array_push($payload, $body);
-    }
-    return $payload;
+  public function getMessagePayloads() {
+    return $this->_templates;
   }
 
   /**

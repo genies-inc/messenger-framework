@@ -845,44 +845,21 @@ class LineTest extends TestCase {
       );
   }
 
-  public function testGetReplyPayload() {
+  public function testGetMessagePayload() {
     $bot = new LineBot($this->_curlMock, $this->_configMock);
     $bot->addText('message1');
     $bot->addText('message2');
     $expected = [
-      'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
-      'messages' => [
-        [
-          'type' => 'text',
-          'text' => 'message1'
-        ],
-        [
-          'type' => 'text',
-          'text' => 'message2'
-        ]
+      [
+        'type' => 'text',
+        'text' => 'message1'
+      ],
+      [
+        'type' => 'text',
+        'text' => 'message2'
       ]
     ];
-    $this->assertEquals($expected, $bot->getReplyPayload('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
-  }
-
-  public function testGetPushPayload() {
-    $bot = new LineBot($this->_curlMock, $this->_configMock);
-    $bot->addText('message1');
-    $bot->addText('message2');
-    $expected = [
-      'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
-      'messages' => [
-        [
-          'type' => 'text',
-          'text' => 'message1'
-        ],
-        [
-          'type' => 'text',
-          'text' => 'message2'
-        ]
-      ]
-    ];
-    $this->assertEquals($expected, $bot->getPushPayload('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
+    $this->assertEquals($expected, $bot->getMessagePayload());
   }
 
   private function _setCurlMockForPush($messages, $recipientId) {

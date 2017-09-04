@@ -59,23 +59,12 @@ class LineBot {
   }
 
   /**
-   * メッセージを返信するAPIに渡すPayloadを取得する
+   * 現在送信予定としてスタックされているメッセージを取得する(JSON内のmessagesプロパティにあたるもの)
    *
-   * @param String $to
-   * @return Array メッセージを返信するAPIに渡すPayload
+   * @return Array メッセージを送信する際APIへ渡すPayload内のmessages
    */
-  public function getReplyPayload(string $to) {
-    return \array_merge([ 'replyToken' => $to, 'messages' => $this->_templates ]);
-  }
-
-  /**
-   * メッセージをプッシュするAPIに渡すPayloadを取得する
-   *
-   * @param String $to
-   * @return Array APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-   */
-  public function getPushPayload(string $to) {
-    return \array_merge([ 'to' => $to, 'messages' => $this->_templates ]);
+   public function getMessagePayload() {
+    return $this->_templates;
   }
 
   /**
