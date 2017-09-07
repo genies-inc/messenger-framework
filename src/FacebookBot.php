@@ -74,6 +74,15 @@ class FacebookBot {
   }
 
   /**
+   * 現在送信予定としてスタックされているメッセージをリセットする
+   *
+   * @return Void
+   */
+   public function clearMessages() {
+    $this->_templates = [];
+  }
+
+  /**
    * FacebookのWebhookリクエストを差異を吸収したEventの配列へ変換する
    *
    * @param String $requestBody
