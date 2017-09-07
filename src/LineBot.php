@@ -68,6 +68,15 @@ class LineBot {
   }
 
   /**
+   * 現在送信予定としてスタックされているメッセージをリセットする
+   *
+   * @return Void
+   */
+  public function clearMessages() {
+    $this->_templates = [];
+  }
+
+  /**
    * LineのEvent(メッセージ)中に含まれるファイルを取得する
    *
    * @param String $requestBody
