@@ -101,6 +101,22 @@ class MessengerBot {
   }
 
   /**
+   * 現在送信予定としてスタックされているメッセージをリセットする
+   *
+   * @return Void
+   */
+   public function clearMessages() {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      case $this->core instanceof LineBot :
+      $this->core->clearMessages();
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
    * テキストメッセージを送信予定に追加する
    *
    * @param String $message
