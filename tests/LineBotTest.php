@@ -845,6 +845,31 @@ class LineTest extends TestCase {
       );
   }
 
+  public function testGetMessagePayload() {
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addText('message1');
+    $bot->addText('message2');
+    $expected = [
+      [
+        'type' => 'text',
+        'text' => 'message1'
+      ],
+      [
+        'type' => 'text',
+        'text' => 'message2'
+      ]
+    ];
+    $this->assertEquals($expected, $bot->getMessagePayload());
+  }
+
+  public function testClearMessage() {
+    $bot = new LineBot($this->_curlMock, $this->_configMock);
+    $bot->addText('message1');
+    $bot->addText('message2');
+    $bot->clearMessages();
+    $this->assertEquals([], $bot->getMessagePayload());
+  }
+
   private function _setCurlMockForPush($messages, $recipientId) {
     $this->_curlMock->expects($this->once())
       ->method('post')

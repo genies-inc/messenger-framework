@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.4.1
+ * @version 1.5.0
  */
 
 namespace MessengerFramework;
@@ -62,6 +62,24 @@ class FacebookBot {
    */
   public function pushMessage(String $to) {
     return $this->_sendMessage($to);
+  }
+
+  /**
+   * 現在送信予定としてスタックされているメッセージを取得する(JSON内のmessageプロパティにあたるもの)
+   *
+   * @return Array メッセージを送信する際APIへ渡すPayload内のmessage
+   */
+  public function getMessagePayloads() {
+    return $this->_templates;
+  }
+
+  /**
+   * 現在送信予定としてスタックされているメッセージをリセットする
+   *
+   * @return Void
+   */
+   public function clearMessages() {
+    $this->_templates = [];
   }
 
   /**

@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.4.1
+ * @version 1.5.0
  */
 
 namespace  MessengerFramework;
@@ -79,6 +79,41 @@ class MessengerBot {
    */
   public function push(String $recipientId) {
     return $this->core->pushMessage($recipientId);
+  }
+
+  /**
+   * 現在送信予定としてスタックされているメッセージを取得する
+   *
+   * Facebookならmessage、Lineならmessagesの中身にあたるもの
+   *
+   * @return Array メッセージを送信するAPIに渡すPayloadのメッセージ部分
+   */
+  public function getMessagePayload() {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      return $this->core->getMessagePayloads();
+      case $this->core instanceof LineBot :
+      return $this->core->getMessagePayload();
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+  }
+
+  /**
+   * 現在送信予定としてスタックされているメッセージをリセットする
+   *
+   * @return Void
+   */
+   public function clearMessages() {
+    switch (true) {
+      case $this->core instanceof FacebookBot :
+      case $this->core instanceof LineBot :
+      $this->core->clearMessages();
+      break;
+      default :
+      throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
   }
 
   /**

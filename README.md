@@ -1,6 +1,6 @@
 # messenger-framework
 
-各サービスのMessengerBotのラッパー。バージョン1.4.1
+各サービスのMessengerBotのラッパー。バージョン1.5.0
 
 # 利用時の注意
 
