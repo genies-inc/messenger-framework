@@ -18,6 +18,9 @@
     ],
     "gendoc": [
       "phpdoc run -d src -t docs --visibility public --ansi"
+    ],
+    "fixstyle": [
+      "phpcbf --standard=PSR2 ./src ./tests"
     ]
   },
   "require": {
