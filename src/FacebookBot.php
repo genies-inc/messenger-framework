@@ -18,460 +18,492 @@ namespace MessengerFramework;
  * @access public
  * @package MessengerFramework
  */
-class FacebookBot {
+class FacebookBot
+{
 
-  // MARK : Constructor
+    // MARK : Constructor
 
-  /**
-   * FacebookBot constructor
-   *
-   * @param Curl $curl
-   * @param Config $config
-   */
-  public function __construct(Curl $curl, Config $config) {
-    self::$_FACEBOOK_APP_SECRET = $config->getFacebookAppSecret();
-    self::$_FACEBOOK_ACCESS_TOKEN = $config->getFacebookAccessToken();
-    $this->_httpClient = $curl;
-  }
-
-  // MARK : Bot Interface の実装
-
-  // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
-  /**
-   * Facebookで送信予定のメッセージを返信する
-   *
-   * @param String $to
-   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-   * @throws RuntimeException curlの実行時に起きるエラー
-   */
-  public function replyMessage(String $to) {
-    return $this->_sendMessage($to);
-  }
-
-  /**
-   * Facebookで送信予定のメッセージを送信する
-   *
-   * pushもreplyもやっていることは一緒だがあえて残している
-   * FacebookのAPIを意識するというコンセプトであればこれを消して
-   * sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
-   * しかしこのフレームワークはそうではない
-   *
-   * @param String $to
-   * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-   * @throws RuntimeException curlの実行時に起きるエラー
-   */
-  public function pushMessage(String $to) {
-    return $this->_sendMessage($to);
-  }
-
-  /**
-   * 現在送信予定としてスタックされているメッセージを取得する(JSON内のmessageプロパティにあたるもの)
-   *
-   * @return Array メッセージを送信する際APIへ渡すPayload内のmessage
-   */
-  public function getMessagePayloads() {
-    return $this->_templates;
-  }
-
-  /**
-   * 現在送信予定としてスタックされているメッセージをリセットする
-   *
-   * @return Void
-   */
-   public function clearMessages() {
-    $this->_templates = [];
-  }
-
-  /**
-   * FacebookのWebhookリクエストを差異を吸収したEventの配列へ変換する
-   *
-   * @param String $requestBody
-   * @return Event|null[] Eventクラスの配列
-   */
-  public function parseEvents(String $requestBody) {
-    return self::_convertFacebookEvents(\json_decode($requestBody));
-  }
-
-  /**
-   * FacebookからのWebhookリクエストかどうかを確認する
-   *
-   * @param String $requestBody
-   * @param String $signature
-   * @return Bool 正しい送信元からのリクエストかどうか
-   */
-  public function testSignature(String $requestBody, String $signature) {
-    // Facebook公式のAPIドキュメントに=で区切られる左側の文字列をアルゴリズムにするとある
-    // つまりsha1が来ないかもしれないのでここでアルゴリズムを取得して決定する
-    $array = explode('=', $signature, 2);
-    // FIXME: 汚い
-    $algo = $array[0] ?? 'sha1';
-    $target = $array[1] ?? 'invalidString';
-    if (!in_array($algo, hash_algos())) {
-      return false;
-    }
-    $sample = hash_hmac($algo, $requestBody, self::$_FACEBOOK_APP_SECRET);
-
-    return $sample === $target;
-  }
-
-  /**
-   * Facebookのユーザーのプロフィールを差異を吸収したものへ変換する
-   *
-   * @param String $userId
-   * @return stdClass プラットフォームの差異が吸収されたプロフィールを表す連想配列
-   * @throws RuntimeException curlの実行時に起きるエラー
-   */
-  public function getProfile(String $userId) {
-    $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
-    $rawProfile = json_decode($res);
-    $profile = new \stdClass();
-    $profile->name = $rawProfile->first_name . ' ' . $rawProfile->last_name;
-    $profile->profilePic = $rawProfile->profile_pic;
-    $profile->rawProfile = $rawProfile;
-    return $profile;
-  }
-
-  /**
-   * FacebookのEvent(メッセージ)中に含まれるファイルを取得する
-   *
-   * @param Event $event
-   * @return Array ファイル名 => バイナリ文字列 の連想配列
-   * @throws RuntimeException curlの実行時に起きるエラー
-   */
-  public function getFiles(Event $event) {
-    $messaging = $event->rawData;
-    $files = [];
-    foreach ($messaging->message->attachments as $attachment) {
-      $url = $attachment->payload->url;
-      $files[$this->_getKey($url)] = $this->_httpClient->get($url);
-    }
-    return $files;
-  }
-
-  // MARK : Public FacebookBotのメソッド
-
-  /**
-   * テキストメッセージを送信予定に追加する
-   *
-   * @param String $message
-   */
-  public function addText(String $message) {
-    array_push($this->_templates, [ 'text' => $message ]);
-  }
-
-  /**
-   * 画像を送信予定に追加する
-   *
-   * @param String $url
-   */
-  public function addImage(String $url) {
-    array_push($this->_templates, $this->_buildAttachment('image', $this->_buildFilePayload($url)));
-  }
-
-  /**
-   * 動画を送信予定に追加する
-   *
-   * @param String $url
-   */
-  public function addVideo(String $url) {
-    array_push($this->_templates, $this->_buildAttachment('video', $this->_buildFilePayload($url)));
-  }
-
-  /**
-   * 音声を送信予定に追加する
-   *
-   * @param String $url
-   */
-  public function addAudio(String $url) {
-    array_push($this->_templates, $this->_buildAttachment('audio', $this->_buildFilePayload($url)));
-  }
-
-  /**
-   * Genericメッセージを送信予定に追加する
-   *
-   * 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
-   *
-   * @param Array $columns
-   */
-  public function addGeneric(Array $columns) {
-    array_push($this->_templates, $this->_buildAttachment('template', $this->_buildCarouselTemplate($columns)));
-  }
-
-  /**
-   * Buttonメッセージを送信予定に追加する
-   *
-   * @param String $text
-   * @param Array $replies
-   */
-  public function addButton(String $text, Array $replies) {
-    array_push($this->_templates, $this->_buildAttachment('template', $this->_buildButtonTemplate($text, $replies)));
-  }
-
-  /**
-   * MessengerPlatformの送信APIのmessageオブジェクトと同じキーを持った連想配列を送信予定に追加する
-   *
-   * @param Array $message
-   */
-  public function addRawMessage(Array $message) {
-    array_push($this->_templates, $message);
-  }
-
-  // MARK : Private
-
-  private static $_FACEBOOK_APP_SECRET;
-
-  private static $_FACEBOOK_ACCESS_TOKEN;
-
-  private $_endPoint = 'https://graph.facebook.com/';
-
-  private $_httpClient;
-
-  private $_templates = [];
-
-  // 画像や動画、音楽などのファイルのUrlとキャッシュIDの連想配列
-  private $_reuseCaches = [];
-
-  // addImageなどしてからreplyやpushするまでreuse指定した順にURLをキャッシュする
-  private $_reuseUrls = [];
-
-  private static function _buildCurlErrorResponse(\Exception $e) {
-    $err = new \stdClass();
-    $err->message = $e->getMessage();
-    $err->code = $e->getCode();
-    return $err;
-  }
-
-  private static function _convertFacebookEvents($rawEvents) {
-    $events = [];
-
-    // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
-    if (!isset($rawEvents->entry) || !is_array($rawEvents->entry)) {
-      throw new \UnexpectedValueException('Entryがない、またはEntryがサポートされていない形式です。');
+    /**
+     * FacebookBot constructor
+     *
+     * @param Curl $curl
+     * @param Config $config
+     */
+    public function __construct(Curl $curl, Config $config)
+    {
+        self::$_FACEBOOK_APP_SECRET = $config->getFacebookAppSecret();
+        self::$_FACEBOOK_ACCESS_TOKEN = $config->getFacebookAccessToken();
+        $this->_httpClient = $curl;
     }
 
-    foreach ($rawEvents->entry as $entry) {
+    // MARK : Bot Interface の実装
 
-      // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
-      if (!isset($entry->messaging) || !is_array($entry->messaging)) {
-        throw new \UnexpectedValueException('Messagingがない、またはMessagingがサポートされていない形式です。');
-      }
+    // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
+    /**
+     * Facebookで送信予定のメッセージを返信する
+     *
+     * @param String $to
+     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @throws RuntimeException curlの実行時に起きるエラー
+     */
+    public function replyMessage(String $to)
+    {
+        return $this->_sendMessage($to);
+    }
 
-      foreach ($entry->messaging as $messaging) {
-        try {
-          $event = self::_parseMessaging($messaging);
-          array_push($events, $event);
-        } catch (\InvalidArgumentException $e) {
-          array_push($events, null);
+    /**
+     * Facebookで送信予定のメッセージを送信する
+     *
+     * pushもreplyもやっていることは一緒だがあえて残している
+     * FacebookのAPIを意識するというコンセプトであればこれを消して
+     * sendMessageにまとめ、同じようにメッセージの同時送信を非対応にさせるべき
+     * しかしこのフレームワークはそうではない
+     *
+     * @param String $to
+     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @throws RuntimeException curlの実行時に起きるエラー
+     */
+    public function pushMessage(String $to)
+    {
+        return $this->_sendMessage($to);
+    }
+
+    /**
+     * 現在送信予定としてスタックされているメッセージを取得する(JSON内のmessageプロパティにあたるもの)
+     *
+     * @return Array メッセージを送信する際APIへ渡すPayload内のmessage
+     */
+    public function getMessagePayloads()
+    {
+        return $this->_templates;
+    }
+
+    /**
+     * 現在送信予定としてスタックされているメッセージをリセットする
+     *
+     * @return Void
+     */
+    public function clearMessages()
+    {
+        $this->_templates = [];
+    }
+
+    /**
+     * FacebookのWebhookリクエストを差異を吸収したEventの配列へ変換する
+     *
+     * @param String $requestBody
+     * @return Event|null[] Eventクラスの配列
+     */
+    public function parseEvents(String $requestBody)
+    {
+        return self::_convertFacebookEvents(\json_decode($requestBody));
+    }
+
+    /**
+     * FacebookからのWebhookリクエストかどうかを確認する
+     *
+     * @param String $requestBody
+     * @param String $signature
+     * @return Bool 正しい送信元からのリクエストかどうか
+     */
+    public function testSignature(String $requestBody, String $signature)
+    {
+        // Facebook公式のAPIドキュメントに=で区切られる左側の文字列をアルゴリズムにするとある
+        // つまりsha1が来ないかもしれないのでここでアルゴリズムを取得して決定する
+        $array = explode('=', $signature, 2);
+        // FIXME: 汚い
+        $algo = $array[0] ?? 'sha1';
+        $target = $array[1] ?? 'invalidString';
+        if (!in_array($algo, hash_algos())) {
+            return false;
         }
-      }
+        $sample = hash_hmac($algo, $requestBody, self::$_FACEBOOK_APP_SECRET);
+
+        return $sample === $target;
     }
 
-    return $events;
-  }
-
-  private static function _parseMessaging($messaging) {
-    // messaging#senderが存在するかどうかを振り分ける意味もある
-    if (!isset($messaging->message) && !isset($messaging->postback)) {
-      return new Event(null, null, 'Unsupported', $messaging);
+    /**
+     * Facebookのユーザーのプロフィールを差異を吸収したものへ変換する
+     *
+     * @param String $userId
+     * @return stdClass プラットフォームの差異が吸収されたプロフィールを表す連想配列
+     * @throws RuntimeException curlの実行時に起きるエラー
+     */
+    public function getProfile(String $userId)
+    {
+        $res = $this->_httpClient->get($this->_getProfileEndpoint($userId));
+        $rawProfile = json_decode($res);
+        $profile = new \stdClass();
+        $profile->name = $rawProfile->first_name . ' ' . $rawProfile->last_name;
+        $profile->profilePic = $rawProfile->profile_pic;
+        $profile->rawProfile = $rawProfile;
+        return $profile;
     }
 
-    $userId = $messaging->sender->id;
-    $replyToken = $messaging->sender->id;
-    $rawData = $messaging;
-    $data = null;
-
-    if (isset($messaging->postback)) {
-      // Postbackの時
-      $type = 'Postback';
-      $data = [ 'postback' => $messaging->postback->payload ];
-    } elseif (isset($messaging->message->attachments)) {
-      // messageの時、かつ付属する情報があった時
-      if (self::_isLocationMessage($messaging->message->attachments)) {
-        $type = 'Message.Location';
-        $data = [ 'location' => self::_buildLocation($messaging->message->attachments) ];
-      } elseif (self::_isStickerMessage($messaging->message->attachments)) {
-        // sticker_idがあるものはステッカー
-        $type = 'Message.Sticker';
-        $data = ['sticker' => self::_buildSticker($messaging->message->attachments)];
-      } else {
-        // attachmentsが含まれていて位置情報が含まれていなくて、ステッカーでもないものはMessage.Fileとして扱う
-        $type = 'Message.File';
-      }
-    } elseif (isset($messaging->message->text)) {
-      // messageの時、かつ付属する文字列があった時
-      $type = 'Message.Text';
-      $data = [ 'text' => $messaging->message->text ];
-    } else {
-      // messaging#message形式としては満たしていたが、未対応のイベント
-      return new Event(null, null, 'Unsupported', $event);
+    /**
+     * FacebookのEvent(メッセージ)中に含まれるファイルを取得する
+     *
+     * @param Event $event
+     * @return Array ファイル名 => バイナリ文字列 の連想配列
+     * @throws RuntimeException curlの実行時に起きるエラー
+     */
+    public function getFiles(Event $event)
+    {
+        $messaging = $event->rawData;
+        $files = [];
+        foreach ($messaging->message->attachments as $attachment) {
+            $url = $attachment->payload->url;
+            $files[$this->_getKey($url)] = $this->_httpClient->get($url);
+        }
+        return $files;
     }
 
-    return new Event($replyToken, $userId, $type, $rawData, $data);
-  }
+    // MARK : Public FacebookBotのメソッド
 
-  private function _sendMessage(String $to) {
-    $responses = [];
-    foreach ($this->_templates as $template) {
-      $body = [
-        'recipient' => [
-          'id' => $to
-        ],
-        'message' => $template
-      ];
-      $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
-      $resObj = json_decode($res);
-      if (isset($resObj->attachment_id)) {
-        // attachment_idを再利用したいファイルのURLを取り出す
-        $url = array_shift($this->_reuseUrls);
-        $this->_reuseCaches[$url] = $resObj->attachment_id;
-      }
-      array_push($responses, $res);
-    }
-    $this->_templates = [];
-    return json_encode($responses);
-  }
-
-  private static function _isLocationMessage($attachments) {
-    foreach ($attachments as $attachment) {
-      if ($attachment->type === 'location') {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static function _buildLocation($attachments) {
-    foreach ($attachments as $attachment) {
-      if ($attachment->type !== 'location') {
-        continue;
-      }
-      return [
-        'lat' => $attachment->payload->coordinates->lat,
-        'long' => $attachment->payload->coordinates->long
-      ];
-    }
-  }
-
-  private static function _isStickerMessage($attachments) {
-    foreach ($attachments as $attachment) {
-      if (isset($attachment->payload->sticker_id)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static function _buildSticker($attachments) {
-    foreach ($attachments as $attachment) {
-      if (isset($attachment->payload->sticker_id)) {
-        return $attachment->payload->sticker_id;
-      }
-    }
-  }
-
-  private function _buildAttachment($type, $payload) {
-    return [
-      'attachment' => [
-        'type' => $type,
-        'payload' => $payload
-      ]
-    ];
-  }
-
-  // attachment_idを使うかどうかをこのインスタンスがURLに対応するattachment_idを持っているかどうかで判断
-  private function _buildFilePayload($url) {
-    if (\array_key_exists($url, $this->_reuseCaches)) {
-      $payload = [
-        'attachment_id' => $this->_reuseCaches[$url]
-      ];
-    } else {
-      array_push($this->_reuseUrls, $url);
-      $payload = [
-        'url' => $url,
-        'is_reusable' => true
-      ];
-    }
-    return $payload;
-  }
-
-  private function _buildCarouselTemplate(Array $columns) {
-    $elements = [];
-    foreach ($columns as $column) {
-      array_push($elements, $this->_buildColumn($column));
-    }
-    return [
-      'template_type' => 'generic',
-      'elements' => $elements
-    ];
-  }
-
-  private function _buildButtonTemplate(String $text, Array $replies) {
-    $buttons = [];
-    foreach ($replies as $reply) {
-      array_push($buttons, $this->_buildButton($reply));
-    }
-    return [
-      'template_type' => 'button',
-      'text' => $text,
-      'buttons' => $buttons
-    ];
-  }
-
-  private function _buildColumn($source) {
-    $buttons = [];
-    foreach ($source[3] as $button) {
-      array_push($buttons, $this->_buildButton($button));
+    /**
+     * テキストメッセージを送信予定に追加する
+     *
+     * @param String $message
+     */
+    public function addText(String $message)
+    {
+        array_push($this->_templates, [ 'text' => $message ]);
     }
 
-    $column = [
-      'title' => $source[0],
-      'subtitle' => $source[1],
-      'buttons' => $buttons
-    ];
-
-    if (!is_null($source[2])) {
-      $column['image_url'] = $source[2];
+    /**
+     * 画像を送信予定に追加する
+     *
+     * @param String $url
+     */
+    public function addImage(String $url)
+    {
+        array_push($this->_templates, $this->_buildAttachment('image', $this->_buildFilePayload($url)));
     }
 
-    return $column;
-  }
-
-  private function _buildButton($source) {
-    $button = [
-      'type' => $source['action'],
-      'title' => $source['title']
-    ];
-    switch ($source['action']) {
-      case 'postback' :
-      $button['payload'] = $source['data'];
-      break;
-      case 'url' :
-      $button['type'] = 'web_url';
-      $button['url'] = $source['url'];
-      break;
-      default :
+    /**
+     * 動画を送信予定に追加する
+     *
+     * @param String $url
+     */
+    public function addVideo(String $url)
+    {
+        array_push($this->_templates, $this->_buildAttachment('video', $this->_buildFilePayload($url)));
     }
-    foreach ($source as $key => $value) {
-      if ($key !== 'url' && $key !== 'action' && $key !== 'title' && $key !== 'data') {
-        // 変換用のキーに属さないものはそのまま追加する
-        // つまり変換後のキーがあった場合そっちが優先される
-        $button[$key] = $value;
-      }
+
+    /**
+     * 音声を送信予定に追加する
+     *
+     * @param String $url
+     */
+    public function addAudio(String $url)
+    {
+        array_push($this->_templates, $this->_buildAttachment('audio', $this->_buildFilePayload($url)));
     }
-    return $button;
-  }
 
-  private function _getMessageEndpoint() {
-    return $this->_endPoint . 'v2.10/me/messages' . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
-  }
+    /**
+     * Genericメッセージを送信予定に追加する
+     *
+     * 書式の確認はAPI側がやってくれるのでここでは適当なデフォルト値を設定してAPIに検査は任せる
+     *
+     * @param Array $columns
+     */
+    public function addGeneric(array $columns)
+    {
+        array_push($this->_templates, $this->_buildAttachment('template', $this->_buildCarouselTemplate($columns)));
+    }
 
-  private function _getProfileEndpoint($userId) {
-    return $this->_endPoint .'v2.10/' . $userId . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
-  }
+    /**
+     * Buttonメッセージを送信予定に追加する
+     *
+     * @param String $text
+     * @param Array $replies
+     */
+    public function addButton(String $text, array $replies)
+    {
+        array_push($this->_templates, $this->_buildAttachment('template', $this->_buildButtonTemplate($text, $replies)));
+    }
 
-  private function _getKey($url) {
-    preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
-    return $result[2];
-  }
+    /**
+     * MessengerPlatformの送信APIのmessageオブジェクトと同じキーを持った連想配列を送信予定に追加する
+     *
+     * @param Array $message
+     */
+    public function addRawMessage(array $message)
+    {
+        array_push($this->_templates, $message);
+    }
 
+    // MARK : Private
+
+    private static $_FACEBOOK_APP_SECRET;
+
+    private static $_FACEBOOK_ACCESS_TOKEN;
+
+    private $_endPoint = 'https://graph.facebook.com/';
+
+    private $_httpClient;
+
+    private $_templates = [];
+
+    // 画像や動画、音楽などのファイルのUrlとキャッシュIDの連想配列
+    private $_reuseCaches = [];
+
+    // addImageなどしてからreplyやpushするまでreuse指定した順にURLをキャッシュする
+    private $_reuseUrls = [];
+
+    private static function _buildCurlErrorResponse(\Exception $e)
+    {
+        $err = new \stdClass();
+        $err->message = $e->getMessage();
+        $err->code = $e->getCode();
+        return $err;
+    }
+
+    private static function _convertFacebookEvents($rawEvents)
+    {
+        $events = [];
+
+        // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
+        if (!isset($rawEvents->entry) || !is_array($rawEvents->entry)) {
+            throw new \UnexpectedValueException('Entryがない、またはEntryがサポートされていない形式です。');
+        }
+
+        foreach ($rawEvents->entry as $entry) {
+            // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
+            if (!isset($entry->messaging) || !is_array($entry->messaging)) {
+                throw new \UnexpectedValueException('Messagingがない、またはMessagingがサポートされていない形式です。');
+            }
+
+            foreach ($entry->messaging as $messaging) {
+                try {
+                    $event = self::_parseMessaging($messaging);
+                    array_push($events, $event);
+                } catch (\InvalidArgumentException $e) {
+                    array_push($events, null);
+                }
+            }
+        }
+
+        return $events;
+    }
+
+    private static function _parseMessaging($messaging)
+    {
+        // messaging#senderが存在するかどうかを振り分ける意味もある
+        if (!isset($messaging->message) && !isset($messaging->postback)) {
+            return new Event(null, null, 'Unsupported', $messaging);
+        }
+
+        $userId = $messaging->sender->id;
+        $replyToken = $messaging->sender->id;
+        $rawData = $messaging;
+        $data = null;
+
+        if (isset($messaging->postback)) {
+            // Postbackの時
+            $type = 'Postback';
+            $data = [ 'postback' => $messaging->postback->payload ];
+        } elseif (isset($messaging->message->attachments)) {
+            // messageの時、かつ付属する情報があった時
+            if (self::_isLocationMessage($messaging->message->attachments)) {
+                $type = 'Message.Location';
+                $data = [ 'location' => self::_buildLocation($messaging->message->attachments) ];
+            } elseif (self::_isStickerMessage($messaging->message->attachments)) {
+                // sticker_idがあるものはステッカー
+                $type = 'Message.Sticker';
+                $data = ['sticker' => self::_buildSticker($messaging->message->attachments)];
+            } else {
+                // attachmentsが含まれていて位置情報が含まれていなくて、ステッカーでもないものはMessage.Fileとして扱う
+                $type = 'Message.File';
+            }
+        } elseif (isset($messaging->message->text)) {
+            // messageの時、かつ付属する文字列があった時
+            $type = 'Message.Text';
+            $data = [ 'text' => $messaging->message->text ];
+        } else {
+            // messaging#message形式としては満たしていたが、未対応のイベント
+            return new Event(null, null, 'Unsupported', $event);
+        }
+
+        return new Event($replyToken, $userId, $type, $rawData, $data);
+    }
+
+    private function _sendMessage(String $to)
+    {
+        $responses = [];
+        foreach ($this->_templates as $template) {
+            $body = [
+                'recipient' => [
+                    'id' => $to
+                ],
+                'message' => $template
+            ];
+            $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
+            $resObj = json_decode($res);
+            if (isset($resObj->attachment_id)) {
+                // attachment_idを再利用したいファイルのURLを取り出す
+                $url = array_shift($this->_reuseUrls);
+                $this->_reuseCaches[$url] = $resObj->attachment_id;
+            }
+            array_push($responses, $res);
+        }
+        $this->_templates = [];
+        return json_encode($responses);
+    }
+
+    private static function _isLocationMessage($attachments)
+    {
+        foreach ($attachments as $attachment) {
+            if ($attachment->type === 'location') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static function _buildLocation($attachments)
+    {
+        foreach ($attachments as $attachment) {
+            if ($attachment->type !== 'location') {
+                continue;
+            }
+            return [
+                'lat' => $attachment->payload->coordinates->lat,
+                'long' => $attachment->payload->coordinates->long
+            ];
+        }
+    }
+
+    private static function _isStickerMessage($attachments)
+    {
+        foreach ($attachments as $attachment) {
+            if (isset($attachment->payload->sticker_id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static function _buildSticker($attachments)
+    {
+        foreach ($attachments as $attachment) {
+            if (isset($attachment->payload->sticker_id)) {
+                return $attachment->payload->sticker_id;
+            }
+        }
+    }
+
+    private function _buildAttachment($type, $payload)
+    {
+        return [
+            'attachment' => [
+                'type' => $type,
+                'payload' => $payload
+            ]
+        ];
+    }
+
+    // attachment_idを使うかどうかをこのインスタンスがURLに対応するattachment_idを持っているかどうかで判断
+    private function _buildFilePayload($url)
+    {
+        if (\array_key_exists($url, $this->_reuseCaches)) {
+            $payload = [
+                'attachment_id' => $this->_reuseCaches[$url]
+            ];
+        } else {
+            array_push($this->_reuseUrls, $url);
+            $payload = [
+                'url' => $url,
+                'is_reusable' => true
+            ];
+        }
+        return $payload;
+    }
+
+    private function _buildCarouselTemplate(array $columns)
+    {
+        $elements = [];
+        foreach ($columns as $column) {
+            array_push($elements, $this->_buildColumn($column));
+        }
+        return [
+            'template_type' => 'generic',
+            'elements' => $elements
+        ];
+    }
+
+    private function _buildButtonTemplate(String $text, array $replies)
+    {
+        $buttons = [];
+        foreach ($replies as $reply) {
+            array_push($buttons, $this->_buildButton($reply));
+        }
+        return [
+            'template_type' => 'button',
+            'text' => $text,
+            'buttons' => $buttons
+        ];
+    }
+
+    private function _buildColumn($source)
+    {
+        $buttons = [];
+        foreach ($source[3] as $button) {
+            array_push($buttons, $this->_buildButton($button));
+        }
+
+        $column = [
+            'title' => $source[0],
+            'subtitle' => $source[1],
+            'buttons' => $buttons
+        ];
+
+        if (!is_null($source[2])) {
+            $column['image_url'] = $source[2];
+        }
+
+        return $column;
+    }
+
+    private function _buildButton($source)
+    {
+        $button = [
+            'type' => $source['action'],
+            'title' => $source['title']
+        ];
+        switch ($source['action']) {
+            case 'postback':
+                $button['payload'] = $source['data'];
+                break;
+            case 'url':
+                $button['type'] = 'web_url';
+                $button['url'] = $source['url'];
+                break;
+            default:
+        }
+        foreach ($source as $key => $value) {
+            if ($key !== 'url' && $key !== 'action' && $key !== 'title' && $key !== 'data') {
+                // 変換用のキーに属さないものはそのまま追加する
+                // つまり変換後のキーがあった場合そっちが優先される
+                $button[$key] = $value;
+            }
+        }
+        return $button;
+    }
+
+    private function _getMessageEndpoint()
+    {
+        return $this->_endPoint . 'v2.10/me/messages' . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
+    }
+
+    private function _getProfileEndpoint($userId)
+    {
+        return $this->_endPoint .'v2.10/' . $userId . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
+    }
+
+    private function _getKey($url)
+    {
+        preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
+        return $result[2];
+    }
 }
