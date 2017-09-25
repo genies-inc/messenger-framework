@@ -8,7 +8,7 @@
  * @version 1.5.0
  */
 
-namespace  MessengerFramework;
+namespace  Genies\MessengerFramework;
 
 /**
  * [API] 各プラットフォームのMessengerBotのAPIを統一的なインタフェースで扱うラッパー

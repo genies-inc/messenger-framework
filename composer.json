@@ -33,12 +33,12 @@
   },
   "autoload": {
     "psr-4": {
-      "MessengerFramework\\": "src/"
+      "Genies\\MessengerFramework\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "MessengerFramework\\Test\\": "tests/"
+      "Genies\\MessengerFramework\\Test\\": "tests/"
     }
   },
   "archive": {

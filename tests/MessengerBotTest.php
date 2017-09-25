@@ -1,14 +1,14 @@
 <?php
 
-namespace MessengerFramework\Test;
+namespace Genies\MessengerFramework\Test;
 
-use PHPUnit\Framework\TestCase;
-use MessengerFramework\MessengerBot;
-use MessengerFramework\FacebookBot;
-use MessengerFramework\LineBot;
-use MessengerFramework\Curl;
-use MessengerFramework\Config;
-use MessengerFramework\Event;
+use \PHPUnit\Framework\TestCase;
+use \Genies\MessengerFramework\MessengerBot;
+use \Genies\MessengerFramework\FacebookBot;
+use \Genies\MessengerFramework\LineBot;
+use \Genies\MessengerFramework\Curl;
+use \Genies\MessengerFramework\Config;
+use \Genies\MessengerFramework\Event;
 
 require_once './tests/utils/GLOBAL_file_get_contents-mock.php';
 
