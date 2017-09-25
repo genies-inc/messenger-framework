@@ -67,7 +67,7 @@ class Event
      * @param Array|null $data
      * @param Array|null $origin
      */
-    public function __construct(String $replyToken = null, String $userId = null, String $type, \stdClass $rawData, Array $data = null, Array $origin = null)
+    public function __construct(String $replyToken = null, String $userId = null, String $type, \stdClass $rawData, array $data = null, array $origin = null)
     {
         $this->replyToken = $replyToken;
         $this->userId = $userId;
@@ -76,6 +76,4 @@ class Event
         $this->data = $data;
         $this->origin = $origin;
     }
-
 }
-

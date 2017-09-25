@@ -140,16 +140,16 @@ class LineBot
         // Lineのメッセージについてきたファイルのファイル名はわからない
         // なのでメッセージID.拡張子の形で取り扱う(Lineはメッセージとファイルが1:1なのでこれでok)
         switch ($rawEvent->message->type) {
-            case 'image' :
+            case 'image':
                 $ext = '.jpg';
                 break;
-            case 'video' :
+            case 'video':
                 $ext = '.mp4';
                 break;
-            case 'audio' :
+            case 'audio':
                 $ext = '.m4a';
                 break;
-            default :
+            default:
                 break;
         }
         $file = $this->_httpClient->get(
@@ -225,7 +225,7 @@ class LineBot
      * @param Array $columns
      * @param String $altText 未対応端末での代替テキスト
      */
-    public function addCarousel(Array $columns, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)')
+    public function addCarousel(array $columns, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)')
     {
         array_push($this->_templates, $this->_buildTemplate(
             $altText,
@@ -240,7 +240,7 @@ class LineBot
      * @param Array $buttons
      * @param String $altText 未対応端末での代替テキスト
      */
-    public function addConfirm(String $text, Array $buttons, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)')
+    public function addConfirm(String $text, array $buttons, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)')
     {
         array_push($this->_templates, $this->_buildTemplate(
             $altText,
@@ -257,7 +257,7 @@ class LineBot
      * @param String|null $thumbnailUrl サムネイル画像のURL(任意)
      * @param String $altText 未対応端末での代替テキスト
      */
-    public function addButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)')
+    public function addButtons(String $description, array $buttons, String $title = null, String $thumbnailUrl = null, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)')
     {
         array_push($this->_templates, $this->_buildTemplate(
             $altText,
@@ -270,7 +270,7 @@ class LineBot
      *
      * @param Array $message
      */
-    public function addRawMessage(Array $message)
+    public function addRawMessage(array $message)
     {
         array_push($this->_templates, $message);
     }
@@ -327,7 +327,7 @@ class LineBot
 
         // unfollowイベントはreplyTokenが無い、unfollowをUnsupportedイベントとして扱う
         // type、userIdやreplyTokenが無いイベントをUnsupportedとして扱う
-        if ( !( isset($event->type) && isset($event->source->userId) && isset($event->replyToken)) ) {
+        if (!( isset($event->type) && isset($event->source->userId) && isset($event->replyToken))) {
             return new Event(null, null, 'Unsupported', $rawData);
         }
 
@@ -335,33 +335,33 @@ class LineBot
         $replyToken = $event->replyToken;
 
         switch ($event->type) {
-            case 'postback' :
+            case 'postback':
                 $type = 'Postback';
                 $postbackData = $event->postback->data;
                 return new Event($replyToken, $userId, $type, $rawData, [ 'postback' => $postbackData ]);
-            case 'beacon' :
+            case 'beacon':
                 $type = 'Beacon';
                 $beaconData = [];
                 return new Event($replyToken, $userId, $type, $rawData, null, [ 'hwid' => $event->beacon->hwid, 'type' => $event->beacon->type ]);
-            case 'message' :
+            case 'message':
                 switch ($event->message->type) {
-                    case 'text' :
+                    case 'text':
                         $type = 'Message.Text';
                         $text = $event->message->text;
                         return new Event($replyToken, $userId, $type, $rawData, [ 'text' => $text ]);
-                    case 'location' :
+                    case 'location':
                         $type = 'Message.Location';
                         $location = [
                             'lat' => $event->message->latitude,
                             'long' => $event->message->longitude
                         ];
                         return new Event($replyToken, $userId, $type, $rawData, [ 'location' => $location ]);
-                    case 'image' :
-                    case 'video' :
-                    case 'audio' :
+                    case 'image':
+                    case 'video':
+                    case 'audio':
                         $type = 'Message.File';
                         return new Event($replyToken, $userId, $type, $rawData);
-                    case 'sticker' :
+                    case 'sticker':
                         $type = 'Message.Sticker';
                         $stickerId = $event->message->packageId . ',' .$event->message->stickerId;
                         return new Event($replyToken, $userId, $type, $rawData, [ 'sticker' => $stickerId ]);
@@ -371,7 +371,7 @@ class LineBot
         return new Event(null, null, 'Unsupported', $event);
     }
 
-    private function _sendMessage(String $endpoint, Array $options)
+    private function _sendMessage(String $endpoint, array $options)
     {
         $res = $this->_httpClient->post($endpoint, [
             'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
@@ -380,7 +380,7 @@ class LineBot
         return json_encode($res);
     }
 
-    private function _buildTemplate(String $altText, Array $template)
+    private function _buildTemplate(String $altText, array $template)
     {
         return [
             'type' => 'template',
@@ -401,7 +401,7 @@ class LineBot
         ];
     }
 
-    private function _buildConfirm(String $text, Array $buttons)
+    private function _buildConfirm(String $text, array $buttons)
     {
         $actions = [];
         foreach ($buttons as $button) {
@@ -414,7 +414,7 @@ class LineBot
         ];
     }
 
-    private function _buildButtons(String $description, Array $buttons, String $title = null, String $thumbnailUrl = null)
+    private function _buildButtons(String $description, array $buttons, String $title = null, String $thumbnailUrl = null)
     {
         $actions = [];
         foreach ($buttons as $button) {
@@ -456,20 +456,20 @@ class LineBot
             'label' => $source['title']
         ];
         switch ($source['action']) {
-            case 'postback' :
+            case 'postback':
                 $action['data'] = $source['data'];
                 break;
-            case 'url' :
+            case 'url':
                 $action['uri'] = $source['url'];
                 $action['type'] = 'uri';
                 break;
-            default :
+            default:
         }
         foreach ($source as $key => $value) {
             if ($key !== 'url' && $key !== 'action' && $key !== 'title' && $key !== 'data') {
             // 変換用のキーに属さないものはそのまま追加する
             // つまり変換後のキーがあった場合そっちが優先される
-            $action[$key] = $value;
+                $action[$key] = $value;
             }
         }
         return $action;
@@ -494,5 +494,4 @@ class LineBot
     {
         return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
     }
-
 }

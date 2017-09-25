@@ -30,13 +30,13 @@ class MessengerBot
     public function __construct(Config $config)
     {
         switch (strtolower($config->getPlatform())) {
-            case 'facebook' :
+            case 'facebook':
                 $this->core = new FacebookBot(new Curl(), $config);
                 break;
-            case 'line' :
+            case 'line':
                 $this->core = new LineBot(new Curl(), $config);
                 break;
-            default :
+            default:
                 throw new \InvalidArgumentException("指定されたプラットフォームはサポートされていません。", 1);
         }
     }
@@ -96,11 +96,11 @@ class MessengerBot
     public function getMessagePayload()
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
+            case $this->core instanceof FacebookBot:
                 return $this->core->getMessagePayloads();
-            case $this->core instanceof LineBot :
+            case $this->core instanceof LineBot:
                 return $this->core->getMessagePayload();
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -113,11 +113,11 @@ class MessengerBot
     public function clearMessages()
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
-            case $this->core instanceof LineBot :
+            case $this->core instanceof FacebookBot:
+            case $this->core instanceof LineBot:
                 $this->core->clearMessages();
                 break;
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -130,11 +130,11 @@ class MessengerBot
     public function addText(String $message)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
-            case $this->core instanceof LineBot :
+            case $this->core instanceof FacebookBot:
+            case $this->core instanceof LineBot:
                 $this->core->addText($message);
                 break;
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -148,11 +148,11 @@ class MessengerBot
     public function addImage(String $fileUrl, String $previewUrl)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
-            case $this->core instanceof LineBot :
+            case $this->core instanceof FacebookBot:
+            case $this->core instanceof LineBot:
                 $this->core->addImage($fileUrl, $previewUrl);
                 break;
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -166,11 +166,11 @@ class MessengerBot
     public function addVideo(String $fileUrl, String $previewUrl)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
-            case $this->core instanceof LineBot :
+            case $this->core instanceof FacebookBot:
+            case $this->core instanceof LineBot:
                 $this->core->addVideo($fileUrl, $previewUrl);
                 break;
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -184,11 +184,11 @@ class MessengerBot
     public function addAudio(String $fileUrl, Int $duration)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
-            case $this->core instanceof LineBot :
+            case $this->core instanceof FacebookBot:
+            case $this->core instanceof LineBot:
                 $this->core->addAudio($fileUrl, $duration);
                 break;
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -202,14 +202,14 @@ class MessengerBot
      * @param String $text
      * @param Array $buttons
      */
-    public function addConfirm(String $text, Array $buttons)
+    public function addConfirm(String $text, array $buttons)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
+            case $this->core instanceof FacebookBot:
                 return $this->core->addButton($text, $buttons);
-            case $this->core instanceof LineBot :
+            case $this->core instanceof LineBot:
                 return $this->core->addConfirm($text, $buttons);
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -220,13 +220,13 @@ class MessengerBot
      *
      * @param Array $columns
      */
-    public function addTemplate(Array $columns)
+    public function addTemplate(array $columns)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
+            case $this->core instanceof FacebookBot:
                 $this->core->addGeneric($columns);
                 break;
-            case $this->core instanceof LineBot :
+            case $this->core instanceof LineBot:
                 if (count($columns) === 1) {
                     $this->core->addButtons(
                         $columns[0][1],
@@ -238,7 +238,7 @@ class MessengerBot
                 }
                 $this->core->addCarousel($columns);
                 break;
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -249,14 +249,14 @@ class MessengerBot
      * @param String $description ボタンメッセージの説明
      * @param Array $buttons ボタンメッセージについてくるボタン
      */
-    public function addButtons(String $description, Array $buttons)
+    public function addButtons(String $description, array $buttons)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
+            case $this->core instanceof FacebookBot:
                 return $this->core->addButton($description, $buttons);
-            case $this->core instanceof LineBot :
+            case $this->core instanceof LineBot:
                 return $this->core->addButtons($description, $buttons);
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -266,14 +266,14 @@ class MessengerBot
      *
      * @param Array $message
      */
-    public function addRawMessage(Array $message)
+    public function addRawMessage(array $message)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
-            case $this->core instanceof LineBot :
+            case $this->core instanceof FacebookBot:
+            case $this->core instanceof LineBot:
                 $this->core->addRawMessage($message);
                 break;
-            default :
+            default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
     }
@@ -314,9 +314,9 @@ class MessengerBot
     public function getPlatform()
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
+            case $this->core instanceof FacebookBot:
                 return 'facebook';
-            case $this->core instanceof LineBot :
+            case $this->core instanceof LineBot:
                 return 'line';
         }
         throw new \LogicException('仕様からここが実行されることはありえません。');
@@ -327,17 +327,16 @@ class MessengerBot
     private function _validateSignature($requestBody)
     {
         switch (true) {
-            case $this->core instanceof FacebookBot :
+            case $this->core instanceof FacebookBot:
                 $signature = $_SERVER['HTTP_X_HUB_SIGNATURE'] ?? 'invalid';
                 break;
-            case $this->core instanceof LineBot :
+            case $this->core instanceof LineBot:
                 $signature = $_SERVER['HTTP_X_LINE_SIGNATURE'] ?? 'invalid';
                 break;
-            default :
+            default:
                 break;
         }
 
         return $this->core->testSignature($requestBody, $signature);
     }
-
 }

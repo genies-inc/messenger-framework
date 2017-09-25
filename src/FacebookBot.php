@@ -207,7 +207,7 @@ class FacebookBot
      *
      * @param Array $columns
      */
-    public function addGeneric(Array $columns)
+    public function addGeneric(array $columns)
     {
         array_push($this->_templates, $this->_buildAttachment('template', $this->_buildCarouselTemplate($columns)));
     }
@@ -218,7 +218,7 @@ class FacebookBot
      * @param String $text
      * @param Array $replies
      */
-    public function addButton(String $text, Array $replies)
+    public function addButton(String $text, array $replies)
     {
         array_push($this->_templates, $this->_buildAttachment('template', $this->_buildButtonTemplate($text, $replies)));
     }
@@ -228,7 +228,7 @@ class FacebookBot
      *
      * @param Array $message
      */
-    public function addRawMessage(Array $message)
+    public function addRawMessage(array $message)
     {
         array_push($this->_templates, $message);
     }
@@ -269,7 +269,6 @@ class FacebookBot
         }
 
         foreach ($rawEvents->entry as $entry) {
-
             // 最下層まで展開してイベントとしての判断ができない時はからの配列を返す
             if (!isset($entry->messaging) || !is_array($entry->messaging)) {
                 throw new \UnexpectedValueException('Messagingがない、またはMessagingがサポートされていない形式です。');
@@ -421,7 +420,7 @@ class FacebookBot
         return $payload;
     }
 
-    private function _buildCarouselTemplate(Array $columns)
+    private function _buildCarouselTemplate(array $columns)
     {
         $elements = [];
         foreach ($columns as $column) {
@@ -433,7 +432,7 @@ class FacebookBot
         ];
     }
 
-    private function _buildButtonTemplate(String $text, Array $replies)
+    private function _buildButtonTemplate(String $text, array $replies)
     {
         $buttons = [];
         foreach ($replies as $reply) {
@@ -473,14 +472,14 @@ class FacebookBot
             'title' => $source['title']
         ];
         switch ($source['action']) {
-            case 'postback' :
+            case 'postback':
                 $button['payload'] = $source['data'];
                 break;
-            case 'url' :
+            case 'url':
                 $button['type'] = 'web_url';
                 $button['url'] = $source['url'];
                 break;
-            default :
+            default:
         }
         foreach ($source as $key => $value) {
             if ($key !== 'url' && $key !== 'action' && $key !== 'title' && $key !== 'data') {
@@ -507,5 +506,4 @@ class FacebookBot
         preg_match('/(.*\/)+([^¥?]+)\?*/', $url, $result);
         return $result[2];
     }
-
 }

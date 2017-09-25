@@ -40,7 +40,7 @@ class Curl
      *
      * @return String レスポンスボディ
      */
-    public function get(String $url, Array $headers = null, Array $queryArray = null)
+    public function get(String $url, array $headers = null, array $queryArray = null)
     {
         if (!is_null($queryArray)) {
             $query = http_build_query($queryArray);
@@ -80,7 +80,7 @@ class Curl
      *
      * @return String レスポンスボディ
      */
-    public function post(String $url, Array $headers = null, Array $bodyArray = null, Bool $isJSON = false)
+    public function post(String $url, array $headers = null, array $bodyArray = null, Bool $isJSON = false)
     {
         $ch = curl_init($url);
         if ($isJSON) {
@@ -112,7 +112,7 @@ class Curl
 
     private static $_AWAIT_SECOND = 12;
 
-    private function _toHeaderArray(Array $from)
+    private function _toHeaderArray(array $from)
     {
         $header = [];
         foreach ($from as $key => $value) {
@@ -134,5 +134,4 @@ class Curl
         curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyAuth);
         return $ch;
     }
-
 }
