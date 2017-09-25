@@ -1,9 +1,9 @@
 <?php
 
-namespace MessengerFramework\Test;
+namespace Genies\MessengerFramework\Test;
 
-use PHPUnit\Framework\TestCase;
-use MessengerFramework\Curl;
+use \PHPUnit\Framework\TestCase;
+use \Genies\MessengerFramework\Curl;
 
 class CurlTest extends TestCase
 {

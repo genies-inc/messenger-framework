@@ -5,7 +5,7 @@ namespace {
     $file_get_contents_rtv;
 }
 
-namespace MessengerFramework {
+namespace Genies\MessengerFramework {
 
     function file_get_contents()
     {

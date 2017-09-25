@@ -1,12 +1,12 @@
 <?php
 
-namespace MessengerFramework\Test;
+namespace Genies\MessengerFramework\Test;
 
-use MessengerFramework\LineBot;
-use MessengerFramework\Curl;
-use MessengerFramework\Event;
-use MessengerFramework\Config;
-use PHPUnit\Framework\TestCase;
+use \Genies\MessengerFramework\LineBot;
+use \Genies\MessengerFramework\Curl;
+use \Genies\MessengerFramework\Event;
+use \Genies\MessengerFramework\Config;
+use \PHPUnit\Framework\TestCase;
 
 // TODO : テンプレート系メッセージ(CarouselやConfirm)で代替テキストを設定した場合もテストする
 class LineTest extends TestCase

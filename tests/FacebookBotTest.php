@@ -1,12 +1,12 @@
 <?php
 
-namespace MessengerFramework\Test;
+namespace Genies\MessengerFramework\Test;
 
-use MessengerFramework\FacebookBot;
-use MessengerFramework\Curl;
-use MessengerFramework\Event;
-use MessengerFramework\Config;
-use PHPUnit\Framework\TestCase;
+use \Genies\MessengerFramework\FacebookBot;
+use \Genies\MessengerFramework\Curl;
+use \Genies\MessengerFramework\Event;
+use \Genies\MessengerFramework\Config;
+use \PHPUnit\Framework\TestCase;
 
 // TODO : 画像や動画、音声を送信するときのattachment_idの再利用をテストする
 class FacebookBotTest extends TestCase

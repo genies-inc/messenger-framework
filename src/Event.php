@@ -8,7 +8,7 @@
  * @version 1.5.0
  */
 
-namespace MessengerFramework;
+namespace Genies\MessengerFramework;
 
 /**
  * 各プラットフォームの差異を吸収したイベント(メッセージ)を表すクラス
