@@ -345,7 +345,7 @@ class FacebookBot
                 $url = array_shift($this->_reuseUrls);
                 $this->_reuseCaches[$url] = $resObj->attachment_id;
             }
-            array_push($responses, $res);
+            array_push($responses, $resObj);
         }
         $this->_templates = [];
         return json_encode($responses);
