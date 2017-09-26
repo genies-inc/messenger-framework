@@ -30,16 +30,14 @@ composer install
 
 # 使い方
 
-詳細は`docs/usage-example.php`を参照。
-
 ## 読み込みと初期化
 
 ```
 require_once './vendor/autoload.php';
 
-use MessengerFramework\MessengerBot;
-
-$bot = new MessengerBot('facebook');
+$config = new \MessengerFramework\Config('facebook', 'Appシークレット', 'アクセストークン');
+// $config = new \MessengerFramework\Config('line', 'チャンネルシークレット', 'アクセストークン');
+$bot = new \MessengerFramework\MessengerBot($config);
 ```
 
 ## イベント(メッセージ)の利用
@@ -48,27 +46,119 @@ $bot = new MessengerBot('facebook');
 $events = $bot->getEvents();
 foreach ($events as $event) {
   switch ($event->type) {
-    case 'Message.Text' :
-    // テキストメッセージが来た
-    error_log($event->text);
-    break;
-    case 'Postback' :
-    // Postbackが来た
-    error_log($event->postbackData);
-    break;
-    default :
-    break;
+    case 'Message.Text':
+      error_log($event->data['text']);
+      break;
+    case 'Postback':
+      error_log($event->data['postback']);
+      break;
+    case 'Message.File':
+      // [ ファイル名かID => バイナリ ]の連想配列
+      $files = $bot->getFilesIn($event);
+      break;
+    case 'Message.Sticker':
+      error_log(json_encode($event->data['sticker'], JSON_PRETTY_PRINT));
+      break;
+    case 'Message.Location':
+      error_log(json_encode($event->data['location'], JSON_PRETTY_PRINT));
+      break;
+    case 'Unsupported':
+      error_log(json_encode($event, JSON_PRETTY_PRINT));
+      break;
   }
 }
 ```
 
 ## メッセージの送信
 
+主なメッセージの送信の仕方を紹介します。  
+メッセージは5件まで追加して送信可能です。  
+(Facebookのボット使用中はリクエストをメッセージ件数回送るので原子性はないです)
+
 ```
+// テキストを送信
 $bot->addText('こんにちは');
+
+// ボタンを送信
+$bot->addButtons('ボタンを押して下さい', [
+  [
+    'title' => 'Postbackボタン1',
+    'action' => 'postback',
+    'data' => 'postbackのデータ1'
+  ],
+  [
+    'title' => 'Postbackボタン2',
+    'action' => 'postback',
+    'data' => 'postbackのデータ2'
+  ],
+  [
+    'title' => 'URLボタン',
+    'action' => 'url',
+    'url' => 'https://github.com/genies-inc/messenger-framework'
+  ]
+]);
+
+// 画像を送信
 $bot->addImage('https://sample.com/sample.jpg', 'https://sample.com/sample_preview.jpg');
-$bot->addText('これは私です');
-$bot->reply($event->replyToken);
+
+// テンプレートメッセージを送信（FacebookではGeneric、LineではCarousel）
+$bot->addTemplate([
+  [
+    'カラムのタイトル',
+    'カラムの説明',
+    'https://sample.com/sample1.jpg',
+    [
+      [
+        'title' => 'Postbackボタン1',
+        'action' => 'postback',
+        'data' => 'postbackのデータ1'
+      ],
+      [
+        'title' => 'Postbackボタン2',
+        'action' => 'postback',
+        'data' => 'postbackのデータ2'
+      ]
+    ]
+  ],
+  [
+    'カラムのタイトル2',
+    'カラムの説明2',
+    'https://sample.com/sample2.jpg',
+    [
+      [
+        'title' => 'Postbackボタン3',
+        'action' => 'postback',
+        'data' => 'postbackのデータ1'
+      ],
+      [
+        'title' => 'Postbackボタン4',
+        'action' => 'postback',
+        'data' => 'postbackのデータ2'
+      ]
+    ]
+  ]
+]);
+
+// 確認用のメッセージを送信
+$bot->addConfirm('確認用のボタンです', [
+  [
+    'title' => 'はい',
+    'action' => 'postback',
+    'data' => 'はい'
+  ],
+  [
+    'title' => 'いいえ',
+    'action' => 'postback',
+    'data' => 'いいえ'
+  ],
+]);
+
+// 返信をする場合
+$res = $bot->reply($event->replyToken);
+// プッシュをする場合
+// $res = $bot->push($event->userId);
+
+error_log($res);
 ```
 
 # 仕様
