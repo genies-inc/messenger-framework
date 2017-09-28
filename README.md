@@ -1,6 +1,6 @@
 # messenger-framework
 
-各サービスのMessengerBotのラッパー。バージョン1.5.0
+各サービスのMessengerBotのラッパー。バージョン1.5.1
 
 # 利用時の注意
 
@@ -30,16 +30,14 @@ composer install
 
 # 使い方
 
-詳細は`docs/usage-example.php`を参照。
-
 ## 読み込みと初期化
 
 ```
 require_once './vendor/autoload.php';
 
-use MessengerFramework\MessengerBot;
-
-$bot = new MessengerBot('facebook');
+$config = new \MessengerFramework\Config('facebook', 'Appシークレット', 'アクセストークン');
+// $config = new \MessengerFramework\Config('line', 'チャンネルシークレット', 'アクセストークン');
+$bot = new \MessengerFramework\MessengerBot($config);
 ```
 
 ## イベント(メッセージ)の利用
@@ -48,27 +46,120 @@ $bot = new MessengerBot('facebook');
 $events = $bot->getEvents();
 foreach ($events as $event) {
   switch ($event->type) {
-    case 'Message.Text' :
-    // テキストメッセージが来た
-    error_log($event->text);
-    break;
-    case 'Postback' :
-    // Postbackが来た
-    error_log($event->postbackData);
-    break;
-    default :
-    break;
+    case 'Message.Text':
+      error_log($event->data['text']);
+      break;
+    case 'Postback':
+      error_log($event->data['postback']);
+      break;
+    case 'Message.File':
+      // [ ファイル名かID => バイナリ ]の連想配列
+      $files = $bot->getFilesIn($event);
+      break;
+    case 'Message.Sticker':
+      error_log(json_encode($event->data['sticker'], JSON_PRETTY_PRINT));
+      break;
+    case 'Message.Location':
+      error_log(json_encode($event->data['location'], JSON_PRETTY_PRINT));
+      break;
+    case 'Unsupported':
+      error_log(json_encode($event, JSON_PRETTY_PRINT));
+      break;
   }
 }
 ```
 
 ## メッセージの送信
 
+主なメッセージの送信の仕方を紹介します。  
+メッセージは5件まで追加して送信可能です。  
+(Facebookのボット使用中はリクエストをメッセージ件数回送るので原子性はないです)
+
 ```
+// テキストを送信
 $bot->addText('こんにちは');
+
+// ボタンを送信
+$bot->addButtons('ボタンを押して下さい', [
+  [
+    'title' => 'Postbackボタン1',
+    'action' => 'postback',
+    'data' => 'postbackのデータ1'
+  ],
+  [
+    'title' => 'Postbackボタン2',
+    'action' => 'postback',
+    'data' => 'postbackのデータ2'
+  ],
+  [
+    'title' => 'URLボタン',
+    'action' => 'url',
+    'url' => 'https://github.com/genies-inc/messenger-framework'
+  ]
+]);
+
+// 画像を送信
 $bot->addImage('https://sample.com/sample.jpg', 'https://sample.com/sample_preview.jpg');
-$bot->addText('これは私です');
-$bot->reply($event->replyToken);
+
+// テンプレートメッセージを送信（FacebookではGeneric、LineではCarousel）
+$bot->addTemplate([
+  [
+    'カラムのタイトル',
+    'カラムの説明',
+    'https://sample.com/sample1.jpg',
+    [
+      [
+        'title' => 'Postbackボタン1',
+        'action' => 'postback',
+        'data' => 'postbackのデータ1'
+      ],
+      [
+        'title' => 'Postbackボタン2',
+        'action' => 'postback',
+        'data' => 'postbackのデータ2'
+      ]
+    ]
+  ],
+  [
+    'カラムのタイトル2',
+    'カラムの説明2',
+    'https://sample.com/sample2.jpg',
+    [
+      [
+        'title' => 'Postbackボタン3',
+        'action' => 'postback',
+        'data' => 'postbackのデータ1'
+      ],
+      [
+        'title' => 'Postbackボタン4',
+        'action' => 'postback',
+        'data' => 'postbackのデータ2'
+      ]
+    ]
+  ]
+]);
+
+// 確認用のメッセージを送信
+$bot->addConfirm('確認用のボタンです', [
+  [
+    'title' => 'はい',
+    'action' => 'postback',
+    'data' => 'はい'
+  ],
+  [
+    'title' => 'いいえ',
+    'action' => 'postback',
+    'data' => 'いいえ'
+  ],
+]);
+
+// 返信をする場合
+$res = $bot->reply($event->replyToken);
+// プッシュをする場合
+// $res = $bot->push($event->userId);
+
+// APIからのレスポンスが返ってきます
+error_log($res);
 ```
 
 # 仕様
@@ -79,10 +170,8 @@ $bot->reply($event->replyToken);
 
 [ドキュメント(PHPDoc)](https://genies-inc.github.io/messenger-framework/)
 
-ドキュメント(PHPDoc)は`composer gendoc`とコマンドで`docs`に作成できる。
-
 フレームワーク全体でプラットフォームの差異を吸収するという考えで作られている。  
-Facebook、LineのMessengerBotを扱うためのフレームワークを用意し、それを更にラップするクラスを提供している。  
+Facebook、LineのBotを扱うためのクラスを用意し、それを更にラップするクラスを提供している。  
 基本的に少ない方、不自由な方に合わせている。
 
 フレームワーク全体で吸収という考えなのでMessengerBot配下のFacebookBotやLineBotがMessengerBotの層で使われる差異が吸収されたEventクラスを返す。
@@ -94,7 +183,7 @@ Facebook、LineのMessengerBotを扱うためのフレームワークを用意�
 
 メッセージ送信などリクエストの不備は各APIが教えてくれるので原則このフレームワーク内でそれらのチェックは行わない。  
 
-以下、APIまでいかないと教えてくれないことの例
+MessengerBot#reply()やMessengerBot#push()などでAPIのレスポンスを受け取らないとわからないことの例
 
 + Lineでのカルーセルの高さの不揃いはLineの公式SDKは教えてくれない
 + Lineでの同時送信の上限
@@ -111,9 +200,8 @@ Event#その他 プロパティー名通りのプラットフォーム間の差�
 
 例
 
-ラッパーのイベントのuserIdはユーザーのプロフィールを取得したりpushしたりする時に使うユーザー毎に一意なID。
-
-ラッパーのイベントのreplyTokeは返信に必要なトークン、Facebookは`sender.id`、Lineは`replyToken`のこと。
++ Event#userIdはユーザーのプロフィールを取得したりpushしたりする時に使うユーザー毎に一意なID。
++ Event#replyTokeは返信に必要なトークン、Facebookは`sender.id`、Lineは`replyToken`のこと。
 
 ## MessengerBotクラス
 
@@ -169,7 +257,7 @@ MessengerBot#addTemplateを使っていてカラムが1つのときはLineはCar
 
 このボタンの書式はMessengerBotだけではなくFacebookBotやLineBotなどプラットフォームのボットの層でもGenericやCarouselを生成するのに使う。  
 ボタンのオプションは上記の通りtitile、action、data、urlを指定するとFacebook、Lineにあったものに変換する。  
-それ以外のオプションを指定した場合は変換されずにそのまま追加される。
+**それ以外のオプションを指定した場合は変換されずにそのまま追加される。**
 
 ##### 使えるボタンの種類
 
@@ -221,9 +309,7 @@ PHPDebugを導入しXDebugをPHPに導入しておく。
 
 # テスト
 
-基本的に上位のクラスからしていく。  
-余裕ができた時に下位のクラスの単体テストを作っていく。  
-ラッパーやアダプターのようなクラスで内部状態、グローバルな状態を前提として準備するテストになるのはやむを得ない。
+テストに関するメモ書き
 
 ## グローバルの関数や変数を擬似的に上書きしてテストなどでモック動作をさせることができるようにした
 
@@ -232,12 +318,11 @@ PHPDebugを導入しXDebugをPHPに導入しておく。
 
 ## HTTPリクエストをそのままレスポンスボディにして返すサーバーを用意した
 
-APIを正しく使えているか、HTTPリクエストを送り出す時点で期待通りの組み立てが出来ているのかをテストするためのサーバープログラムを用意した。
+APIを正しく使えているか、HTTPリクエストを送り出す時点で期待通りの組み立てが出来ているのかをテストするためのサーバーを用意した。
 
 実行にはNode.jsが必要。(詳しくはdevtool/mirror_server内の説明書を参照)
 
-APIにリクエストをするまではフレームワーク側の責任なのでそれをテストするために使う。  
-最後の責任であるリクエストを正しい形で送り出す。ということが期待通りにできているかどうかをオウム返ししてきたレスポンスを見てテストする。
+リクエストを正しい形で送り出すということが期待通りにできているかどうかをオウム返ししてきたレスポンスを見てテストする。
 
 # ライセンス
 
@@ -245,16 +330,6 @@ MITライセンスです。
 LICENSE.txtを見て下さい。
 
 # TODO
-
-## APIのレスポンスを各Messengerで共通して扱えるようなクラスを用意する
-
-各MessengerのAPIからの結果を統一的なインタフェースで扱えるようなクラスを用意する。  
-成功したのかどうかや、届いているのかどうかなどがわかるようなクラス。
-
-### 現状
-
-httpのレスポンスボディをそのまま返している。  
-Curlがタイムアウトなどの例外を出した時はそのmessageとcodeをプロパティーに持つstdClassのインスタンスをJSON化して返している。
 
 ## Composer非対応の環境用のまとめたスクリプトを生成するツールを用意する
 
