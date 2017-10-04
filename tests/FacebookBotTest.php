@@ -278,7 +278,7 @@ class FacebookBotTest extends TestCase
         ->withConsecutive(
             [
             $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo(null),
+            $this->equalTo([]),
             $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
             'message' => [ 'text' => 'テスト1' ]
@@ -287,7 +287,7 @@ class FacebookBotTest extends TestCase
             ],
             [
             $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo(null),
+            $this->equalTo([]),
             $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
             'message' => [ 'text' => 'テスト2' ]
@@ -296,7 +296,7 @@ class FacebookBotTest extends TestCase
             ],
             [
             $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo(null),
+            $this->equalTo([]),
             $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
             'message' => [ 'text' => 'テスト3' ]
@@ -320,7 +320,7 @@ class FacebookBotTest extends TestCase
         ->withConsecutive(
             [
             $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo(null),
+            $this->equalTo([]),
             $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
             'message' => [ 'text' => 'テスト1' ]
@@ -329,7 +329,7 @@ class FacebookBotTest extends TestCase
             ],
             [
             $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo(null),
+            $this->equalTo([]),
             $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
             'message' => [ 'text' => 'テスト2' ]
@@ -338,7 +338,7 @@ class FacebookBotTest extends TestCase
             ],
             [
             $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo(null),
+            $this->equalTo([]),
             $this->equalTo([
             'recipient' => [ 'id' => '1000000000000000' ],
             'message' => [ 'text' => 'テスト3' ]
@@ -753,7 +753,7 @@ class FacebookBotTest extends TestCase
         ->method('post')
         ->with(
             $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo(null),
+            $this->equalTo([]),
             $this->equalTo($payload),
             $this->equalTo(true)
         );

@@ -338,7 +338,7 @@ class FacebookBot
                 ],
                 'message' => $template
             ];
-            $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
+            $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
             $resObj = json_decode($res);
             if (isset($resObj->attachment_id)) {
                 // attachment_idを再利用したいファイルのURLを取り出す
