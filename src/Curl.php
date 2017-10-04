@@ -69,18 +69,17 @@ class Curl
      * 環境変数PROXY_URLがセットされていたらそれをプロキシとして使う
      *
      * @param String $url
-     * @param Array|null $headers
-     * @param Array|null $bodyArray
+     * @param Array $headers
+     * @param Array $bodyArray
      * @param Bool $isJSON
      *
      * @return String レスポンスボディ
      * @throws RuntimeException curl_exec()時にエラーが発生した時（curl_errno()の戻り値がOK出ない時）
      */
-    public function post(String $url, array $headers = null, array $bodyArray = null, Bool $isJSON = false)
+    public function post(String $url, array $headers = [], array $bodyArray = [], Bool $isJSON = false)
     {
         $ch = curl_init($url);
         if ($isJSON) {
-            $headers = $headers ?? [];
             $headers['Content-Type'] = 'application/json';
         }
 
@@ -89,7 +88,7 @@ class Curl
         curl_setopt_array($ch, [
             CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray ?? []) : \http_build_query($bodyArray ?? []),
+            CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray) : \http_build_query($bodyArray),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
         ]);
