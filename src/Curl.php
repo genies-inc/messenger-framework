@@ -10,8 +10,6 @@
 
 namespace Genies\MessengerFramework;
 
-// TODO: ヘッダ情報も含めて返すようにする
-
 /**
  * Curlを扱うラッパークラス
  *

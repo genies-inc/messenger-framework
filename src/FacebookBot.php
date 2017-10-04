@@ -38,7 +38,6 @@ class FacebookBot
 
     // MARK : Bot Interface の実装
 
-    // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
     /**
      * Facebookで送信予定のメッセージを返信する
      *
