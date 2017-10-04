@@ -11,10 +11,6 @@
 namespace Genies\MessengerFramework;
 
 // TODO: ヘッダ情報も含めて返すようにする
-// TODO: Curlの実行時エラーは例外を投げるのではなく、成功時も含めたラップをした結果クラスを用意する
-// なぜならFW一番外側のMessengerBotはプラットフォームに依らない統一的な結果をユーザーに伝えたい
-// またMessengerBotは例外を吸収する必要があり、実行時例外が起きうることを知っている
-// なので各プラットフォームのBotの段階では例外が飛んで来る
 
 /**
  * Curlを扱うラッパークラス
@@ -39,6 +35,7 @@ class Curl
      * @param Array|null $queryArray
      *
      * @return String レスポンスボディ
+     * @throws RuntimeException curl_exec()時にエラーが発生した時（curl_errno()の戻り値がOK出ない時）
      */
     public function get(String $url, array $headers = null, array $queryArray = null)
     {
@@ -79,6 +76,7 @@ class Curl
      * @param Bool $isJSON
      *
      * @return String レスポンスボディ
+     * @throws RuntimeException curl_exec()時にエラーが発生した時（curl_errno()の戻り値がOK出ない時）
      */
     public function post(String $url, array $headers = null, array $bodyArray = null, Bool $isJSON = false)
     {
