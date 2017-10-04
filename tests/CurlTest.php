@@ -69,7 +69,7 @@ class CurlTest extends TestCase
     {
         $curl = new Curl();
         $query = ['key1' => 'value1'];
-        $res = $curl->get(self::$_URL, null, $query);
+        $res = $curl->get(self::$_URL, [], $query);
         $jsonObject = \json_decode($res, true);
         $this->assertEquals("GET", $jsonObject['request']['method']);
         $this->assertEquals($query, $jsonObject['request']['query']);

@@ -31,22 +31,20 @@ class Curl
      * 環境変数PROXY_URLがセットされていたらそれをプロキシとして使う
      *
      * @param String $url
-     * @param Array|null $headers
-     * @param Array|null $queryArray
+     * @param Array $headers
+     * @param Array $queryArray
      *
      * @return String レスポンスボディ
      * @throws RuntimeException curl_exec()時にエラーが発生した時（curl_errno()の戻り値がOK出ない時）
      */
-    public function get(String $url, array $headers = null, array $queryArray = null)
+    public function get(String $url, array $headers = [], array $queryArray = [])
     {
-        if (!is_null($queryArray)) {
-            $query = http_build_query($queryArray);
-            $url .= "?{$query}";
-        }
+        $query = http_build_query($queryArray);
+        $url .= "?{$query}";
         $ch = curl_init($url);
 
         curl_setopt_array($ch, [
-            CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
+            CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPGET => true,
             CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
