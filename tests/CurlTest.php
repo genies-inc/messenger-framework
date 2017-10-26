@@ -108,8 +108,8 @@ class CurlTest extends TestCase
     {
         $curl = new Curl();
         $body = [
-        'key1' => 'value1',
-        'key2' => 'value2'
+            'key1' => 'value1',
+            'key2' => 'value2'
         ];
         $res = $curl->post(self::$_URL, [], $body);
         $jsonObject = \json_decode($res);
