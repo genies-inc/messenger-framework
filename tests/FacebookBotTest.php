@@ -19,17 +19,17 @@ class FacebookBotTest extends TestCase
     public function setUp()
     {
         $this->_curlMock = $this->getMockBuilder(Curl::class)
-        ->setMethods([ 'post', 'get' ])
-        ->getMock();
-        /*
-        postのモックについて
-        with(
-          $url,
-          $headers,
-          $bodyArray,
-          $isJSON
-        )
-        */
+            ->setMethods([ 'post', 'get' ])
+            ->getMock();
+            /*
+            postのモックについて
+            with(
+            $url,
+            $headers,
+            $bodyArray,
+            $isJSON
+            )
+            */
         $this->_configMock = new Config('facebook', 'develop', 'develop');
     }
 
@@ -38,8 +38,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト' ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [ 'text' => 'テスト' ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -53,8 +53,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト' ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [ 'text' => 'テスト' ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -67,50 +67,49 @@ class FacebookBotTest extends TestCase
     {
         return [
         'valid generic message' => [
-        [
-          'attachment' => [
-            'type' => 'template',
-            'payload' => [
-              'template_type' => 'generic',
-              'elements' => [
-                [
-                  'title' => 'タイトル1',
-                  'subtitle' => 'サブタイトル1',
-                  'buttons' => [
-                    [
-                      'type' => 'web_url',
-                      'url' => 'https://www.sampleimage.com/sample.jpg',
-                      'title' => 'URLボタン'
-                    ],
-                    [
-                      'type' => 'postback',
-                      'title' => 'Postbackボタン',
-                      'payload' => 'key1=value1&key2=value2'
+            [
+                'attachment' => [
+                    'type' => 'template',
+                    'payload' => [
+                        'template_type' => 'generic',
+                        'elements' => [
+                            [
+                                'title' => 'タイトル1',
+                                'subtitle' => 'サブタイトル1',
+                                'buttons' => [
+                                    [
+                                        'type' => 'web_url',
+                                        'url' => 'https://www.sampleimage.com/sample.jpg',
+                                        'title' => 'URLボタン'
+                                    ],
+                                    [
+                                        'type' => 'postback',
+                                        'title' => 'Postbackボタン',
+                                        'payload' => 'key1=value1&key2=value2'
+                                    ]
+                                ]
+                            ]
+                        ]
                     ]
-                  ]
                 ]
-              ]
-            ]
-          ]
-        ],
-        [
-          [
-            'タイトル1', 'サブタイトル1', null, [
-              [
-                'title' => 'URLボタン',
-                'action' => 'url',
-                'url' => 'https://www.sampleimage.com/sample.jpg'
-              ],
-              [
-                'title' => 'Postbackボタン',
-                'action' => 'postback',
-                'data' => 'key1=value1&key2=value2'
-              ]
             ],
-          ]
-        ]
-        ]
-        ];
+            [
+                [
+                    'タイトル1', 'サブタイトル1', null, [
+                        [
+                            'title' => 'URLボタン',
+                            'action' => 'url',
+                            'url' => 'https://www.sampleimage.com/sample.jpg'
+                        ],
+                        [
+                            'title' => 'Postbackボタン',
+                            'action' => 'postback',
+                            'data' => 'key1=value1&key2=value2'
+                        ]
+                    ],
+                ]
+            ]
+        ]];
     }
 
   /**
@@ -121,8 +120,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => $expectedGenericArray
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => $expectedGenericArray
             ]
         );
 
@@ -140,8 +139,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => $expectedGenericArray
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => $expectedGenericArray
             ]
         );
 
@@ -156,13 +155,13 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [
-            'attachment' => [
-            'type' => 'image',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
-            ]
-            ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [
+                    'attachment' => [
+                        'type' => 'image',
+                        'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
+                    ]
+                ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -176,13 +175,13 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [
-            'attachment' => [
-            'type' => 'image',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
-            ]
-            ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [
+                    'attachment' => [
+                        'type' => 'image',
+                        'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
+                    ]
+                ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -196,13 +195,13 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [
-            'attachment' => [
-            'type' => 'video',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
-            ]
-            ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [
+                    'attachment' => [
+                        'type' => 'video',
+                        'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
+                    ]
+                ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -216,13 +215,13 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [
-            'attachment' => [
-            'type' => 'video',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
-            ]
-            ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [
+                    'attachment' => [
+                        'type' => 'video',
+                        'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
+                    ]
+                ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -236,13 +235,13 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [
-            'attachment' => [
-            'type' => 'audio',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
-            ]
-            ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [
+                    'attachment' => [
+                        'type' => 'audio',
+                        'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
+                    ]
+                ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -256,13 +255,13 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [
-            'attachment' => [
-            'type' => 'audio',
-            'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
-            ]
-            ]
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [
+                    'attachment' => [
+                        'type' => 'audio',
+                        'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
+                    ]
+                ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -277,31 +276,31 @@ class FacebookBotTest extends TestCase
         ->method('post')
         ->withConsecutive(
             [
-            $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo([]),
-            $this->equalTo([
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト1' ]
-            ]),
-            $this->equalTo(true)
+                $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
+                $this->equalTo([]),
+                $this->equalTo([
+                    'recipient' => [ 'id' => '1000000000000000' ],
+                    'message' => [ 'text' => 'テスト1' ]
+                ]),
+                $this->equalTo(true)
             ],
             [
-            $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo([]),
-            $this->equalTo([
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト2' ]
-            ]),
-            $this->equalTo(true)
+                $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
+                $this->equalTo([]),
+                $this->equalTo([
+                    'recipient' => [ 'id' => '1000000000000000' ],
+                    'message' => [ 'text' => 'テスト2' ]
+                ]),
+                $this->equalTo(true)
             ],
             [
-            $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo([]),
-            $this->equalTo([
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト3' ]
-            ]),
-            $this->equalTo(true)
+                $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
+                $this->equalTo([]),
+                $this->equalTo([
+                    'recipient' => [ 'id' => '1000000000000000' ],
+                    'message' => [ 'text' => 'テスト3' ]
+                ]),
+                $this->equalTo(true)
             ]
         );
 
@@ -319,31 +318,31 @@ class FacebookBotTest extends TestCase
         ->method('post')
         ->withConsecutive(
             [
-            $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo([]),
-            $this->equalTo([
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト1' ]
-            ]),
-            $this->equalTo(true)
+                $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
+                $this->equalTo([]),
+                $this->equalTo([
+                    'recipient' => [ 'id' => '1000000000000000' ],
+                    'message' => [ 'text' => 'テスト1' ]
+                ]),
+                $this->equalTo(true)
             ],
             [
-            $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo([]),
-            $this->equalTo([
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト2' ]
-            ]),
-            $this->equalTo(true)
+                $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
+                $this->equalTo([]),
+                $this->equalTo([
+                    'recipient' => [ 'id' => '1000000000000000' ],
+                    'message' => [ 'text' => 'テスト2' ]
+                ]),
+                $this->equalTo(true)
             ],
             [
-            $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
-            $this->equalTo([]),
-            $this->equalTo([
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [ 'text' => 'テスト3' ]
-            ]),
-            $this->equalTo(true)
+                $this->equalTo('https://graph.facebook.com/v2.10/me/messages?access_token=develop'),
+                $this->equalTo([]),
+                $this->equalTo([
+                    'recipient' => [ 'id' => '1000000000000000' ],
+                    'message' => [ 'text' => 'テスト3' ]
+                ]),
+                $this->equalTo(true)
             ]
         );
 
@@ -359,42 +358,41 @@ class FacebookBotTest extends TestCase
     {
         return [
         'valid button message' => [
-        [
-          'attachment' => [
-            'type' => 'template',
-            'payload' => [
-              'template_type' => 'button',
-              'text' => 'タイトル',
-              'buttons' => [
+            [
+                'attachment' => [
+                    'type' => 'template',
+                    'payload' => [
+                        'template_type' => 'button',
+                        'text' => 'タイトル',
+                        'buttons' => [
+                            [
+                                'type' => 'web_url',
+                                'url' => 'https://www.sampleimage.com/sample.jpg',
+                                'title' => 'URLボタン'
+                            ],
+                            [
+                                'type' => 'postback',
+                                'title' => 'Postbackボタン',
+                                'payload' => 'key1=value1&key2=value2'
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            'タイトル',
+            [
                 [
-                  'type' => 'web_url',
-                  'url' => 'https://www.sampleimage.com/sample.jpg',
-                  'title' => 'URLボタン'
+                    'title' => 'URLボタン',
+                    'action' => 'url',
+                    'url' => 'https://www.sampleimage.com/sample.jpg'
                 ],
                 [
-                  'type' => 'postback',
-                  'title' => 'Postbackボタン',
-                  'payload' => 'key1=value1&key2=value2'
+                    'title' => 'Postbackボタン',
+                    'action' => 'postback',
+                    'data' => 'key1=value1&key2=value2'
                 ]
-              ]
             ]
-          ]
-        ],
-        'タイトル',
-        [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ]
-        ]
-        ];
+        ]];
     }
 
   /**
@@ -405,8 +403,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => $expectedButtonArray
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => $expectedButtonArray
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -423,8 +421,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => $expectedButtonArray
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => $expectedButtonArray
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -438,44 +436,44 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => [
-            'attachment' => [
-            'type' => 'template',
-            'payload' => [
-              'template_type' => 'button',
-              'text' => 'タイトル',
-              'buttons' => [
-                [
-                  'type' => 'web_url',
-                  'url' => 'https://www.sampleimage.com/sample.jpg',
-                  'title' => 'URLボタン',
-                  'webview_height_ratio' => 'compact'
-                ],
-                [
-                  'type' => 'postback',
-                  'title' => 'Postbackボタン',
-                  'payload' => 'key1=value1&key2=value2'
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [
+                    'attachment' => [
+                        'type' => 'template',
+                        'payload' => [
+                            'template_type' => 'button',
+                            'text' => 'タイトル',
+                            'buttons' => [
+                                [
+                                    'type' => 'web_url',
+                                    'url' => 'https://www.sampleimage.com/sample.jpg',
+                                    'title' => 'URLボタン',
+                                    'webview_height_ratio' => 'compact'
+                                ],
+                                [
+                                    'type' => 'postback',
+                                    'title' => 'Postbackボタン',
+                                    'payload' => 'key1=value1&key2=value2'
+                                ]
+                            ]
+                        ]
+                    ]
                 ]
-              ]
-            ]
-            ]
-            ]
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addButton('タイトル', [
-        [
-        'title' => 'URLボタン',
-        'action' => 'url',
-        'url' => 'https://www.sampleimage.com/sample.jpg',
-        'webview_height_ratio' => 'compact'
-        ],
-        [
-        'title' => 'Postbackボタン',
-        'action' => 'postback',
-        'data' => 'key1=value1&key2=value2'
-        ]
+            [
+                'title' => 'URLボタン',
+                'action' => 'url',
+                'url' => 'https://www.sampleimage.com/sample.jpg',
+                'webview_height_ratio' => 'compact'
+            ],
+            [
+                'title' => 'Postbackボタン',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2'
+            ]
         ]);
         $bot->replyMessage('1000000000000000');
         $this->addToAssertionCount(1);
@@ -484,39 +482,39 @@ class FacebookBotTest extends TestCase
     public function rawMessageDataProvider()
     {
         return [
-        'text message' => [
-        [
-          'text' => 'テスト1'
-        ]
-        ],
-        'generic message' => [
-        [
-          'attachment' => [
-            'type' => 'template',
-            'payload' => [
-              'template_type' => 'generic',
-              'elements' => [
+            'text message' => [
                 [
-                  'title' => 'タイトル1',
-                  'subtitle' => 'サブタイトル1',
-                  'buttons' => [
-                    [
-                      'type' => 'web_url',
-                      'url' => 'https://www.sampleimage.com/sample.jpg',
-                      'title' => 'URLボタン'
-                    ],
-                    [
-                      'type' => 'postback',
-                      'title' => 'Postbackボタン',
-                      'payload' => 'key1=value1&key2=value2'
-                    ]
-                  ]
+                    'text' => 'テスト1'
                 ]
-              ]
+            ],
+            'generic message' => [
+                [
+                    'attachment' => [
+                        'type' => 'template',
+                        'payload' => [
+                            'template_type' => 'generic',
+                            'elements' => [
+                                [
+                                    'title' => 'タイトル1',
+                                    'subtitle' => 'サブタイトル1',
+                                    'buttons' => [
+                                        [
+                                            'type' => 'web_url',
+                                            'url' => 'https://www.sampleimage.com/sample.jpg',
+                                            'title' => 'URLボタン'
+                                        ],
+                                        [
+                                            'type' => 'postback',
+                                            'title' => 'Postbackボタン',
+                                            'payload' => 'key1=value1&key2=value2'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
             ]
-          ]
-        ]
-        ]
         ];
     }
 
@@ -528,8 +526,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => $rawSource
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => $rawSource
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -546,8 +544,8 @@ class FacebookBotTest extends TestCase
         $this->_setCurlMockForSingleMessage(
             /* expected payload */
             [
-            'recipient' => [ 'id' => '1000000000000000' ],
-            'message' => $rawSource
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => $rawSource
             ]
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
@@ -616,38 +614,38 @@ class FacebookBotTest extends TestCase
         ]
       */
         return [
-        'facebook text message' =>
-        [
-        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}',
-        [ 'Message.Text' ],
-        [
-          [ 'text' => 'てすとてすと' ]
-        ]
-        ],
-        'facebook image message' =>
-        [
-        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}',
-        [ 'Message.File' ],
-        [
-          null
-        ]
-        ],
-        'facebook postback' =>
-        [
-        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"sender":{"id":"1000000000000000"},"postback":{"payload":"text=Postback1\u0025E3\u002582\u002592\u0025E6\u00258A\u0025BC\u0025E3\u002581\u002597\u0025E3\u002581\u0025BE\u0025E3\u002581\u002597\u0025E3\u002581\u00259F"}}]}]}',
-        [ 'Postback' ],
-        [
-          [ 'postback' =>\http_build_query([ 'text' => 'Postback1を押しました' ]) ]
-        ]
-        ],
-        'facebook location message'=>
-        [
-         '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"location","payload":{"coordinates":{"lat":0,"long":0}}}]}}]}]}',
-         [ 'Message.Location' ],
-         [
-           [ 'location' => [ 'lat' => 0, 'long' => 0] ]
-         ]
-        ]
+            'facebook text message' =>
+                [
+                    '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"text":"\u3066\u3059\u3068\u3066\u3059\u3068"}}]}]}',
+                    [ 'Message.Text' ],
+                    [
+                        [ 'text' => 'てすとてすと' ]
+                    ]
+                ],
+            'facebook image message' =>
+                [
+                    '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}',
+                    [ 'Message.File' ],
+                    [
+                        null
+                    ]
+                ],
+            'facebook postback' =>
+                [
+                    '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"sender":{"id":"1000000000000000"},"postback":{"payload":"text=Postback1\u0025E3\u002582\u002592\u0025E6\u00258A\u0025BC\u0025E3\u002581\u002597\u0025E3\u002581\u0025BE\u0025E3\u002581\u002597\u0025E3\u002581\u00259F"}}]}]}',
+                    [ 'Postback' ],
+                    [
+                        [ 'postback' =>\http_build_query([ 'text' => 'Postback1を押しました' ]) ]
+                    ]
+                ],
+            'facebook location message'=>
+                [
+                    '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"location","payload":{"coordinates":{"lat":0,"long":0}}}]}}]}]}',
+                    [ 'Message.Location' ],
+                    [
+                        [ 'location' => [ 'lat' => 0, 'long' => 0] ]
+                    ]
+                ]
         ];
     }
 
@@ -718,11 +716,11 @@ class FacebookBotTest extends TestCase
     {
         return [
         'image' => [
-        '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}',
-        [ 'sample.jpg' => 'imageBinary'],
-        'https://www.sampleimage.com/sample.jpg',
-        'imageBinary'
-        ]
+                '{"object":"page","entry":[{"id":"000000000000000","time":1495206000000,"messaging":[{"sender":{"id":"1000000000000000"},"recipient":{"id":"200000000000000"},"timestamp":1495207800000,"message":{"mid":"mid.$cAADj4thus55iSabc123DEFghi45j","seq":1000,"attachments":[{"type":"image","payload":{"url":"https://www.sampleimage.com/sample.jpg"}}]}}]}]}',
+                [ 'sample.jpg' => 'imageBinary'],
+                'https://www.sampleimage.com/sample.jpg',
+                'imageBinary'
+            ]
         ];
     }
 
@@ -732,8 +730,8 @@ class FacebookBotTest extends TestCase
         $bot->addText('message1');
         $bot->addText('message2');
         $expected = [
-        [ 'text' => 'message1' ],
-        [ 'text' => 'message2' ]
+            [ 'text' => 'message1' ],
+            [ 'text' => 'message2' ]
         ];
         $this->assertEquals($expected, $bot->getMessagePayloads());
     }
