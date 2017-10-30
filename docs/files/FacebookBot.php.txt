@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.5.1
+ * @version 1.5.2
  */
 
 namespace Genies\MessengerFramework;
@@ -38,13 +38,11 @@ class FacebookBot
 
     // MARK : Bot Interface の実装
 
-    // TODO: レスポンスラッパーはこの層のこの時点で返す(Eventラッパーもこの層になったから)
     /**
      * Facebookで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function replyMessage(String $to)
     {
@@ -60,8 +58,7 @@ class FacebookBot
      * しかしこのフレームワークはそうではない
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function pushMessage(String $to)
     {
@@ -233,6 +230,24 @@ class FacebookBot
         array_push($this->_templates, $message);
     }
 
+    /**
+     * MessengerPlatformの送信APIに配列をJSONとしてそのまま送る(リクエストは1回のみ)
+     *
+     * @param Array $body
+     * @param string APIからのレスポンス
+     */
+    public function sendRawData(array $body)
+    {
+        $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
+        $resObj = json_decode($res, true);
+        if (isset($resObj['attachment_id'])) {
+            // attachment_idを再利用したいファイルのURLを取り出す
+            $url = array_shift($this->_reuseUrls);
+            $this->_reuseCaches[$url] = $resObj->attachment_id;
+        }
+        return $res;
+    }
+
     // MARK : Private
 
     private static $_FACEBOOK_APP_SECRET;
@@ -328,6 +343,8 @@ class FacebookBot
         return new Event($replyToken, $userId, $type, $rawData, $data);
     }
 
+    // XXX: 複数件のメッセージを送信する時に複数件のリクエストを投げている
+    //      エラーかどうかの判定は1つでもエラーが発生していたらエラーとする
     private function _sendMessage(String $to)
     {
         $responses = [];
@@ -338,9 +355,19 @@ class FacebookBot
                 ],
                 'message' => $template
             ];
-            $res = $this->_httpClient->post($this->_getMessageEndpoint(), null, $body, true);
-            $resObj = json_decode($res);
-            if (isset($resObj->attachment_id)) {
+            try {
+                $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
+            } catch (\RuntimeException $e) {
+                // XXX: このRuntimeExceptionはCurlのエラー
+                $this->_templates = [];
+                return false;
+            }
+            $resObj = json_decode($res, true);
+            if (isset($resObj['error'])) {
+                $this->_templates = [];
+                return false;
+            }
+            if (isset($resObj['attachment_id'])) {
                 // attachment_idを再利用したいファイルのURLを取り出す
                 $url = array_shift($this->_reuseUrls);
                 $this->_reuseCaches[$url] = $resObj->attachment_id;
@@ -348,7 +375,7 @@ class FacebookBot
             array_push($responses, $resObj);
         }
         $this->_templates = [];
-        return json_encode($responses);
+        return true;
     }
 
     private static function _isLocationMessage($attachments)
