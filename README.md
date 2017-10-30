@@ -154,12 +154,11 @@ $bot->addConfirm('確認用のボタンです', [
 ]);
 
 // 返信をする場合
-$res = $bot->reply($event->replyToken);
+$isError = $bot->reply($event->replyToken);
 // プッシュをする場合
-// $res = $bot->push($event->userId);
+// $isError = $bot->push($event->userId);
 
-// APIからのレスポンスが返ってきます
-error_log($res);
+// これらの戻り値はAPIからのレスポンスがエラーであるかどうか
 ```
 
 # 仕様
