@@ -688,7 +688,7 @@ class LineTest extends TestCase
         $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
-    public function testExceptionOccurredWhenReply()
+    public function testExceptionOccurredAtCurlReply()
     {
         $this->_curlMock->expects($this->once())
         ->method('post')
@@ -697,16 +697,10 @@ class LineTest extends TestCase
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        try {
-            $res = $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-            $this->fail();
-        } catch (\RuntimeException $ex) {
-            $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
-            $this->addToAssertionCount(1);
-        }
+        $this->assertFalse($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
-    public function testExceptionOccurredWhenPush()
+    public function testExceptionOccurredAtCurlPush()
     {
         $this->_curlMock->expects($this->once())
         ->method('post')
@@ -715,13 +709,7 @@ class LineTest extends TestCase
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        try {
-            $res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-            $this->fail();
-        } catch (\RuntimeException $ex) {
-            $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
-            $this->addToAssertionCount(1);
-        }
+        $this->assertFalse($res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function testTestSignature()
