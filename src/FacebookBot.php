@@ -42,8 +42,7 @@ class FacebookBot
      * Facebookで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function replyMessage(String $to)
     {
@@ -59,8 +58,7 @@ class FacebookBot
      * しかしこのフレームワークはそうではない
      *
      * @param String $to
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function pushMessage(String $to)
     {

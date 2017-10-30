@@ -66,8 +66,7 @@ class MessengerBot
      * replyTokenを使って追加してきたメッセージを返信する
      *
      * @param String $replyToken
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function reply(String $replyToken)
     {
@@ -78,8 +77,7 @@ class MessengerBot
      * recipientIdに向けて追加してきたメッセージを送信する
      *
      * @param String $recipientId
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function push(String $recipientId)
     {
