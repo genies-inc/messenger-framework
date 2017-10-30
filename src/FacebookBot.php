@@ -42,8 +42,7 @@ class FacebookBot
      * Facebookで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function replyMessage(String $to)
     {
@@ -59,8 +58,7 @@ class FacebookBot
      * しかしこのフレームワークはそうではない
      *
      * @param String $to
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function pushMessage(String $to)
     {
@@ -339,7 +337,13 @@ class FacebookBot
                 ],
                 'message' => $template
             ];
-            $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
+            try {
+                $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
+            } catch (\RuntimeException $e) {
+                // XXX: このRuntimeExceptionはCurlのエラー
+                $this->_templates = [];
+                return false;
+            }
             $resObj = json_decode($res, true);
             if (isset($resObj['error'])) {
                 $this->_templates = [];

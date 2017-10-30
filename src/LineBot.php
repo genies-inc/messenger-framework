@@ -42,8 +42,7 @@ class LineBot
      * Lineで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function replyMessage(String $to)
     {
@@ -54,8 +53,7 @@ class LineBot
      * Lineで送信予定のメッセージを送信する
      *
      * @param String $to
-     * @return Bool APIからのレスポンスがエラーかどうか
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function pushMessage(String $to)
     {
@@ -373,9 +371,15 @@ class LineBot
 
     private function _sendMessage(String $endpoint, array $options)
     {
-        $res = $this->_httpClient->post($endpoint, [
-            'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
-        ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
+        try {
+            $res = $this->_httpClient->post($endpoint, [
+                'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
+            ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
+        } catch (\RuntimeException $e) {
+            // XXX: このRuntimeExceptionはCurlのエラー
+            $this->_templates = [];
+            return false;
+        }
         $this->_templates = [];
         if (empty(json_decode($res, true))) {
             return true;
