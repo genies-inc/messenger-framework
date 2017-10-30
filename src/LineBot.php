@@ -377,7 +377,10 @@ class LineBot
             'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
         ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
         $this->_templates = [];
-        return json_encode($res);
+        if (empty(json_decode($res, true))) {
+            return true;
+        }
+        return false;
     }
 
     private function _buildTemplate(String $altText, array $template)
