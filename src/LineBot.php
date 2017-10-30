@@ -273,6 +273,26 @@ class LineBot
         array_push($this->_templates, $message);
     }
 
+    /**
+     * MessagingAPIに配列をJSONとしてそのまま送る(PushかReplyは配列の中身に依存)
+     *
+     * @param Array $body
+     * @param string APIからのレスポンス
+     */
+    public function sendRawData(array $body)
+    {
+        if (isset($body['replyToken'])) {
+            $endpoint = $this->_getReplyEndpoint();
+        }
+        if (isset($body['to'])) {
+            $endpoint = $this->_getPushEndpoint();
+        }
+        $res = $this->_httpClient->post($endpoint, [
+            'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
+        ], $body, true);
+        return $res;
+    }
+
     // MARK : Private
 
     private static $_LINE_CHANNEL_SECRET;

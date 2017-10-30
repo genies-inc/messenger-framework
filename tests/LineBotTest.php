@@ -917,6 +917,50 @@ class LineTest extends TestCase
         $this->assertEquals([], $bot->getMessagePayload());
     }
 
+    public function testSendRawDataReply()
+    {
+        $data = [
+            'messages' => [
+                [
+                    'type' => 'text',
+                    'text' => 'テスト'
+                ]
+            ],
+            'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+        ];
+        $this->_setCurlMockForReply([
+            [
+                'type' => 'text',
+                'text' => 'テスト'
+            ]
+        ], '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f', $this->successResponse);
+
+        $bot = new LineBot($this->_curlMock, $this->_configMock);
+        $this->assertEquals($this->successResponse, $bot->sendRawData($data));
+    }
+
+    public function testSendRawDataPush()
+    {
+        $data = [
+            'messages' => [
+                [
+                    'type' => 'text',
+                    'text' => 'テスト'
+                ]
+            ],
+            'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+        ];
+        $this->_setCurlMockForPush([
+            [
+                'type' => 'text',
+                'text' => 'テスト'
+            ]
+        ], '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0', $this->successResponse);
+
+        $bot = new LineBot($this->_curlMock, $this->_configMock);
+        $this->assertEquals($this->successResponse, $bot->sendRawData($data));
+    }
+
     private function _setCurlMockForPush($messages, $recipientId, $retVal)
     {
         $this->_curlMock->expects($this->once())
