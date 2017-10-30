@@ -746,6 +746,18 @@ class FacebookBotTest extends TestCase
         $this->assertEquals([], $bot->getMessagePayloads());
     }
 
+    public function testSendRawData()
+    {
+        $data = [
+            'recipient' => [ 'id' => '1000000000000000' ],
+            'message' => [ 'text' => 'テスト' ]
+        ];
+        $this->_setCurlMockForSingleMessage($data, $this->successResponse);
+
+        $bot = new FacebookBot($this->_curlMock, $this->_configMock);
+        $this->assertEquals($this->successResponse, $bot->sendRawData($data));
+    }
+
     private function _setCurlMockForSingleMessage($payload, $retVal)
     {
         $this->_curlMock->expects($this->once())

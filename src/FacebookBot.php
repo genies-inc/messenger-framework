@@ -230,6 +230,24 @@ class FacebookBot
         array_push($this->_templates, $message);
     }
 
+    /**
+     * MessengerPlatformの送信APIに配列をJSONとしてそのまま送る(リクエストは1回のみ)
+     *
+     * @param Array $body
+     * @param string APIからのレスポンス
+     */
+    public function sendRawData(array $body)
+    {
+        $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
+        $resObj = json_decode($res, true);
+        if (isset($resObj['attachment_id'])) {
+            // attachment_idを再利用したいファイルのURLを取り出す
+            $url = array_shift($this->_reuseUrls);
+            $this->_reuseCaches[$url] = $resObj->attachment_id;
+        }
+        return $res;
+    }
+
     // MARK : Private
 
     private static $_FACEBOOK_APP_SECRET;
