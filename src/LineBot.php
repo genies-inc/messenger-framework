@@ -42,7 +42,7 @@ class LineBot
      * Lineで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @return Bool APIからのレスポンスがエラーかどうか
      * @throws RuntimeException curlの実行時に起きるエラー
      */
     public function replyMessage(String $to)
@@ -54,7 +54,7 @@ class LineBot
      * Lineで送信予定のメッセージを送信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @return Bool APIからのレスポンスがエラーかどうか
      * @throws RuntimeException curlの実行時に起きるエラー
      */
     public function pushMessage(String $to)
