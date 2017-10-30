@@ -320,6 +320,17 @@ class MessengerBot
         throw new \LogicException('仕様からここが実行されることはありえません。');
     }
 
+    /**
+     * 配列をJSONとしてそのまま送る(リクエストは1回)
+     *
+     * @param Array $body
+     * @param string APIからのレスポンス
+     */
+    public function sendRawData(array $data)
+    {
+        return $this->core->sendRawData($data);
+    }
+
     // MARK : Private
 
     private function _validateSignature($requestBody)
