@@ -42,7 +42,7 @@ class FacebookBot
      * Facebookで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @return Bool APIからのレスポンスがエラーかどうか
      * @throws RuntimeException curlの実行時に起きるエラー
      */
     public function replyMessage(String $to)
@@ -59,7 +59,7 @@ class FacebookBot
      * しかしこのフレームワークはそうではない
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @return Bool APIからのレスポンスがエラーかどうか
      * @throws RuntimeException curlの実行時に起きるエラー
      */
     public function pushMessage(String $to)
@@ -327,6 +327,8 @@ class FacebookBot
         return new Event($replyToken, $userId, $type, $rawData, $data);
     }
 
+    // XXX: 複数件のメッセージを送信する時に複数件のリクエストを投げている
+    //      エラーかどうかの判定は1つでもエラーが発生していたらエラーとする
     private function _sendMessage(String $to)
     {
         $responses = [];
@@ -338,8 +340,12 @@ class FacebookBot
                 'message' => $template
             ];
             $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
-            $resObj = json_decode($res);
-            if (isset($resObj->attachment_id)) {
+            $resObj = json_decode($res, true);
+            if (isset($resObj['error'])) {
+                $this->_templates = [];
+                return false;
+            }
+            if (isset($resObj['attachment_id'])) {
                 // attachment_idを再利用したいファイルのURLを取り出す
                 $url = array_shift($this->_reuseUrls);
                 $this->_reuseCaches[$url] = $resObj->attachment_id;
@@ -347,7 +353,7 @@ class FacebookBot
             array_push($responses, $resObj);
         }
         $this->_templates = [];
-        return json_encode($responses);
+        return true;
     }
 
     private static function _isLocationMessage($attachments)

@@ -40,12 +40,12 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => [ 'text' => 'テスト' ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addText('テスト');
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
     public function testPushTextMessage()
@@ -55,12 +55,27 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => [ 'text' => 'テスト' ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addText('テスト');
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
+    }
+
+    public function testReplyTextMessageFail()
+    {
+        $this->_setCurlMockForSingleMessage(
+            /* expected payload */
+            [
+                'recipient' => [ 'id' => '1000000000000000' ],
+                'message' => [ 'text' => '間違った何か' ]
+            ],
+            $this->errorResponse
+        );
+        $bot = new FacebookBot($this->_curlMock, $this->_configMock);
+        $bot->addText('間違った何か');
+        $this->assertFalse($bot->replyMessage('1000000000000000'));
     }
 
     public function genericMessageDataProvider()
@@ -122,13 +137,13 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => $expectedGenericArray
-            ]
+            ],
+            $this->successResponse
         );
 
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addGeneric($genericSource);
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
   /**
@@ -141,13 +156,13 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => $expectedGenericArray
-            ]
+            ],
+            $this->successResponse
         );
 
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addGeneric($genericSource);
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
     }
 
     public function testReplyImageMessage()
@@ -162,12 +177,12 @@ class FacebookBotTest extends TestCase
                         'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
                     ]
                 ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addImage('https://www.sampleimage.com/sample.jpg');
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
     public function testPushImageMessage()
@@ -182,12 +197,12 @@ class FacebookBotTest extends TestCase
                         'payload' => [ 'url' => 'https://www.sampleimage.com/sample.jpg', 'is_reusable' => true ]
                     ]
                 ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addImage('https://www.sampleimage.com/sample.jpg');
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
     }
 
     public function testReplyVideoMessage()
@@ -202,12 +217,12 @@ class FacebookBotTest extends TestCase
                         'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
                     ]
                 ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addVideo('https://www.sampleimage.com/sample.mp4');
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
     public function testPushVideoMessage()
@@ -222,12 +237,12 @@ class FacebookBotTest extends TestCase
                         'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp4', 'is_reusable' => true ]
                     ]
                 ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addVideo('https://www.sampleimage.com/sample.mp4');
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
     }
 
     public function testReplyAudioMessage()
@@ -242,12 +257,12 @@ class FacebookBotTest extends TestCase
                         'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
                     ]
                 ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addAudio('https://www.sampleimage.com/sample.mp3');
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
     public function testPushAudioMessage()
@@ -262,12 +277,12 @@ class FacebookBotTest extends TestCase
                         'payload' => [ 'url' => 'https://www.sampleimage.com/sample.mp3', 'is_reusable' => true ]
                     ]
                 ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addAudio('https://www.sampleimage.com/sample.mp3');
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
     }
 
     public function testReplyMultiMessage()
@@ -308,8 +323,7 @@ class FacebookBotTest extends TestCase
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
     public function testPushMultiMessage()
@@ -350,8 +364,7 @@ class FacebookBotTest extends TestCase
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
     }
 
     public function buttonMessageProvider()
@@ -405,12 +418,12 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => $expectedButtonArray
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addButton($titleSource, $buttonSource);
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
   /**
@@ -423,12 +436,12 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => $expectedButtonArray
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addButton($titleSource, $buttonSource);
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
     }
 
     public function testReplyButtonMessageWithButtonOption()
@@ -459,7 +472,8 @@ class FacebookBotTest extends TestCase
                         ]
                     ]
                 ]
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addButton('タイトル', [
@@ -475,8 +489,7 @@ class FacebookBotTest extends TestCase
                 'data' => 'key1=value1&key2=value2'
             ]
         ]);
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
     public function rawMessageDataProvider()
@@ -528,12 +541,12 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => $rawSource
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addrawMessage($rawSource);
-        $bot->replyMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1000000000000000'));
     }
 
   /**
@@ -546,12 +559,12 @@ class FacebookBotTest extends TestCase
             [
                 'recipient' => [ 'id' => '1000000000000000' ],
                 'message' => $rawSource
-            ]
+            ],
+            $this->successResponse
         );
         $bot = new FacebookBot($this->_curlMock, $this->_configMock);
         $bot->addrawMessage($rawSource);
-        $bot->pushMessage('1000000000000000');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('1000000000000000'));
     }
 
     public function testExceptionOccurredWhenReply()
@@ -745,7 +758,7 @@ class FacebookBotTest extends TestCase
         $this->assertEquals([], $bot->getMessagePayloads());
     }
 
-    private function _setCurlMockForSingleMessage($payload)
+    private function _setCurlMockForSingleMessage($payload, $retVal)
     {
         $this->_curlMock->expects($this->once())
         ->method('post')
@@ -754,7 +767,11 @@ class FacebookBotTest extends TestCase
             $this->equalTo([]),
             $this->equalTo($payload),
             $this->equalTo(true)
-        );
+        )->willReturn($retVal);
         return;
     }
+
+    private $successResponse = '{"recipient_id":"1000000000000000","message_id":"mid.$cAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}';
+
+    private $errorResponse = '{"error":{"message":"error message"}}';
 }

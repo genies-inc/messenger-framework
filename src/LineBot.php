@@ -42,7 +42,7 @@ class LineBot
      * Lineで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @return Bool APIからのレスポンスがエラーかどうか
      * @throws RuntimeException curlの実行時に起きるエラー
      */
     public function replyMessage(String $to)
@@ -54,7 +54,7 @@ class LineBot
      * Lineで送信予定のメッセージを送信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
+     * @return Bool APIからのレスポンスがエラーかどうか
      * @throws RuntimeException curlの実行時に起きるエラー
      */
     public function pushMessage(String $to)
@@ -377,7 +377,10 @@ class LineBot
             'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
         ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
         $this->_templates = [];
-        return json_encode($res);
+        if (empty(json_decode($res, true))) {
+            return true;
+        }
+        return false;
     }
 
     private function _buildTemplate(String $altText, array $template)
