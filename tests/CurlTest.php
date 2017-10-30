@@ -69,7 +69,7 @@ class CurlTest extends TestCase
     {
         $curl = new Curl();
         $query = ['key1' => 'value1'];
-        $res = $curl->get(self::$_URL, null, $query);
+        $res = $curl->get(self::$_URL, [], $query);
         $jsonObject = \json_decode($res, true);
         $this->assertEquals("GET", $jsonObject['request']['method']);
         $this->assertEquals($query, $jsonObject['request']['query']);
@@ -98,7 +98,7 @@ class CurlTest extends TestCase
         'key1' => 'value1',
         'key2' => 'value2'
         ];
-        $res = $curl->post(self::$_URL, null, $body, true);
+        $res = $curl->post(self::$_URL, [], $body, true);
         $jsonObject = \json_decode($res);
         $this->assertEquals("POST", $jsonObject->request->method);
         $this->assertEquals($body, json_decode($jsonObject->body, true));
@@ -108,10 +108,10 @@ class CurlTest extends TestCase
     {
         $curl = new Curl();
         $body = [
-        'key1' => 'value1',
-        'key2' => 'value2'
+            'key1' => 'value1',
+            'key2' => 'value2'
         ];
-        $res = $curl->post(self::$_URL, null, $body);
+        $res = $curl->post(self::$_URL, [], $body);
         $jsonObject = \json_decode($res);
         $this->assertEquals("POST", $jsonObject->request->method);
         $this->assertEquals(\http_build_query($body), $jsonObject->body);
@@ -120,7 +120,7 @@ class CurlTest extends TestCase
     public function testHeaderContentJSON()
     {
         $curl = new Curl();
-        $res = $curl->post(self::$_URL, null, null, true);
+        $res = $curl->post(self::$_URL, [], [], true);
         $jsonObject = \json_decode($res, true);
         $returnedRequestHeader = $jsonObject['header'];
         $this->assertArrayHasKey('content-type', $returnedRequestHeader);

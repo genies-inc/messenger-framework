@@ -38,17 +38,17 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [
-            [
-            'type' => 'text',
-            'text' => 'テスト'
-            ]
+                [
+                    'type' => 'text',
+                    'text' => 'テスト'
+                ]
             ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addText('テスト');
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
     public function testPushTextMessage()
@@ -56,66 +56,85 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [
-            [
-            'type' => 'text',
-            'text' => 'テスト'
-            ]
+                [
+                    'type' => 'text',
+                    'text' => 'テスト'
+                ]
             ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addText('テスト');
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
+    }
+
+    public function testReplyTextMessageFail()
+    {
+        $this->_setCurlMockForReply(
+            /* expected messages */
+            [
+                [
+                    'type' => 'text',
+                    'text' => '間違った何か'
+                ]
+            ],
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->errorResponse
+        );
+        $bot = new LineBot($this->_curlMock, $this->_configMock);
+        $bot->addText('間違った何か');
+        $this->assertFalse($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
     public function carouselMessageProvider()
     {
         return [
-        'valid carousel message' => [
-        [
-          'type' => 'template',
-          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
-          'template' => [
-            'type' => 'carousel',
-            'columns' => [
-              [
-                'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
-                'title' => 'タイトル1',
-                'text' => 'サブタイトル1',
-                'actions' => [
-                  [
-                    'type' => 'uri',
-                    'label' => 'URLボタン',
-                    'uri' => 'https://www.sampleimage.com/sample.jpg'
-                  ],
-                  [
-                    'type' => 'postback',
-                    'label' => 'Postbackボタン',
-                    'data' => 'key1=value1&key2=value2'
-                  ]
+            'valid carousel message' => [
+                [
+                    'type' => 'template',
+                    'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+                    'template' => [
+                        'type' => 'carousel',
+                        'columns' => [
+                            [
+                                'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
+                                'title' => 'タイトル1',
+                                'text' => 'サブタイトル1',
+                                'actions' => [
+                                    [
+                                        'type' => 'uri',
+                                        'label' => 'URLボタン',
+                                        'uri' => 'https://www.sampleimage.com/sample.jpg'
+                                    ],
+                                    [
+                                        'type' => 'postback',
+                                        'label' => 'Postbackボタン',
+                                        'data' => 'key1=value1&key2=value2'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        'タイトル1', 'サブタイトル1', 'https://www.sampleimage.com/thumbnail.jpg',
+                        [
+                            [
+                                'title' => 'URLボタン',
+                                'action' => 'url',
+                                'url' => 'https://www.sampleimage.com/sample.jpg'
+                            ],
+                            [
+                                'title' => 'Postbackボタン',
+                                'action' => 'postback',
+                                'data' => 'key1=value1&key2=value2'
+                            ]
+                        ],
+                    ]
                 ]
-              ]
             ]
-          ]
-        ],
-        [
-          [
-            'タイトル1', 'サブタイトル1', 'https://www.sampleimage.com/thumbnail.jpg', [
-              [
-                'title' => 'URLボタン',
-                'action' => 'url',
-                'url' => 'https://www.sampleimage.com/sample.jpg'
-              ],
-              [
-                'title' => 'Postbackボタン',
-                'action' => 'postback',
-                'data' => 'key1=value1&key2=value2'
-              ]
-            ],
-          ]
-        ]
-        ]
         ];
     }
 
@@ -127,13 +146,13 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [ $expectedCarouselArray ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
 
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addCarousel($carouselSource);
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
   /**
@@ -144,13 +163,13 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [ $expectedCarouselArray ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
 
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addCarousel($carouselSource);
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function testReplyImageMessage()
@@ -158,18 +177,18 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [
-            [
-            'type' => 'image',
-            'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
-            'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
+                [
+                    'type' => 'image',
+                    'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
+                    'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+                ]
             ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
     public function testPushImageMessage()
@@ -177,18 +196,18 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [
-            [
-            'type' => 'image',
-            'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
-            'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
+                [
+                    'type' => 'image',
+                    'originalContentUrl' => 'https://www.sampleimage.com/sample.jpg',
+                    'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+                ]
             ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addImage('https://www.sampleimage.com/sample.jpg', 'https://www.sampleimage.com/sample-preview.jpg');
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function testReplyVideoMessage()
@@ -196,18 +215,18 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [
-            [
-            'type' => 'video',
-            'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
-            'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
+                [
+                    'type' => 'video',
+                    'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
+                    'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+                ]
             ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
     public function testPushVideoMessage()
@@ -215,18 +234,18 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [
-            [
-            'type' => 'video',
-            'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
-            'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
-            ]
+                [
+                    'type' => 'video',
+                    'originalContentUrl' => 'https://www.sampleimage.com/sample.mp4',
+                    'previewImageUrl' => 'https://www.sampleimage.com/sample-preview.jpg'
+                ]
             ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addVideo('https://www.sampleimage.com/sample.mp4', 'https://www.sampleimage.com/sample-preview.jpg');
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function testReplyAudioMessage()
@@ -234,18 +253,18 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [
-            [
-            'type' => 'audio',
-            'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
-            'duration' => 10000
-            ]
+                [
+                    'type' => 'audio',
+                    'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
+                    'duration' => 10000
+                ]
             ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
     public function testPushAudioMessage()
@@ -253,18 +272,18 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [
-            [
-            'type' => 'audio',
-            'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
-            'duration' => 10000
-            ]
+                [
+                    'type' => 'audio',
+                    'originalContentUrl' => 'https://www.sampleimage.com/sample.m4a',
+                    'duration' => 10000
+                ]
             ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addAudio('https://www.sampleimage.com/sample.m4a', 10000);
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function testReplyMultiMessage()
@@ -272,27 +291,27 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [
-            [
-            'type' => 'text',
-            'text' => 'テスト1'
+                [
+                    'type' => 'text',
+                    'text' => 'テスト1'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'テスト2'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'テスト3'
+                ]
             ],
-            [
-            'type' => 'text',
-            'text' => 'テスト2'
-            ],
-            [
-            'type' => 'text',
-            'text' => 'テスト3'
-            ]
-            ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
     public function testPushMultiMessage()
@@ -300,67 +319,67 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [
-            [
-            'type' => 'text',
-            'text' => 'テスト1'
+                [
+                    'type' => 'text',
+                    'text' => 'テスト1'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'テスト2'
+                ],
+                [
+                    'type' => 'text',
+                    'text' => 'テスト3'
+                ]
             ],
-            [
-            'type' => 'text',
-            'text' => 'テスト2'
-            ],
-            [
-            'type' => 'text',
-            'text' => 'テスト3'
-            ]
-            ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function confirmMessageProvider()
     {
         return [
-        'valid confirm message' => [
-        [
-          'type' => 'template',
-          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
-          'template' => [
-            'type' => 'confirm',
-            'text' => 'タイトル',
-            'actions' => [
-              [
-                'type' => 'uri',
-                'label' => 'URLボタン',
-                'uri' => 'https://www.sampleimage.com/sample.jpg'
-              ],
-              [
-                'type' => 'postback',
-                'label' => 'Postbackボタン',
-                'data' => 'key1=value1&key2=value2'
-              ]
+            'valid confirm message' => [
+                [
+                    'type' => 'template',
+                    'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+                    'template' => [
+                        'type' => 'confirm',
+                        'text' => 'タイトル',
+                        'actions' => [
+                            [
+                                'type' => 'uri',
+                                'label' => 'URLボタン',
+                                'uri' => 'https://www.sampleimage.com/sample.jpg'
+                            ],
+                            [
+                                'type' => 'postback',
+                                'label' => 'Postbackボタン',
+                                'data' => 'key1=value1&key2=value2'
+                            ]
+                        ]
+                    ]
+                ],
+                'タイトル',
+                [
+                    [
+                        'title' => 'URLボタン',
+                        'action' => 'url',
+                        'url' => 'https://www.sampleimage.com/sample.jpg'
+                    ],
+                    [
+                        'title' => 'Postbackボタン',
+                        'action' => 'postback',
+                        'data' => 'key1=value1&key2=value2'
+                    ]
+                ]
             ]
-          ]
-        ],
-        'タイトル',
-        [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ]
-        ]
         ];
     }
 
@@ -372,12 +391,12 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [ $expectedConfirmArray ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addConfirm($title, $confirmSource);
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
   /**
@@ -388,12 +407,12 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [ $expectedConfirmArray ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addConfirm($title, $confirmSource);
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function testReplyConfirmMessageWithButtonOptionPass()
@@ -401,165 +420,165 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [
-            [
-            'type' => 'template',
-            'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
-            'template' => [
-            'type' => 'confirm',
-            'text' => 'タイトル',
-            'actions' => [
-              [
-                'type' => 'uri',
-                'label' => 'URLボタン',
-                'uri' => 'https://www.sampleimage.com/sample.jpg'
-              ],
-              [
-                'type' => 'postback',
-                'label' => 'Postbackボタン',
-                'data' => 'key1=value1&key2=value2',
-                'text' => 'Postbackボタン'
-              ]
-            ]
-            ]
-            ]
+                [
+                    'type' => 'template',
+                    'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+                    'template' => [
+                        'type' => 'confirm',
+                        'text' => 'タイトル',
+                        'actions' => [
+                            [
+                                'type' => 'uri',
+                                'label' => 'URLボタン',
+                                'uri' => 'https://www.sampleimage.com/sample.jpg'
+                            ],
+                            [
+                                'type' => 'postback',
+                                'label' => 'Postbackボタン',
+                                'data' => 'key1=value1&key2=value2',
+                                'text' => 'Postbackボタン'
+                            ]
+                        ]
+                    ]
+                ]
             ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addConfirm('タイトル', [
-        [
-        'title' => 'URLボタン',
-        'action' => 'url',
-        'url' => 'https://www.sampleimage.com/sample.jpg'
-        ],
-        [
-        'title' => 'Postbackボタン',
-        'action' => 'postback',
-        'data' => 'key1=value1&key2=value2',
-        'text' => 'Postbackボタン'
-        ]
+            [
+                'title' => 'URLボタン',
+                'action' => 'url',
+                'url' => 'https://www.sampleimage.com/sample.jpg'
+            ],
+            [
+                'title' => 'Postbackボタン',
+                'action' => 'postback',
+                'data' => 'key1=value1&key2=value2',
+                'text' => 'Postbackボタン'
+            ]
         ]);
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
     public function buttonsMessageDataProvider()
     {
         return [
-        'thumbnail and title not empty' => [
-        [
-          'type' => 'template',
-          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
-          'template' => [
-            'type' => 'buttons',
-            'title' => 'タイトル',
-            'text' => '説明',
-            'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
-            'actions' => [
-              [
-                'type' => 'uri',
-                'label' => 'URLボタン',
-                'uri' => 'https://www.sampleimage.com/sample.jpg'
-              ],
-              [
-                'type' => 'postback',
-                'label' => 'Postbackボタン',
-                'data' => 'key1=value1&key2=value2'
-              ]
+            'thumbnail and title not empty' => [
+                [
+                    'type' => 'template',
+                    'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+                    'template' => [
+                        'type' => 'buttons',
+                        'title' => 'タイトル',
+                        'text' => '説明',
+                        'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
+                        'actions' => [
+                            [
+                                'type' => 'uri',
+                                'label' => 'URLボタン',
+                                'uri' => 'https://www.sampleimage.com/sample.jpg'
+                            ],
+                            [
+                                'type' => 'postback',
+                                'label' => 'Postbackボタン',
+                                'data' => 'key1=value1&key2=value2'
+                            ]
+                        ]
+                    ]
+                ],
+                '説明',
+                [
+                    [
+                        'title' => 'URLボタン',
+                        'action' => 'url',
+                        'url' => 'https://www.sampleimage.com/sample.jpg'
+                    ],
+                    [
+                        'title' => 'Postbackボタン',
+                        'action' => 'postback',
+                        'data' => 'key1=value1&key2=value2'
+                    ]
+                ],
+                'タイトル',
+                'https://www.sampleimage.com/thumbnail.jpg'
+            ],
+            'title not empty' => [
+                [
+                    'type' => 'template',
+                    'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+                    'template' => [
+                        'type' => 'buttons',
+                        'title' => 'タイトル',
+                        'text' => '説明',
+                        'actions' => [
+                            [
+                            'type' => 'uri',
+                            'label' => 'URLボタン',
+                            'uri' => 'https://www.sampleimage.com/sample.jpg'
+                            ],
+                            [
+                                'type' => 'postback',
+                                'label' => 'Postbackボタン',
+                                'data' => 'key1=value1&key2=value2'
+                            ]
+                        ]
+                    ]
+                ],
+                '説明',
+                [
+                    [
+                        'title' => 'URLボタン',
+                        'action' => 'url',
+                        'url' => 'https://www.sampleimage.com/sample.jpg'
+                    ],
+                    [
+                        'title' => 'Postbackボタン',
+                        'action' => 'postback',
+                        'data' => 'key1=value1&key2=value2'
+                    ]
+                ],
+                'タイトル',
+                null
+            ],
+            'title empty' => [
+                [
+                    'type' => 'template',
+                    'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+                    'template' => [
+                        'type' => 'buttons',
+                        'text' => '説明',
+                        'actions' => [
+                            [
+                                'type' => 'uri',
+                                'label' => 'URLボタン',
+                                'uri' => 'https://www.sampleimage.com/sample.jpg'
+                            ],
+                            [
+                                'type' => 'postback',
+                                'label' => 'Postbackボタン',
+                                'data' => 'key1=value1&key2=value2'
+                            ]
+                        ]
+                    ]
+                ],
+                '説明',
+                [
+                    [
+                        'title' => 'URLボタン',
+                        'action' => 'url',
+                        'url' => 'https://www.sampleimage.com/sample.jpg'
+                    ],
+                    [
+                        'title' => 'Postbackボタン',
+                        'action' => 'postback',
+                        'data' => 'key1=value1&key2=value2'
+                    ]
+                ],
+                null,
+                null
             ]
-          ]
-        ],
-        '説明',
-        [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ],
-        'タイトル',
-        'https://www.sampleimage.com/thumbnail.jpg'
-        ],
-        'title not empty' => [
-        [
-          'type' => 'template',
-          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
-          'template' => [
-            'type' => 'buttons',
-            'title' => 'タイトル',
-            'text' => '説明',
-            'actions' => [
-              [
-                'type' => 'uri',
-                'label' => 'URLボタン',
-                'uri' => 'https://www.sampleimage.com/sample.jpg'
-              ],
-              [
-                'type' => 'postback',
-                'label' => 'Postbackボタン',
-                'data' => 'key1=value1&key2=value2'
-              ]
-            ]
-          ]
-        ],
-        '説明',
-        [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ],
-        'タイトル',
-        null
-        ],
-        'title empty' => [
-        [
-          'type' => 'template',
-          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
-          'template' => [
-            'type' => 'buttons',
-            'text' => '説明',
-            'actions' => [
-              [
-                'type' => 'uri',
-                'label' => 'URLボタン',
-                'uri' => 'https://www.sampleimage.com/sample.jpg'
-              ],
-              [
-                'type' => 'postback',
-                'label' => 'Postbackボタン',
-                'data' => 'key1=value1&key2=value2'
-              ]
-            ]
-          ]
-        ],
-        '説明',
-        [
-          [
-            'title' => 'URLボタン',
-            'action' => 'url',
-            'url' => 'https://www.sampleimage.com/sample.jpg'
-          ],
-          [
-            'title' => 'Postbackボタン',
-            'action' => 'postback',
-            'data' => 'key1=value1&key2=value2'
-          ]
-        ],
-        null,
-        null
-        ]
         ];
     }
 
@@ -571,7 +590,8 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected message */
             [ $expectedButtonsArray ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addButtons($description, $buttons, $title, $thumbnailUrl);
@@ -587,7 +607,8 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected message */
             [ $expectedButtonsArray ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addButtons($description, $buttons, $title, $thumbnailUrl);
@@ -598,40 +619,40 @@ class LineTest extends TestCase
     public function rawMessageDataProvider()
     {
         return [
-        'text message' => [
-        [
-          'type' => 'text',
-          'text' => 'テスト1'
-        ]
-        ],
-        'carousel message' => [
-        [
-          'type' => 'template',
-          'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
-          'template' => [
-            'type' => 'carousel',
-            'columns' => [
-              [
-                'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
-                'title' => 'タイトル1',
-                'text' => 'サブタイトル1',
-                'actions' => [
-                  [
-                    'type' => 'uri',
-                    'label' => 'URLボタン',
-                    'uri' => 'https://www.sampleimage.com/sample.jpg'
-                  ],
-                  [
-                    'type' => 'postback',
-                    'label' => 'Postbackボタン',
-                    'data' => 'key1=value1&key2=value2'
-                  ]
+            'text message' => [
+                [
+                'type' => 'text',
+                'text' => 'テスト1'
                 ]
-              ]
+            ],
+            'carousel message' => [
+                [
+                    'type' => 'template',
+                    'altText' => 'メッセージが届いています        (閲覧可能端末から見て下さい)',
+                    'template' => [
+                        'type' => 'carousel',
+                        'columns' => [
+                            [
+                                'thumbnailImageUrl' => 'https://www.sampleimage.com/thumbnail.jpg',
+                                'title' => 'タイトル1',
+                                'text' => 'サブタイトル1',
+                                'actions' => [
+                                    [
+                                        'type' => 'uri',
+                                        'label' => 'URLボタン',
+                                        'uri' => 'https://www.sampleimage.com/sample.jpg'
+                                    ],
+                                    [
+                                        'type' => 'postback',
+                                        'label' => 'Postbackボタン',
+                                        'data' => 'key1=value1&key2=value2'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
             ]
-          ]
-        ]
-        ]
         ];
     }
 
@@ -643,12 +664,12 @@ class LineTest extends TestCase
         $this->_setCurlMockForReply(
             /* expected messages */
             [ $rawSource ],
-            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+            '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addRawMessage($rawSource);
-        $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
   /**
@@ -659,15 +680,15 @@ class LineTest extends TestCase
         $this->_setCurlMockForPush(
             /* expected messages */
             [ $rawSource ],
-            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+            '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0',
+            $this->successResponse
         );
         $bot = new LineBot($this->_curlMock, $this->_configMock);
         $bot->addRawMessage($rawSource);
-        $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-        $this->addToAssertionCount(1);
+        $this->assertTrue($bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
-    public function testExceptionOccurredWhenReply()
+    public function testExceptionOccurredAtCurlReply()
     {
         $this->_curlMock->expects($this->once())
         ->method('post')
@@ -676,16 +697,10 @@ class LineTest extends TestCase
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        try {
-            $res = $bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f');
-            $this->fail();
-        } catch (\RuntimeException $ex) {
-            $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
-            $this->addToAssertionCount(1);
-        }
+        $this->assertFalse($bot->replyMessage('1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'));
     }
 
-    public function testExceptionOccurredWhenPush()
+    public function testExceptionOccurredAtCurlPush()
     {
         $this->_curlMock->expects($this->once())
         ->method('post')
@@ -694,13 +709,7 @@ class LineTest extends TestCase
         $bot->addText('テスト1');
         $bot->addText('テスト2');
         $bot->addText('テスト3');
-        try {
-            $res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0');
-            $this->fail();
-        } catch (\RuntimeException $ex) {
-            $this->assertEquals('Curlでエラーが起きました', $ex->getMessage());
-            $this->addToAssertionCount(1);
-        }
+        $this->assertFalse($res = $bot->pushMessage('0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'));
     }
 
     public function testTestSignature()
@@ -743,54 +752,54 @@ class LineTest extends TestCase
         ]
       */
         return [
-        'line text message' =>
-        [
-        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}',
-        [ 'Message.Text' ],
-        [
-          [ 'text' => 'てすと' ]
-        ]
-        ],
-        'line image message' =>
-        [
-        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}',
-        [ 'Message.File' ],
-        [
-          null
-        ]
-        ],
-        'line postback' =>
-        [
-        '{"events":[{"type":"postback","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"postback":{"data":"key1=value1&key2=value2&key3=value3"}}]}',
-        [ 'Postback' ],
-        [
-          [ 'postback' => 'key1=value1&key2=value2&key3=value3' ]
-        ]
-        ],
-        'line image message' =>
-        [
-        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"location","id":"2222222222222","title":"location title","address":"どこかの住所","latitude":0,"longitude":0}}]}',
-        [ 'Message.Location' ],
-        [
-          [ 'location' => [ 'lat' => 0, 'long' => 0 ] ]
-        ]
-        ],
-        'line follow event' =>
-        [
-        '{"events":[{"type":"follow","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000}]}',
-        [ 'Unsupported' ],
-        [
-          null
-        ]
-        ],
-        'line unfollow event' =>
-        [
-        '{"events":[{"type":"unfollow","source":{"userId":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","type":"user"},"timestamp":1495206000000}]}',
-        [ 'Unsupported' ],
-        [
-          null
-        ]
-        ],
+            'line text message' =>
+                [
+                    '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"text","id":"2222222222222","text":"てすと"}}]}',
+                    [ 'Message.Text' ],
+                    [
+                        [ 'text' => 'てすと' ]
+                    ]
+                ],
+            'line image message' =>
+                [
+                    '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}',
+                    [ 'Message.File' ],
+                    [
+                        null
+                    ]
+                ],
+            'line postback' =>
+                [
+                    '{"events":[{"type":"postback","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"postback":{"data":"key1=value1&key2=value2&key3=value3"}}]}',
+                    [ 'Postback' ],
+                    [
+                        [ 'postback' => 'key1=value1&key2=value2&key3=value3' ]
+                    ]
+                ],
+            'line image message' =>
+                [
+                    '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"location","id":"2222222222222","title":"location title","address":"どこかの住所","latitude":0,"longitude":0}}]}',
+                    [ 'Message.Location' ],
+                    [
+                        [ 'location' => [ 'lat' => 0, 'long' => 0 ] ]
+                    ]
+                ],
+            'line follow event' =>
+                [
+                    '{"events":[{"type":"follow","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000}]}',
+                    [ 'Unsupported' ],
+                    [
+                        null
+                    ]
+                ],
+            'line unfollow event' =>
+                [
+                    '{"events":[{"type":"unfollow","source":{"userId":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","type":"user"},"timestamp":1495206000000}]}',
+                    [ 'Unsupported' ],
+                    [
+                        null
+                    ]
+                ],
         ];
     }
 
@@ -857,16 +866,16 @@ class LineTest extends TestCase
     public function eventFileDataProvider()
     {
         return [
-        'image' => [
-        '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}',
-        [ '2222222222222.jpg' => 'imageBinary'],
-        'https://api.line.me/v2/bot/message/2222222222222/content',
-        'imageBinary'
-        ]
+            'image' => [
+                '{"events":[{"type":"message","replyToken":"1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f","source":{"userId":"0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0","type":"user"},"timestamp":1495206000000,"message":{"type":"image","id":"2222222222222"}}]}',
+                [ '2222222222222.jpg' => 'imageBinary'],
+                'https://api.line.me/v2/bot/message/2222222222222/content',
+                'imageBinary'
+            ]
         ];
     }
 
-    private function _setCurlMockForReply($messages, $replyToken)
+    private function _setCurlMockForReply($messages, $replyToken, $retVal)
     {
         $this->_curlMock->expects($this->once())
         ->method('post')
@@ -874,11 +883,11 @@ class LineTest extends TestCase
             $this->equalTo('https://api.line.me/v2/bot/message/reply'),
             $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
             $this->equalTo([
-            'replyToken' => $replyToken,
-            'messages' => $messages
+                'replyToken' => $replyToken,
+                'messages' => $messages
             ]),
             $this->equalTo(true)
-        );
+        )->willReturn($retVal);
     }
 
     public function testGetMessagePayload()
@@ -887,14 +896,14 @@ class LineTest extends TestCase
         $bot->addText('message1');
         $bot->addText('message2');
         $expected = [
-        [
-        'type' => 'text',
-        'text' => 'message1'
-        ],
-        [
-        'type' => 'text',
-        'text' => 'message2'
-        ]
+            [
+                'type' => 'text',
+                'text' => 'message1'
+            ],
+            [
+                'type' => 'text',
+                'text' => 'message2'
+            ]
         ];
         $this->assertEquals($expected, $bot->getMessagePayload());
     }
@@ -908,7 +917,51 @@ class LineTest extends TestCase
         $this->assertEquals([], $bot->getMessagePayload());
     }
 
-    private function _setCurlMockForPush($messages, $recipientId)
+    public function testSendRawDataReply()
+    {
+        $data = [
+            'messages' => [
+                [
+                    'type' => 'text',
+                    'text' => 'テスト'
+                ]
+            ],
+            'replyToken' => '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f'
+        ];
+        $this->_setCurlMockForReply([
+            [
+                'type' => 'text',
+                'text' => 'テスト'
+            ]
+        ], '1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f', $this->successResponse);
+
+        $bot = new LineBot($this->_curlMock, $this->_configMock);
+        $this->assertEquals($this->successResponse, $bot->sendRawData($data));
+    }
+
+    public function testSendRawDataPush()
+    {
+        $data = [
+            'messages' => [
+                [
+                    'type' => 'text',
+                    'text' => 'テスト'
+                ]
+            ],
+            'to' => '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0'
+        ];
+        $this->_setCurlMockForPush([
+            [
+                'type' => 'text',
+                'text' => 'テスト'
+            ]
+        ], '0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0', $this->successResponse);
+
+        $bot = new LineBot($this->_curlMock, $this->_configMock);
+        $this->assertEquals($this->successResponse, $bot->sendRawData($data));
+    }
+
+    private function _setCurlMockForPush($messages, $recipientId, $retVal)
     {
         $this->_curlMock->expects($this->once())
         ->method('post')
@@ -916,10 +969,14 @@ class LineTest extends TestCase
             $this->equalTo('https://api.line.me/v2/bot/message/push'),
             $this->equalTo([ 'Authorization' => 'Bearer develop' ]),
             $this->equalTo([
-            'to' => $recipientId,
-            'messages' => $messages
+                'to' => $recipientId,
+                'messages' => $messages
             ]),
             $this->equalTo(true)
-        );
+        )->willReturn($retVal);
     }
+
+    private $successResponse = '{}';
+
+    private $errorResponse = '{"message": "error message"}';
 }

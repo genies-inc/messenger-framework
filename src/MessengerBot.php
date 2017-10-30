@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.5.1
+ * @version 1.5.2
  */
 
 namespace  Genies\MessengerFramework;
@@ -66,8 +66,7 @@ class MessengerBot
      * replyTokenを使って追加してきたメッセージを返信する
      *
      * @param String $replyToken
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function reply(String $replyToken)
     {
@@ -78,8 +77,7 @@ class MessengerBot
      * recipientIdに向けて追加してきたメッセージを送信する
      *
      * @param String $recipientId
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function push(String $recipientId)
     {
@@ -320,6 +318,17 @@ class MessengerBot
                 return 'line';
         }
         throw new \LogicException('仕様からここが実行されることはありえません。');
+    }
+
+    /**
+     * 配列をJSONとしてそのまま送る(リクエストは1回)
+     *
+     * @param Array $body
+     * @param string APIからのレスポンス
+     */
+    public function sendRawData(array $body)
+    {
+        return $this->core->sendRawData($body);
     }
 
     // MARK : Private

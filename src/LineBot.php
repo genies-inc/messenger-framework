@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.5.1
+ * @version 1.5.2
  */
 
 namespace Genies\MessengerFramework;
@@ -42,8 +42,7 @@ class LineBot
      * Lineで送信予定のメッセージを返信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function replyMessage(String $to)
     {
@@ -54,8 +53,7 @@ class LineBot
      * Lineで送信予定のメッセージを送信する
      *
      * @param String $to
-     * @return String APIからのレスポンスやCurlのエラーをまとめた配列のJSON
-     * @throws RuntimeException curlの実行時に起きるエラー
+     * @return Bool APIからのレスポンスや通信がエラーかどうか
      */
     public function pushMessage(String $to)
     {
@@ -275,6 +273,26 @@ class LineBot
         array_push($this->_templates, $message);
     }
 
+    /**
+     * MessagingAPIに配列をJSONとしてそのまま送る(PushかReplyは配列の中身に依存)
+     *
+     * @param Array $body
+     * @param string APIからのレスポンス
+     */
+    public function sendRawData(array $body)
+    {
+        if (isset($body['replyToken'])) {
+            $endpoint = $this->_getReplyEndpoint();
+        }
+        if (isset($body['to'])) {
+            $endpoint = $this->_getPushEndpoint();
+        }
+        $res = $this->_httpClient->post($endpoint, [
+            'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
+        ], $body, true);
+        return $res;
+    }
+
     // MARK : Private
 
     private static $_LINE_CHANNEL_SECRET;
@@ -373,11 +391,20 @@ class LineBot
 
     private function _sendMessage(String $endpoint, array $options)
     {
-        $res = $this->_httpClient->post($endpoint, [
-            'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
-        ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
+        try {
+            $res = $this->_httpClient->post($endpoint, [
+                'Authorization' => 'Bearer ' . self::$_LINE_ACCESS_TOKEN
+            ], \array_merge($options, [ 'messages' => $this->_templates ]), true);
+        } catch (\RuntimeException $e) {
+            // XXX: このRuntimeExceptionはCurlのエラー
+            $this->_templates = [];
+            return false;
+        }
         $this->_templates = [];
-        return json_encode($res);
+        if (empty(json_decode($res, true))) {
+            return true;
+        }
+        return false;
     }
 
     private function _buildTemplate(String $altText, array $template)

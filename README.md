@@ -1,6 +1,6 @@
 # messenger-framework
 
-各サービスのMessengerBotのラッパー。バージョン1.5.1
+各サービスのMessengerBotのラッパー。バージョン1.5.2
 
 # 利用時の注意
 
@@ -154,12 +154,11 @@ $bot->addConfirm('確認用のボタンです', [
 ]);
 
 // 返信をする場合
-$res = $bot->reply($event->replyToken);
+$isError = $bot->reply($event->replyToken);
 // プッシュをする場合
-// $res = $bot->push($event->userId);
+// $isError = $bot->push($event->userId);
 
-// APIからのレスポンスが返ってきます
-error_log($res);
+// これらの戻り値はAPIからのレスポンスがエラーであるかどうか
 ```
 
 # 仕様
@@ -275,7 +274,8 @@ FacebookがリトライしたWebhookリクエストを続けざまに受ける�
 とりあえずの策としてCurlにタイムアウトを付けた
 
 一定時間経ったらメッセージ送信の結果を待たずにFacebookのWebhookリクエストのレスポンスを返してしまう。  
-そのときCurlはタイムアウトの例外が起きたことを伝える。  
+そのときCurlはタイムアウトの例外が起きたと例外を投げる。  
+FacebookBotやLineBotのクラス内でその送信は失敗として扱われFalseを返す。  
 メッセージは送信される。
 
 ## Curlクラス

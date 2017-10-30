@@ -29,13 +29,14 @@ namespace MessengerFramework {
     + addButtons(String description, Array buttons)
     + addConfirm(String text, Array buttons)
     + addRawMessage(Array message)
-    + [String|Exception] push(String recipient)
-    + [String|Exception] reply(String replyToken)
+    + bool push(String recipient)
+    + bool reply(String replyToken)
     + stdClass getProfile(String userId)
     + [String:BinaryString] getFilesIn(Event message)
     + String getPlatform()
     + array getMessagePayload()
     + clearMessages()
+    + string sendRawData(string $body)
   }
 
   note top of MessengerBot
@@ -43,8 +44,8 @@ namespace MessengerFramework {
   end note
 
   class FacebookBot {
-    + replyMessage(String to)
-    + pushMessage(String to)
+    + bool replyMessage(String to)
+    + bool pushMessage(String to)
     + testSignature(String requestBody, String signature)
     + parseEvent(String requestBody)
     + stdClass getProfile(String userId)
@@ -58,11 +59,12 @@ namespace MessengerFramework {
     + addRawMessage(Array message)
     + array getMessagePayloads()
     + clearMessages()
+    + string sendRawData(string $body)
   }
 
   class LineBot {
-    + replyMessage(String to)
-    + pushMessage(String to)
+    + bool replyMessage(String to)
+    + bool pushMessage(String to)
     + testSignature(String requestBody, String signature)
     + parseEvent(String requestBody)
     + stdClass getProfile(String userId)
@@ -77,6 +79,7 @@ namespace MessengerFramework {
     + addRawMessage(Array message)
     + array getMessagePayload()
     + clearMessages()
+    + string sendRawData(string $body)
   }
 
   class Curl {

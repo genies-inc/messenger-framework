@@ -5,16 +5,10 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.5.1
+ * @version 1.5.2
  */
 
 namespace Genies\MessengerFramework;
-
-// TODO: ヘッダ情報も含めて返すようにする
-// TODO: Curlの実行時エラーは例外を投げるのではなく、成功時も含めたラップをした結果クラスを用意する
-// なぜならFW一番外側のMessengerBotはプラットフォームに依らない統一的な結果をユーザーに伝えたい
-// またMessengerBotは例外を吸収する必要があり、実行時例外が起きうることを知っている
-// なので各プラットフォームのBotの段階では例外が飛んで来る
 
 /**
  * Curlを扱うラッパークラス
@@ -35,21 +29,20 @@ class Curl
      * 環境変数PROXY_URLがセットされていたらそれをプロキシとして使う
      *
      * @param String $url
-     * @param Array|null $headers
-     * @param Array|null $queryArray
+     * @param Array $headers
+     * @param Array $queryArray
      *
      * @return String レスポンスボディ
+     * @throws RuntimeException curl_exec()時にエラーが発生した時（curl_errno()の戻り値がOK出ない時）
      */
-    public function get(String $url, array $headers = null, array $queryArray = null)
+    public function get(String $url, array $headers = [], array $queryArray = [])
     {
-        if (!is_null($queryArray)) {
-            $query = http_build_query($queryArray);
-            $url .= "?{$query}";
-        }
+        $query = http_build_query($queryArray);
+        $url .= "?{$query}";
         $ch = curl_init($url);
 
         curl_setopt_array($ch, [
-            CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
+            CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPGET => true,
             CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
@@ -74,17 +67,17 @@ class Curl
      * 環境変数PROXY_URLがセットされていたらそれをプロキシとして使う
      *
      * @param String $url
-     * @param Array|null $headers
-     * @param Array|null $bodyArray
+     * @param Array $headers
+     * @param Array $bodyArray
      * @param Bool $isJSON
      *
      * @return String レスポンスボディ
+     * @throws RuntimeException curl_exec()時にエラーが発生した時（curl_errno()の戻り値がOK出ない時）
      */
-    public function post(String $url, array $headers = null, array $bodyArray = null, Bool $isJSON = false)
+    public function post(String $url, array $headers = [], array $bodyArray = [], Bool $isJSON = false)
     {
         $ch = curl_init($url);
         if ($isJSON) {
-            $headers = $headers ?? [];
             $headers['Content-Type'] = 'application/json';
         }
 
@@ -93,7 +86,7 @@ class Curl
         curl_setopt_array($ch, [
             CURLOPT_HTTPHEADER => $this->_toHeaderArray($headers ?? []),
             CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray ?? []) : \http_build_query($bodyArray ?? []),
+            CURLOPT_POSTFIELDS => $isJSON ? json_encode($bodyArray) : \http_build_query($bodyArray),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => self::$_AWAIT_SECOND
         ]);
