@@ -339,7 +339,13 @@ class FacebookBot
                 ],
                 'message' => $template
             ];
-            $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
+            try {
+                $res = $this->_httpClient->post($this->_getMessageEndpoint(), [], $body, true);
+            } catch (\RuntimeException $e) {
+                // XXX: このRuntimeExceptionはCurlのエラー
+                $this->_templates = [];
+                return false;
+            }
             $resObj = json_decode($res, true);
             if (isset($resObj['error'])) {
                 $this->_templates = [];
