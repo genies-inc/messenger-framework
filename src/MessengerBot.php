@@ -326,9 +326,9 @@ class MessengerBot
      * @param Array $body
      * @param string APIからのレスポンス
      */
-    public function sendRawData(array $data)
+    public function sendRawData(array $body)
     {
-        return $this->core->sendRawData($data);
+        return $this->core->sendRawData($body);
     }
 
     // MARK : Private
