@@ -485,6 +485,7 @@ class LineBot
         switch ($source['action']) {
             case 'postback':
                 $action['data'] = $source['data'];
+                $action['displayText'] = $source['title'];
                 break;
             case 'url':
                 $action['uri'] = $source['url'];
