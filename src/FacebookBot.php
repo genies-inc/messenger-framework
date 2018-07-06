@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.5.2
+ * @version 1.6.0
  */
 
 namespace Genies\MessengerFramework;
@@ -520,12 +520,12 @@ class FacebookBot
 
     private function _getMessageEndpoint()
     {
-        return $this->_endPoint . 'v2.10/me/messages' . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
+        return $this->_endPoint . 'v3.0/me/messages' . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
     }
 
     private function _getProfileEndpoint($userId)
     {
-        return $this->_endPoint .'v2.10/' . $userId . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
+        return $this->_endPoint .'v3.0/' . $userId . '?access_token=' . self::$_FACEBOOK_ACCESS_TOKEN;
     }
 
     private function _getKey($url)
