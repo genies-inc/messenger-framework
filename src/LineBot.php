@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.6.0
+ * @version 1.6.1
  */
 
 namespace Genies\MessengerFramework;
@@ -119,7 +119,7 @@ class LineBot
         );
         $rawProfile = json_decode($res);
         $profile = new \stdClass();
-        $profile->name = $rawProfile->displayName;
+        $profile->name = $rawProfile->displayName ?? '';
         $profile->profilePic = $rawProfile->pictureUrl ?? null;
         $profile->rawProfile = $rawProfile;
         return $profile;
@@ -264,6 +264,19 @@ class LineBot
     }
 
     /**
+     * QuickReplyメッセージを送信予定に追加する
+     *
+     * @param String $description ボタンの説明欄
+     * @param Array $items
+     * @param String|null $title ボタン全体のタイトル(任意)
+     * @param String $altText 未対応端末での代替テキスト
+     */
+    public function addQuickReply(String $description, array $items, String $title = null, String $altText = 'メッセージが届いています        (閲覧可能端末から見て下さい)')
+    {
+        array_push($this->_templates, $this->_buildQuickReply($description, $items, $title));
+    }
+
+    /**
      * MessagingAPIのsend message objectと同じキーを持った連想配列を送信予定に追加する
      *
      * @param Array $message
@@ -404,6 +417,9 @@ class LineBot
         if (empty(json_decode($res, true))) {
             return true;
         }
+
+        // Messanger APIからのエラー
+        error_log($res);
         return false;
     }
 
@@ -462,18 +478,42 @@ class LineBot
         return $buttons;
     }
 
+    private function _buildQuickReply(String $description, array $items)
+    {
+        $actions = [];
+        foreach ($items as $item) {
+            $action = $this->_buildAction($item);
+            array_push($actions, ['type' => 'action', 'imageUrl' => '', 'action' => $action]);
+        }
+
+        $quickReply = [
+            'type' => 'text',
+            'text' => $description,
+            'quickReply' => [
+                'items' =>$actions
+            ]
+        ];
+        return $quickReply;
+    }
+
     private function _buildColumn($source)
     {
         $actions = [];
         foreach ($source[3] as $button) {
             array_push($actions, $this->_buildAction($button));
         }
-        return [
-            'thumbnailImageUrl' => $source[2],
-            'title' => $source[0],
-            'text' => $source[1],
-            'actions' => $actions,
-        ];
+
+        $data = [];
+        if ($source[2]) {
+            $data['thumbnailImageUrl'] = $source[2];
+        }
+        if ($source[0]) {
+            $data['title'] = $source[0];
+        }
+        $data['text'] = $source[1];
+        $data['actions'] = $actions;
+
+        return $data;
     }
 
     private function _buildAction($source)
@@ -520,6 +560,6 @@ class LineBot
 
     private function _getContentEndpoint($messageId)
     {
-        return 'https://api.line.me/v2/bot/message/' . $messageId . '/content';
+        return 'https://api-data.line.me/v2/bot/message/' . $messageId . '/content';
     }
 }

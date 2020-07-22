@@ -5,7 +5,7 @@
  * @copyright Genies, Inc. All Rights Reserved
  * @license https://opensource.org/licenses/mit-license.html MIT License
  * @author Rintaro Ishikawa
- * @version 1.6.0
+ * @version 1.6.1
  */
 
 namespace  Genies\MessengerFramework;
@@ -254,6 +254,22 @@ class MessengerBot
                 return $this->core->addButton($description, $buttons);
             case $this->core instanceof LineBot:
                 return $this->core->addButtons($description, $buttons);
+            default:
+                throw new \LogicException('仕様からここが実行されることはありえません。');
+        }
+    }
+
+    /**
+     * クイックリプライを送信予定に追加する
+     *
+     * @param String $description クイックリプライメッセージの説明
+     * @param Array $items クイックリプライメッセージについてくるアイテム
+     */
+    public function addQuickReply(String $description, array $items)
+    {
+        switch (true) {
+            case $this->core instanceof LineBot:
+                return $this->core->addQuickReply($description, $items);
             default:
                 throw new \LogicException('仕様からここが実行されることはありえません。');
         }
